@@ -1,7 +1,7 @@
 """ This script handles all flask routes for the application."""
 import os
-from flask import Flask
-from models import db #, Feedback, Analysis
+from flask import Flask, render_template
+from models import db
 from storage.feedback_storage import FeedbackStorage
 
 app = Flask(__name__)
@@ -16,6 +16,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)  # Link the database and the app.
 
 feedback_storage = FeedbackStorage()
+
+@app.route('/')
+def index():
+    """ Display the main page. """
+    return render_template('index.html')
+
 
 if __name__ == "__main__":
     # One-time creation of database
