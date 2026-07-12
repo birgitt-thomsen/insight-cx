@@ -2,21 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>InsightCX</title>
-
+    <title>insight-cx</title>
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<header>
-    <h1>InsightCX</h1>
-    <p>Every Voice. Every Insight.</p>
+<header class="site-header">
+    <div class="header-content">
+        <h1>insight-cx</h1>
+        <p>Every Voice. Every Insight.</p>
+    </div>
 </header>
 
 <nav>
-    <a href="{{ url_for('index') }}">Dashboard</a>
+    <a href="{{ url_for('index') }}">Dashboard</a><br>
+    <a href="{{ url_for('upload') }}">Upload</a><br>
 </nav>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -33,8 +35,8 @@
     {% block content %}{% endblock %}
 </main>
 
-<footer>
-    &copy; 2026 InsightCX
+<footer class="site-footer">
+    &copy; insight-cx 2026
 </footer>
 
 </body>
