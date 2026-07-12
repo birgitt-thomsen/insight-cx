@@ -2,6 +2,7 @@
 import os
 from flask import Flask
 from models import db #, Feedback, Analysis
+from storage.feedback_storage import FeedbackStorage
 
 app = Flask(__name__)
 
@@ -14,6 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)  # Link the database and the app.
 
+feedback_storage = FeedbackStorage()
 
 if __name__ == "__main__":
     # One-time creation of database
