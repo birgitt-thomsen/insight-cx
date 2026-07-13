@@ -1,0 +1,27 @@
+/* ==========================
+   Global
+========================== */
+body {
+    font-family: "Inter", sans-serif;
+    background: #edf2f4;
+    color: #16365e;
+}
+
+/* ==========================
+   Flash Messaging
+========================== */
+.flash {
+    padding: 12px;
+    margin: 15px 0;
+    border-radius: 6px;
+}
+
+.flash.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.flash.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
