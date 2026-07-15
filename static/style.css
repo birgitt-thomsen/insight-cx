@@ -25,3 +25,120 @@ body {
     background: #fee2e2;
     color: #991b1b;
 }
+
+/* ==========================
+   Dashboard
+========================== */
+
+.dashboard-title {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.dashboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 40px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+/* ==========================
+   Dashboard - Metric Cards
+========================== */
+
+.metric-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.metric-card {
+    background: white;
+    width: 180px;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.metric-card h4 {
+    margin: 0;
+    font-size: 15px;
+    color: #64748b;
+}
+
+.metric-card p {
+    font-size: 34px;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+/* ==========================
+   Dashboard - Shared Panel
+========================== */
+
+.panel {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* ==========================
+   Dashboard - Chart Panel
+========================== */
+.chart-panel {
+    width: 400px;
+}
+
+.chart-container {
+    height: 200px;
+}
+/* ==========================
+   Dashboard - Sentiment Panel
+========================== */
+
+.sentiment-panel {
+    width: 250px;
+}
+
+.sentiment-label {
+    display: flex;
+    align-items: center;
+}
+
+.sentiment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.sentiment-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.green {
+    background: #22c55e;
+}
+
+.yellow {
+    background: #f59e0b;
+}
+
+.red {
+    background: #ef4444;
+}

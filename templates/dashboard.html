@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="dashboard-container">
+
+    <h2 class="dashboard-title">Dashboard</h2>
+
+    <!-- Metric Cards -->
+    <div class="metric-row">
+
+        <div class="metric-card">
+            <h4>Total Feedback</h4>
+            <p>{{ metrics.feedback_count }}</p>
+        </div>
+
+        <div class="metric-card">
+            <h4>NPS Responses</h4>
+            <p>{{ metrics.nps_count }}</p>
+        </div>
+
+        <div class="metric-card">
+            <h4>CSAT Responses</h4>
+            <p>{{ metrics.csat_count }}</p>
+        </div>
+
+        <div class="metric-card">
+            <h4>Average NPS</h4>
+            <p>{{ metrics.avg_nps }}</p>
+        </div>
+
+        <div class="metric-card">
+            <h4>Average CSAT</h4>
+            <p>{{ metrics.avg_csat }}</p>
+        </div>
+
+    </div>
+
+    <!-- Charts Section -->
+    <div class="dashboard-row">
+
+        <!-- Theme Chart -->
+        <div class="panel chart-panel">
+
+            <h3>Top Themes</h3>
+
+            <div class="chart-container">
+                <canvas id="themeChart"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Sentiment -->
+        <div class="panel sentiment-panel">
+
+            <h3>Sentiment Distribution</h3>
+
+            {% for sentiment in sentiments %}
+
+            <div class="sentiment-item">
+
+                <div class="sentiment-label">
+
+                    <span class="sentiment-dot {{ sentiment.color }}"></span>
+
+                    <span>{{ sentiment.label }}</span>
+
+                </div>
+
+                <strong>{{ sentiment.percentage }}%</strong>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Pass Python data to JavaScript -->
+<script>
+    const themeLabels = {{ themes | map(attribute=0) | list | tojson }};
+    const themeCounts = {{ themes | map(attribute=1) | list | tojson }};
+</script>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+
+{% endblock %}

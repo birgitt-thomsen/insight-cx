@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from models import db
 from storage.feedback_storage import FeedbackStorage
 from services.csv_importer import CSVImporter
+from storage.dashboard_storage import DashboardStorage
 
 app = Flask(__name__)
 app.secret_key = '_7#y9P"F4Z8q-v\\wec]/'
@@ -19,15 +20,24 @@ db.init_app(app)  # Link the database and the app.
 
 csv_importer = CSVImporter()
 feedback_storage = FeedbackStorage()
+dashboard_storage = DashboardStorage()
 
 @app.route('/')
-def index():
-    """ Display the main page. """
-    return render_template('index.html')
+def dashboard():
+    """ Display the main dashboard page. """
+    metrics = dashboard_storage.get_dashboard_metrics()
+    themes = dashboard_storage.get_theme_breakdown()
+    sentiments = dashboard_storage.get_sentiment_breakdown()
+    return render_template(
+        "dashboard.html",
+        metrics=metrics,
+        themes=themes,
+        sentiments=sentiments
+    )
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
-    """ Handle upload route. """
+    """ Handle csv upload route. """
     if request.method == "POST":
         try:
             records = csv_importer.import_feedback(
