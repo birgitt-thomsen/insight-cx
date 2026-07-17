@@ -1,13 +1,16 @@
 """ This script handles all flask routes for the application."""
 import os
 from flask import Flask, render_template, request, flash, redirect, url_for
+from dotenv import load_dotenv
 from models import db
 from storage.feedback_storage import FeedbackStorage
 from services.csv_importer import CSVImporter
 from storage.dashboard_storage import DashboardStorage
+from services.ai_service import AIService
 
+load_dotenv() #Load variables from .env
 app = Flask(__name__)
-app.secret_key = '_7#y9P"F4Z8q-v\\wec]/'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 # Define path to database file
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -21,10 +24,12 @@ db.init_app(app)  # Link the database and the app.
 csv_importer = CSVImporter()
 feedback_storage = FeedbackStorage()
 dashboard_storage = DashboardStorage()
+ai = AIService()
 
 @app.route('/')
 def dashboard():
     """ Display the main dashboard page. """
+
     metrics = dashboard_storage.get_dashboard_metrics()
     themes = dashboard_storage.get_theme_breakdown()
     sentiments = dashboard_storage.get_sentiment_breakdown()
@@ -38,6 +43,7 @@ def dashboard():
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
     """ Handle csv upload route. """
+
     if request.method == "POST":
         try:
             records = csv_importer.import_feedback(
@@ -63,6 +69,25 @@ def upload():
 
     return render_template("upload.html")
 
+@app.route("/feedback")
+def feedback():
+    """ Display the feedback page. """
+
+    page = request.args.get(
+        "page",
+        default=1,
+        type=int
+    )
+
+    feedback_page = feedback_storage.get_feedback_page(
+        page=page,
+        per_page=25
+    )
+
+    return render_template(
+        "feedback.html",
+        feedback_page=feedback_page
+    )
 
 if __name__ == "__main__":
     # One-time creation of database

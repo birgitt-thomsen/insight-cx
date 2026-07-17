@@ -1,5 +1,4 @@
 """ This script handles the interaction with the feedback table. """
-from sqlalchemy import insert
 from models import db, Feedback
 
 class FeedbackStorage:
@@ -21,3 +20,25 @@ class FeedbackStorage:
         except Exception:
             db.session.rollback()
             raise
+
+    def get_feedback_page(self, page=1, per_page=25):
+        """
+        Return a paginated list of feedback records.
+
+        Args:
+            page (int): Page number (starting at 1).
+            per_page (int): Number of records per page.
+
+        Returns:
+            Pagination: Flask-SQLAlchemy Pagination object.
+        """
+
+        return (
+            Feedback.query
+            .order_by(Feedback.feedback_date.desc())
+            .paginate(
+                page=page,
+                per_page=per_page,
+                error_out=False
+            )
+        )

@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<table>
+<tr>
+    <th>Customer Name</th>
+    <th>Order Number</th>
+    <th>Survey Type</th>
+    <th>Survey Comment</th>
+    <th>Date</th>
+</tr>
+
+{% for feedback in feedback_page.items %}
+
+<tr>
+    <td>{{ feedback.customer_name }}</td>
+    <td>{{ feedback.order_number }}</td>
+    <td>{{ feedback.survey_type }}</td>
+    <td>{{ feedback.comment }}</td>
+    <td>{{ feedback.feedback_date.strftime("%d %b %Y") }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+<div class="pagination">
+
+    {% if feedback_page.has_prev %}
+        <a href="{{ url_for('feedback', page=feedback_page.prev_num) }}">
+            Previous
+        </a>
+    {% endif %}
+
+    Page {{ feedback_page.page }}
+    of {{ feedback_page.pages }}
+
+    {% if feedback_page.has_next %}
+        <a href="{{ url_for('feedback', page=feedback_page.next_num) }}">
+            Next
+        </a>
+    {% endif %}
+
+</div>
+
+{% endblock %}
