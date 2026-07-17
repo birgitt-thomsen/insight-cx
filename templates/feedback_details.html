@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+
+
+<a class="back-link" href="{{ url_for('feedback') }}">
+    ← Back to Feedback
+</a>
+
+<hr>
+<h3><strong>Details</strong></h3>
+<p>Customer: {{ feedback.customer_name }}</p>
+<p>Customer ID: {{ feedback.customer_id }}</p>
+<p>Order: {{ feedback.order_number }}</p>
+<p>Feedback Date: {{ feedback.feedback_date }}</p>
+<p>Survey: {{ feedback.survey_type }}</p>
+<p>Score: {{ feedback.score }}</p>
+<p>Category: TBD</p>
+
+<hr>
+
+<p>Customer Feedback:</p>
+<p>{{ feedback.comment }}</p>
+
+<hr>
+
+<h3><strong>AI Analysis</strong></h3>
+
+<p>Sentiment: {{ analysis.sentiment }}</p>
+
+<p>Emotions: {{ analysis.emotion }}</p>
+
+<p>Themes</p>
+<ul>
+    {% for theme in analysis.themes %}
+        <li>{{ theme }}</li>
+    {% endfor %}
+</ul>
+
+<p>Priority: {{ analysis.priority }}</p>
+<p>Confidence: {{ analysis.confidence }}</p>
+
+<p>Summary:</p>
+<p>{{ analysis.summary }}</p>
+
+<p>Model: TBD</p>
+<p>Prompt Version: TBD</p>
+<p>Analysis Version: TBD</p>
+<p>Analyzed: {{ analysis.analyzed_at }}</p>
+
+{% endblock %}

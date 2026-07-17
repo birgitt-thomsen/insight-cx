@@ -42,3 +42,11 @@ class FeedbackStorage:
                 error_out=False
             )
         )
+
+    def get_feedback(self, feedback_id):
+        """Return a single feedback item."""
+
+        return db.session.get(
+            Feedback,
+            feedback_id
+        )

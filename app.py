@@ -6,6 +6,7 @@ from models import db
 from storage.feedback_storage import FeedbackStorage
 from services.csv_importer import CSVImporter
 from storage.dashboard_storage import DashboardStorage
+from storage.analysis_storage import AnalysisStorage
 from services.ai_service import AIService
 
 load_dotenv() #Load variables from .env
@@ -24,6 +25,7 @@ db.init_app(app)  # Link the database and the app.
 csv_importer = CSVImporter()
 feedback_storage = FeedbackStorage()
 dashboard_storage = DashboardStorage()
+analysis_storage = AnalysisStorage()
 ai = AIService()
 
 @app.route('/')
@@ -87,6 +89,24 @@ def feedback():
     return render_template(
         "feedback.html",
         feedback_page=feedback_page
+    )
+
+@app.route("/feedback/<int:feedback_id>")
+def feedback_details(feedback_id):
+    """Display a single feedback item and its analysis."""
+
+    feedback = feedback_storage.get_feedback(feedback_id)
+
+    if feedback is None:
+        flash("Feedback not found.", "error")
+        return redirect(url_for("feedback"))
+
+    analysis = analysis_storage.get_analysis(feedback_id)
+
+    return render_template(
+        "feedback_details.html",
+        feedback=feedback,
+        analysis=analysis
     )
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@
     <th>Survey Type</th>
     <th>Survey Comment</th>
     <th>Date</th>
+    <th></th>
 </tr>
 
 {% for feedback in feedback_page.items %}
@@ -18,6 +19,12 @@
     <td>{{ feedback.survey_type }}</td>
     <td>{{ feedback.comment }}</td>
     <td>{{ feedback.feedback_date.strftime("%d %b %Y") }}</td>
+    <td>
+        <a href="{{ url_for('feedback_details',
+                        feedback_id=feedback.id) }}">
+        View Details
+        </a>
+    </td>
 </tr>
 
 {% endfor %}
