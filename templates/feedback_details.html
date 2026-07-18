@@ -47,4 +47,14 @@
 <p>Analysis Version: TBD</p>
 <p>Analyzed: {{ analysis.analyzed_at }}</p>
 
+<form
+    method="POST"
+    action="{{ url_for('reanalyze_feedback',
+                       feedback_id=feedback.id) }}"
+>
+    <button type="submit">
+        Re-analyze Feedback
+    </button>
+</form>
+
 {% endblock %}

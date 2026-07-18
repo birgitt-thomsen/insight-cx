@@ -4,9 +4,9 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
 from models import db
 from storage.feedback_storage import FeedbackStorage
-from services.csv_importer import CSVImporter
 from storage.dashboard_storage import DashboardStorage
 from storage.analysis_storage import AnalysisStorage
+from services.csv_importer import CSVImporter
 from services.analysis_service import AnalysisService
 from services.ai_service import AIService
 
@@ -46,29 +46,44 @@ def dashboard():
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
-    """ Handle csv upload route. """
+    """Handle csv upload route."""
 
     if request.method == "POST":
+
         try:
             records = csv_importer.import_feedback(
                 request.files.get("file")
             )
-            feedback_storage.add_feedback(records)
+
+            # Save feedback records
+            feedback_objects = feedback_storage.add_feedback(
+                records
+            )
+
+            # Analyze newly imported feedback
+            #result = analysis_service.analyze_pending_feedback()
+            result = analysis_service.analyze_feedback_list(feedback_objects)
+
             flash(
-                f"Successfully imported {len(records)} feedback records.",
+                f"Successfully imported {len(feedback_objects)} "
+                f"feedback records. "
+                f"Analyzed {result['processed']} records "
+                f"({result['failed']} failed).",
                 "success",
             )
-        # Show error if raised in csv_importer
+
         except ValueError as e:
             flash(str(e), "error")
 
         except Exception:
             db.session.rollback()
             app.logger.exception("CSV import failed")
+
             flash(
                 "An unexpected error occurred.",
                 "error",
             )
+
         return redirect(url_for("upload"))
 
     return render_template("upload.html")
@@ -97,9 +112,9 @@ def feedback():
 def feedback_details(feedback_id):
     """Display a single feedback item and its analysis."""
 
-    feedback = feedback_storage.get_feedback(feedback_id)
+    feedback_record = feedback_storage.get_feedback(feedback_id)
 
-    if feedback is None:
+    if feedback_record is None:
         flash("Feedback not found.", "error")
         return redirect(url_for("feedback"))
 
@@ -107,8 +122,43 @@ def feedback_details(feedback_id):
 
     return render_template(
         "feedback_details.html",
-        feedback=feedback,
+        feedback=feedback_record,
         analysis=analysis
+    )
+
+@app.route(
+    "/feedback/<int:feedback_id>/reanalyze",
+    methods=["POST"]
+)
+def reanalyze_feedback(feedback_id):
+    """Re-analyze a single feedback record."""
+
+    try:
+        analysis_service.reanalyze(feedback_id)
+
+        flash(
+            "Feedback successfully re-analyzed.",
+            "success"
+        )
+
+    except ValueError as e:
+        flash(str(e), "error")
+
+    except Exception:
+        app.logger.exception(
+            "Failed to re-analyze feedback."
+        )
+
+        flash(
+            "An unexpected error occurred.",
+            "error"
+        )
+
+    return redirect(
+        url_for(
+            "feedback_details",
+            feedback_id=feedback_id
+        )
     )
 
 @app.route("/admin")
@@ -155,6 +205,7 @@ def delete_all_feedback():
     methods=["POST"]
 )
 def reanalyze_all():
+    """Re-analyze all feedback records."""
 
     result = analysis_service.reanalyze_all()
 
