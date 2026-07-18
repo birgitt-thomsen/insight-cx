@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>Administration</h2>
+
+<h3>AI</h3>
+
+<form method="POST" action="{{ url_for('reanalyze_all') }}">
+    <button type="submit">
+        Re-analyze All Feedback
+    </button>
+</form>
+
+<br>
+<hr>
+
+<h3>Database</h3>
+<form method="POST" action="{{ url_for('delete_all_analyses') }}">
+    <button type="submit">
+        Delete All Analyses
+    </button>
+</form>
+
+<br>
+
+<form method="POST" action="{{ url_for('delete_all_feedback') }}">
+    <button type="submit">
+        Delete All Feedback
+    </button>
+</form>
+
+{% endblock %}

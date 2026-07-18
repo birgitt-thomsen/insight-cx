@@ -50,3 +50,33 @@ class FeedbackStorage:
             Feedback,
             feedback_id
         )
+
+    def remove_feedback(self, feedback_id):
+        """Delete a feedback item."""
+
+        feedback = db.session.get(
+            Feedback,
+            feedback_id
+        )
+
+        if feedback is None:
+            return False
+
+        db.session.delete(feedback)
+        db.session.commit()
+
+        return True
+
+    def delete_all(self):
+        """Delete every feedback record."""
+
+        try:
+
+            Feedback.query.delete()
+            db.session.commit()
+
+        except Exception:
+
+            db.session.rollback()
+
+            raise

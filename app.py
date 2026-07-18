@@ -7,6 +7,7 @@ from storage.feedback_storage import FeedbackStorage
 from services.csv_importer import CSVImporter
 from storage.dashboard_storage import DashboardStorage
 from storage.analysis_storage import AnalysisStorage
+from services.analysis_service import AnalysisService
 from services.ai_service import AIService
 
 load_dotenv() #Load variables from .env
@@ -26,6 +27,7 @@ csv_importer = CSVImporter()
 feedback_storage = FeedbackStorage()
 dashboard_storage = DashboardStorage()
 analysis_storage = AnalysisStorage()
+analysis_service = AnalysisService()
 ai = AIService()
 
 @app.route('/')
@@ -108,6 +110,62 @@ def feedback_details(feedback_id):
         feedback=feedback,
         analysis=analysis
     )
+
+@app.route("/admin")
+def admin():
+    """Display the admin page."""
+
+    return render_template("admin.html")
+
+@app.route(
+    "/admin/delete-analyses",
+    methods=["POST"]
+)
+
+def delete_all_analyses():
+    """Delete all analyses stored in the database."""
+
+    analysis_storage.delete_all()
+
+    flash(
+        "All analyses deleted.",
+        "success"
+    )
+
+    return redirect(url_for("admin"))
+
+@app.route(
+    "/admin/delete-feedback",
+    methods=["POST"]
+)
+def delete_all_feedback():
+    """Delete all feedback stored in the database."""
+
+    feedback_storage.delete_all()
+
+    flash(
+        "All feedback deleted.",
+        "success"
+    )
+
+    return redirect(url_for("admin"))
+
+@app.route(
+    "/admin/reanalyze",
+    methods=["POST"]
+)
+def reanalyze_all():
+
+    result = analysis_service.reanalyze_all()
+
+    flash(
+        f"Analysis complete. "
+        f"{result['processed']} processed, "
+        f"{result['failed']} failed.",
+        "success"
+    )
+
+    return redirect(url_for("admin"))
 
 if __name__ == "__main__":
     # One-time creation of database

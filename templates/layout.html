@@ -19,9 +19,27 @@
 
 <nav>
     <p>Menu:</p>
-    <a href="{{ url_for('dashboard') }}">Dashboard</a><br>
-    <a href="{{ url_for('upload') }}">Upload</a><br>
-    <a href="{{ url_for('feedback') }}">Feedback Explorer</a><br><br>
+    <ul>
+        <li>
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('upload') }}">Upload
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('feedback') }}">
+                Feedback Explorer
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('admin') }}">
+            Admin
+            </a>
+        </li>
+    </ul>
 </nav>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -37,6 +55,8 @@
 <main>
     {% block content %}{% endblock %}
 </main>
+
+<br>
 
 <footer class="site-footer">
     &copy; insight-cx 2026
