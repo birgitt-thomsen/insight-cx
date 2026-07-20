@@ -1,0 +1,46 @@
+# GOAL:
+Analyze the following customer feedback.
+
+# GENERAL INSTRUCTIONS:
+- Return ONLY valid JSON.
+- Do not include markdown fences.
+- Do not include explanations.
+
+# OUTPUT SCHEMA:
+{
+  "sentiment": "",
+  "emotion": "",
+  "confidence": 0,
+  "priority": "",
+  "themes": []
+}
+
+
+# TASK 1 (SENTIMENT):
+1. Extract a single sentiment label.
+
+# LABELS:
+Positive, Neutral, Negative, Mixed
+
+# EXAMPLES:
+Input: The service staff is very polite and knowledgeable. They resolved my
+issue in a single contact.
+Output: Positive
+
+Input: I had a horrible experience and will never order from you again.
+Output: Negative
+
+Input: I ordered a desk for my daughter's dorm room.
+Output: Neutral
+
+Input: I absolutely love the chair, but it took forever to arrive.
+Output: Mixed
+
+# TASK 2 (EMOTIONS):
+
+
+
+
+
+CUSTOMER FEEDBACK:
+{{feedback}}

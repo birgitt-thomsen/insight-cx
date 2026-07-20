@@ -4,7 +4,144 @@
 
 <h2>Administration</h2>
 
-<h3>AI</h3>
+<h3>AI Settings</h3>
+
+<hr>
+
+<form
+    method="POST"
+    action="{{ url_for('update_ai_settings') }}"
+>
+
+    <p>
+
+        <label>Model</label><br>
+
+        <select name="model">
+
+            <option
+                value="gpt-5-mini"
+                {% if settings.model == "gpt-5-mini" %}
+                selected
+                {% endif %}
+            >
+                GPT-5-mini
+            </option>
+
+            <option
+                value="gpt-5"
+                {% if settings.model == "gpt-5" %}
+                selected
+                {% endif %}
+            >
+                GPT-5
+            </option>
+
+        </select>
+
+    </p>
+
+    <p>
+
+        <label>System Prompt</label><br>
+
+        <select name="system_prompt">
+
+            {% for version in system_versions %}
+
+            <option
+                value="{{ version }}"
+                {% if version == settings.system_prompt_version %}
+                selected
+                {% endif %}
+            >
+
+                {{ version }}
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+    </p>
+
+    <p>
+
+        <label>Feedback Prompt</label><br>
+
+        <select name="feedback_prompt">
+
+            {% for version in feedback_versions %}
+
+            <option
+                value="{{ version }}"
+                {% if version == settings.feedback_prompt_version %}
+                selected
+                {% endif %}
+            >
+
+                {{ version }}
+
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+    </p>
+
+    <button type="submit">
+
+        Save AI Settings
+
+    </button>
+
+</form>
+
+<hr>
+
+<h3>Current Active Configuration</h3>
+
+<table class="config-table">
+
+    <tr>
+
+        <th>Setting</th>
+
+        <th>Active Value</th>
+
+    </tr>
+
+    <tr>
+
+        <td>Model</td>
+
+        <td>{{ settings.model }}</td>
+
+    </tr>
+
+    <tr>
+
+        <td>System Prompt</td>
+
+        <td>v{{ settings.system_prompt_version }}</td>
+
+    </tr>
+
+    <tr>
+
+        <td>Feedback Prompt</td>
+
+        <td>v{{ settings.feedback_prompt_version }}</td>
+
+    </tr>
+
+</table>
+
+<hr>
+
+<h3>Maintenance</h3>
 
 <form method="POST" action="{{ url_for('reanalyze_all') }}">
     <button type="submit">

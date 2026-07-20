@@ -5,10 +5,12 @@ from dotenv import load_dotenv
 from models import db
 from storage.feedback_storage import FeedbackStorage
 from storage.dashboard_storage import DashboardStorage
+from storage.ai_settings_storage import AISettingsStorage
 from storage.analysis_storage import AnalysisStorage
 from services.csv_importer import CSVImporter
 from services.analysis_service import AnalysisService
 from services.ai_service import AIService
+from services.prompt_service import PromptService
 
 load_dotenv() #Load variables from .env
 app = Flask(__name__)
@@ -27,8 +29,10 @@ csv_importer = CSVImporter()
 feedback_storage = FeedbackStorage()
 dashboard_storage = DashboardStorage()
 analysis_storage = AnalysisStorage()
+ai_settings_storage = AISettingsStorage()
 analysis_service = AnalysisService()
-ai = AIService()
+ai_service = AIService()
+prompt_service = PromptService()
 
 @app.route('/')
 def dashboard():
@@ -61,7 +65,6 @@ def upload():
             )
 
             # Analyze newly imported feedback
-            #result = analysis_service.analyze_pending_feedback()
             result = analysis_service.analyze_feedback_list(feedback_objects)
 
             flash(
@@ -165,13 +168,51 @@ def reanalyze_feedback(feedback_id):
 def admin():
     """Display the admin page."""
 
-    return render_template("admin.html")
+    settings = ai_settings_storage.get_settings()
+
+    system_versions = prompt_service.get_versions("system")
+    feedback_versions = prompt_service.get_versions("feedback")
+
+    return render_template(
+        "admin.html",
+        settings=settings,
+        system_versions=system_versions,
+        feedback_versions=feedback_versions,
+    )
+
+@app.route(
+    "/admin/ai-settings",
+    methods=["POST"]
+)
+def update_ai_settings():
+    """Updates the ai_settings table with a new model, system prompt
+    and/or feedback prompt version."""
+
+    # Call update_settings to save new model and prompt settings
+    ai_settings_storage.update_settings(
+
+        model=request.form["model"],
+        system_prompt_version=request.form[
+            "system_prompt"
+        ],
+        feedback_prompt_version=request.form[
+            "feedback_prompt"
+        ],
+    )
+
+    flash(
+        "AI settings updated.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin")
+    )
 
 @app.route(
     "/admin/delete-analyses",
     methods=["POST"]
 )
-
 def delete_all_analyses():
     """Delete all analyses stored in the database."""
 

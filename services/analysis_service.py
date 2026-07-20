@@ -40,24 +40,33 @@ class AnalysisService:
             "failed": failed,
         }
 
+    def analyze_feedback_list(self, feedback):
+        """
+		Analyze a supplied list of Feedback objects.
+
+		Used immediately after a CSV upload.
+		"""
+
+        return self._process_feedback(feedback)
+
     def analyze_feedback(self, feedback):
         """
-        Analyze a single feedback record.
+		Analyze a single feedback record.
 
-        Used after a CSV upload or when re-analyzing
-        an individual feedback item.
-        """
+		Used after a CSV upload or when re-analyzing
+		an individual feedback item.
+		"""
 
-        analysis = self.ai_service.analyze_feedback(
+        result = self.ai_service.analyze_feedback(
             feedback.comment
         )
 
         self.analysis_storage.save_or_update(
             feedback.id,
-            analysis
+            result
         )
 
-        return analysis
+        return result
 
     def initial_analysis(self):
         """
@@ -110,19 +119,3 @@ class AnalysisService:
         )
 
         return self._process_feedback(feedback_records)
-
-    def _process_feedback(self, feedback_records):
-        processed = 0
-        failed = 0
-
-        for feedback in feedback_records:
-            try:
-                self.analyze_feedback(feedback)
-                processed += 1
-            except Exception:
-                failed += 1
-
-        return {
-            "processed": processed,
-            "failed": failed
-        }
