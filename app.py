@@ -293,6 +293,110 @@ def toggle_sample(feedback_id):
     }
 
 
+@app.route(
+    "/admin/prompt-test",
+    methods=["GET", "POST"]
+)
+
+def prompt_test():
+    """Display the prompt testing page."""
+
+    feedback_id = request.args.get(
+        "feedback_id",
+        type=int
+    )
+
+    feedback = None
+
+    # Single feedback mode
+    if feedback_id:
+
+        feedback = feedback_storage.get_feedback(
+            feedback_id
+        )
+
+        if feedback is None:
+            flash(
+                "Feedback not found.",
+                "error"
+            )
+            return redirect(
+                url_for("feedback")
+            )
+
+    system_versions = (
+        prompt_service.get_versions("system")
+    )
+
+    feedback_versions = (
+        prompt_service.get_versions("feedback")
+    )
+
+    result = None
+
+    if request.method == "POST":
+
+        mode = request.form.get(
+            "mode",
+            "single"
+        )
+
+        model = request.form["model"]
+
+        system_prompt = request.form[
+            "system_prompt"
+        ]
+
+        feedback_prompt = request.form[
+            "feedback_prompt"
+        ]
+
+        # ----------------------------
+        # Single feedback
+        # ----------------------------
+        if mode == "single":
+
+            if feedback is None:
+                flash(
+                    "No feedback selected.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("feedback")
+                )
+
+            result = (
+                analysis_service.test_feedback(
+                    feedback,
+                    model=model,
+                    system_prompt_version=system_prompt,
+                    feedback_prompt_version=feedback_prompt,
+                )
+            )
+
+        # ----------------------------
+        # Benchmark sample
+        # ----------------------------
+        elif mode == "benchmark":
+
+            result = (
+                analysis_service.test_sample(
+                    model=model,
+                    system_prompt_version=system_prompt,
+                    feedback_prompt_version=feedback_prompt,
+                )
+            )
+
+    return render_template(
+        "prompt_test.html",
+        feedback=feedback,
+        system_versions=system_versions,
+        feedback_versions=feedback_versions,
+        result=result,
+    )
+
+
 if __name__ == "__main__":
     # One-time creation of database
     # with app.app_context():

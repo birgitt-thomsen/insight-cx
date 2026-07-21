@@ -1,0 +1,598 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <h2>Prompt Testing</h2>
+
+    <form
+        method="POST"
+        action="{{ url_for(
+            'prompt_test',
+            feedback_id=feedback.id if feedback else None
+        ) }}"
+    >
+
+        {% if feedback %}
+
+            <input
+                type="hidden"
+                name="mode"
+                value="single"
+            >
+
+        {% else %}
+
+            <input
+                type="hidden"
+                name="mode"
+                value="benchmark"
+            >
+
+        {% endif %}
+
+        <div class="panel">
+
+            <h3>Configuration</h3>
+
+            <p>
+
+                <label>Model</label><br>
+
+                <select name="model">
+
+                    <option value="gpt-5-mini">
+                        GPT-5 Mini
+                    </option>
+
+                </select>
+
+            </p>
+
+            <p>
+
+                <label>System Prompt</label><br>
+
+                <select name="system_prompt">
+
+                    {% for version in system_versions %}
+
+                        <option value="{{ version }}">
+                            {{ version }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </p>
+
+            <p>
+
+                <label>Feedback Prompt</label><br>
+
+                <select name="feedback_prompt">
+
+                    {% for version in feedback_versions %}
+
+                        <option value="{{ version }}">
+                            {{ version }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </p>
+
+            <button type="submit">
+
+                Run Prompt Test
+
+            </button>
+
+        </div>
+
+    </form>
+
+    <br>
+
+    {% if feedback %}
+
+        <div class="panel">
+
+            <h3>Selected Feedback</h3>
+
+            <p>
+
+                <strong>ID:</strong>
+
+                {{ feedback.id }}
+
+            </p>
+
+            <p>
+
+                <strong>Survey:</strong>
+
+                {{ feedback.survey_type }}
+
+            </p>
+
+            <p>
+
+                <strong>Score:</strong>
+
+                {{ feedback.score }}
+
+            </p>
+
+            <p>
+
+                <strong>Comment</strong>
+
+            </p>
+
+            <p>
+
+                {{ feedback.comment }}
+
+            </p>
+
+        </div>
+
+    {% else %}
+
+        <div class="panel">
+
+            <h3>Benchmark Sample</h3>
+
+            <p>
+
+                This test evaluates the currently selected
+                benchmark sample.
+
+            </p>
+
+        </div>
+
+    {% endif %}
+
+    {% if result %}
+
+        <br>
+
+        <h2>Evaluation Summary</h2>
+
+        <div class="metric-row">
+
+            <div class="metric-card">
+
+                <h4>Processed</h4>
+
+                <p>{{ result.total }}</p>
+
+            </div>
+
+            <div class="metric-card">
+
+                <h4>Successful</h4>
+
+                <p>{{ result.successful }}</p>
+
+            </div>
+
+            <div class="metric-card">
+
+                <h4>Failed</h4>
+
+                <p>{{ result.failed }}</p>
+
+            </div>
+
+            <div class="metric-card">
+
+                <h4>Avg Confidence</h4>
+
+                <p>
+
+                    {{ result.statistics.average_confidence }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="dashboard-row">
+
+            <div class="panel">
+
+                <h3>Sentiment Distribution</h3>
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Sentiment</th>
+
+                            <th>Count</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for sentiment, count in result.statistics.sentiment.items() %}
+
+                        <tr>
+
+                            <td>{{ sentiment }}</td>
+
+                            <td>{{ count }}</td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="panel">
+
+                <h3>Priority Distribution</h3>
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Priority</th>
+
+                            <th>Count</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for priority, count in result.statistics.priority.items() %}
+
+                        <tr>
+
+                            <td>{{ priority }}</td>
+
+                            <td>{{ count }}</td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="panel">
+
+                <h3>Top Themes</h3>
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Theme</th>
+
+                            <th>Count</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for theme, count in result.statistics.themes %}
+
+                        <tr>
+
+                            <td>{{ theme }}</td>
+
+                            <td>{{ count }}</td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <br>
+
+        <h2>Individual Results</h2>
+
+        {% for item in result.results %}
+
+            <details class="panel">
+
+                <summary>
+
+                    Feedback {{ item.feedback.id }}
+
+                </summary>
+
+                <br>
+
+                <strong>Comment</strong>
+
+                <p>
+
+                    {{ item.feedback.comment }}
+
+                </p>
+
+                {% if item.error %}
+
+                    <strong>Error</strong>
+
+                    <pre>{{ item.error }}</pre>
+
+                {% else %}
+
+                    <strong>Analysis</strong>
+
+                    <h4>
+                        {{ item.changed_fields|length }}
+                        field(s) changed
+                    </h4>
+
+                   <table class="comparison-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Field</th>
+                                <th>Current</th>
+                                <th>Prompt Test</th>
+                                <th>Changed</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr
+                            {% if "sentiment" in item.changed_fields %}
+                            class="changed-row"
+                            {% endif %}
+                            >
+
+                                <td>Sentiment</td>
+
+                                <td>{{ item.current.sentiment }}</td>
+
+                                <td>{{ item.output.sentiment }}</td>
+
+                                <td>
+
+                                    {% if "sentiment" in item.changed_fields %}
+
+                                    class="changed-row"
+
+                                        <span class="changed-check">
+
+                                        ✓
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                            {% if "emotion" in item.changed_fields %}
+                            class="changed-row"
+                            {% endif %}
+                            >
+
+                                <td>Emotion</td>
+
+                                <td>{{ item.current.emotion }}</td>
+
+                                <td>{{ item.output.emotion }}</td>
+
+                                <td>
+
+                                    {% if "emotion" in item.changed_fields %}
+                                        <span class="changed-check">
+                                        ✓
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                            {% if "priority" in item.changed_fields %}
+                            class="changed-row"
+                            {% endif %}
+                            >
+
+                                <td>Priority</td>
+
+                                <td>{{ item.current.priority }}</td>
+
+                                <td>{{ item.output.priority }}</td>
+
+                                <td>
+
+                                    {% if "priority" in item.changed_fields %}
+                                        <span class="changed-check">
+                                        ✓
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                            {% if "confidence" in item.changed_fields %}
+                            class="changed-row"
+                            {% endif %}
+                            >
+
+                                <td>Confidence</td>
+
+                                <td>{{ item.current.confidence }}</td>
+
+                                <td>{{ item.output.confidence }}</td>
+
+                                <td>
+
+                                    {% if "confidence" in
+                                    item.changed_fields %}
+                                        <span class="changed-check">
+                                        ✓
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                            {% if "themes" in item.changed_fields %}
+                            class="changed-row"
+                            {% endif %}
+                            >
+
+                                <td>Themes</td>
+
+                                <td>{{ item.current.themes|join(", ") }}</td>
+
+                                <td>{{ item.output.themes|join(", ") }}</td>
+
+                                <td>
+
+                                    {% if "themes" in item.changed_fields %}
+                                        <span class="changed-check">
+                                        ✓
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                            {% if "summary" in item.changed_fields %}
+                            class="changed-row"
+                            {% endif %}
+                            >
+
+                                <td>Summary</td>
+
+                                <td>{{ item.current.summary }}</td>
+
+                                <td>{{ item.output.summary }}</td>
+
+                                <td>
+
+                                    {% if "summary" in item.changed_fields %}
+                                        <span class="changed-check">
+                                        ✓
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                {% endif %}
+
+            </details>
+
+            <br>
+
+        {% endfor %}
+
+        {% if result.failures %}
+
+            <h3>Failed Items</h3>
+
+            <div class="panel">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Feedback ID</th>
+
+                            <th>Error</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for failure in result.failures %}
+
+                        <tr>
+
+                            <td>
+
+                                {{ failure.feedback_id }}
+
+                            </td>
+
+                            <td>
+
+                                {{ failure.error }}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% endif %}
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
