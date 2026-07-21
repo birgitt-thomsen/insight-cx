@@ -18,7 +18,8 @@ class DashboardStorage:
 
 		# Avg NPS
 		avg_nps = db.session.query(
-			func.avg(Feedback.score)
+			# Set to 0 when no NPS values
+			func.coalesce(func.avg(Feedback.score), 0)
 		).filter_by(
 			survey_type="NPS"
 		).scalar()
@@ -30,7 +31,8 @@ class DashboardStorage:
 
 		# Avg CSAT
 		avg_csat = db.session.query(
-			func.avg(Feedback.score)
+			# Set to 0 when no CSAT values
+			func.coalesce(func.avg(Feedback.score), 0)
 		).filter_by(
 			survey_type="CSAT"
 		).scalar()
