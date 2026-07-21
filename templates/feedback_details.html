@@ -57,4 +57,13 @@
     </button>
 </form>
 
+<a
+    href="{{ url_for(
+        'prompt_test',
+        feedback_id=feedback.id
+    ) }}"
+    class="btn btn-secondary">
+    Test Prompt
+</a>
+
 {% endblock %}
