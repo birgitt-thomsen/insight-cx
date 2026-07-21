@@ -358,38 +358,6 @@ class AnalysisService:
         ) > 0.05:
             changed.append("confidence")
 
-        #
-        # DEBUG THEMES
-        #
-
-        print("\n----- THEMES DEBUG -----")
-
-        print("Feedback ID:", current.feedback_id)
-
-        print("CURRENT THEMES:")
-        print(current.themes)
-        print(type(current.themes))
-
-        print("OUTPUT THEMES:")
-        print(output.get("themes"))
-        print(type(output.get("themes")))
-
-        if current.themes:
-            print(
-                "Current first element:",
-                type(current.themes[0]),
-                current.themes[0]
-            )
-
-        if output.get("themes"):
-            print(
-                "Output first element:",
-                type(output.get("themes")[0]),
-                output.get("themes")[0]
-            )
-
-        print("------------------------")
-
         if set(current.themes) != set(
             output.get("themes", [])
         ):
