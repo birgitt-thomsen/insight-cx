@@ -1,5 +1,6 @@
 """ This script handles the interaction with the feedback table. """
 from models import db, Feedback
+from sqlalchemy import select
 
 class FeedbackStorage:
 
@@ -15,7 +16,8 @@ class FeedbackStorage:
             db.session.add_all(feedback_objects)
             db.session.commit()
 
-            return len(feedback_objects)
+            # IDs are populated after commit
+            return feedback_objects
 
         except Exception:
             db.session.rollback()
@@ -80,3 +82,51 @@ class FeedbackStorage:
             db.session.rollback()
 
             raise
+
+    def get_all_feedback(self):
+        """Return all feedback records."""
+
+        feedback = (
+            select(Feedback)
+            .order_by(Feedback.feedback_date.desc())
+        )
+
+        return db.session.scalars(feedback).all()
+
+
+    def update_test_sample(
+            self,
+            feedback_id,
+            selected
+    ):
+        """
+        Add or remove a feedback item from
+        the benchmark sample.
+        """
+
+        feedback = self.get_feedback(
+            feedback_id
+        )
+
+        if feedback is None:
+            return
+
+        feedback.is_test_sample = selected
+
+        db.session.commit()
+
+        db.session.refresh(feedback)
+
+
+    def get_test_sample(self):
+        """
+        Return all feedback included in the
+        benchmark prompt test sample.
+        """
+
+        return (
+            Feedback.query
+            .filter_by(is_test_sample=True)
+            .order_by(Feedback.feedback_date.desc())
+            .all()
+        )

@@ -1,8 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<div class="panel">
+
+    <strong>Benchmark sample:</strong>
+
+    <span id="sample-count">
+        {{ sample_count }}
+    </span>
+
+    item(s) selected
+
+</div>
+
 <table>
 <tr>
+    <th>Flagged</th>
     <th>Customer Name</th>
     <th>Order Number</th>
     <th>Survey Type</th>
@@ -14,6 +27,23 @@
 {% for feedback in feedback_page.items %}
 
 <tr>
+   <td>
+
+        <input
+            type="checkbox"
+            class="sample-checkbox"
+            data-id="{{ feedback.id }}"
+            {% if feedback.is_test_sample %}
+                checked
+            {% endif %}
+        >
+
+        <span
+            class="save-status"
+            id="status-{{ feedback.id }}"
+        ></span>
+
+    </td>
     <td>{{ feedback.customer_name }}</td>
     <td>{{ feedback.order_number }}</td>
     <td>{{ feedback.survey_type }}</td>
@@ -49,5 +79,83 @@
     {% endif %}
 
 </div>
+
+<a
+    href="{{ url_for('prompt_test') }}"
+    class="btn btn-primary"
+>
+    Evaluate Prompt on Benchmark Sample
+</a>
+
+<script>
+
+document
+    .querySelectorAll(".sample-checkbox")
+    .forEach(function(checkbox) {
+
+        checkbox.addEventListener(
+            "change",
+            function() {
+
+                const checkbox = this;
+                const feedbackId = checkbox.dataset.id;
+                const selected = checkbox.checked;
+
+                const countElement =
+                    document.getElementById("sample-count");
+
+                const status =
+                    document.getElementById(
+                    `status-${feedbackId}`
+                    );
+
+                status.textContent = "Saving...";
+
+                checkbox.disabled = true;
+
+                fetch(
+                    `/feedback/${feedbackId}/sample`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        body:
+                            `selected=${selected}`
+                    }
+                )
+                .then(response => response.json())
+                .then(data => {
+
+                    status.textContent = "✓ Saved";
+
+                    countElement.textContent =
+                        data.sample_count;
+
+                })
+                .catch(error => {
+
+                    console.error(
+                        "Sample update failed:",
+                        error
+                    );
+
+                    // revert checkbox if save failed
+                    checkbox.checked = !selected;
+
+                    status.textContent = "⚠ Failed";
+                })
+                .finally(() => {
+
+                    checkbox.disabled = false;
+
+                });
+
+            }
+        );
+
+    });
+
+</script>
 
 {% endblock %}

@@ -2,14 +2,13 @@
 import os
 from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
-from models import db
+from models import db, Feedback
 from storage.feedback_storage import FeedbackStorage
 from storage.dashboard_storage import DashboardStorage
 from storage.ai_settings_storage import AISettingsStorage
 from storage.analysis_storage import AnalysisStorage
 from services.csv_importer import CSVImporter
 from services.analysis_service import AnalysisService
-from services.ai_service import AIService
 from services.prompt_service import PromptService
 
 load_dotenv() #Load variables from .env
@@ -31,7 +30,6 @@ dashboard_storage = DashboardStorage()
 analysis_storage = AnalysisStorage()
 ai_settings_storage = AISettingsStorage()
 analysis_service = AnalysisService()
-ai_service = AIService()
 prompt_service = PromptService()
 
 @app.route('/')
@@ -106,9 +104,16 @@ def feedback():
         per_page=25
     )
 
+    sample_count = (
+        db.session.query(Feedback)
+        .filter_by(is_test_sample=True)
+        .count()
+    )
+
     return render_template(
         "feedback.html",
-        feedback_page=feedback_page
+        feedback_page=feedback_page,
+        sample_count=sample_count,
     )
 
 @app.route("/feedback/<int:feedback_id>")
@@ -213,6 +218,7 @@ def update_ai_settings():
     "/admin/delete-analyses",
     methods=["POST"]
 )
+
 def delete_all_analyses():
     """Delete all analyses stored in the database."""
 
@@ -229,6 +235,7 @@ def delete_all_analyses():
     "/admin/delete-feedback",
     methods=["POST"]
 )
+
 def delete_all_feedback():
     """Delete all feedback stored in the database."""
 
@@ -245,6 +252,7 @@ def delete_all_feedback():
     "/admin/reanalyze",
     methods=["POST"]
 )
+
 def reanalyze_all():
     """Re-analyze all feedback records."""
 
@@ -258,6 +266,32 @@ def reanalyze_all():
     )
 
     return redirect(url_for("admin"))
+
+@app.post("/feedback/<int:feedback_id>/sample")
+
+def toggle_sample(feedback_id):
+    """Handles check boxes for testing flag."""
+
+    selected = (
+        request.form["selected"]
+        == "true"
+    )
+
+    feedback_storage.update_test_sample(
+        feedback_id,
+        selected
+    )
+
+    sample_count = (
+        Feedback.query
+        .filter_by(is_test_sample=True)
+        .count()
+    )
+
+    return {
+        "sample_count": sample_count
+    }
+
 
 if __name__ == "__main__":
     # One-time creation of database
