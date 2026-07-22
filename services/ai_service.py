@@ -34,6 +34,7 @@ class AIService:
         return {
             "analysis": analysis,
             "model": self.model,
+            "temperature": self.temperature,
             "system_prompt_version": self.system_prompt_version,
             "feedback_prompt_version": self.feedback_prompt_version,
         }
@@ -43,6 +44,7 @@ class AIService:
             self,
             feedback_text: str,
             model=None,
+            temperature=None,
             system_prompt_version=None,
             feedback_prompt_version=None,
     ):
@@ -53,6 +55,7 @@ class AIService:
 
         config = self.prompt_service.get_prompts(
             model=model,
+            temperature=temperature,
             system_prompt_version=system_prompt_version,
             feedback_prompt_version=feedback_prompt_version,
         )
@@ -65,24 +68,31 @@ class AIService:
             )
         )
 
-        response = client.responses.create(
+        request = {
 
-            model=config["model"],
+            "model": config["model"],
 
-            input=[
-
+            "input": [
                 {
                     "role": "system",
                     "content": config["system_prompt"],
                 },
-
                 {
                     "role": "user",
                     "content": user_prompt,
                 },
-
             ],
+        }
 
+        if self._supports_temperature(
+                config["model"]
+        ):
+            request["temperature"] = (
+                config["temperature"]
+            )
+
+        response = client.responses.create(
+            **request
         )
 
         import json
@@ -96,3 +106,16 @@ class AIService:
             raise ValueError(
                 f"AI response was not valid JSON:\n{content}"
             )
+
+    def _supports_temperature(
+            self,
+            model,
+    ):
+        """
+        Return True if the selected model
+        supports the temperature parameter.
+        """
+
+        return not model.startswith(
+            "gpt-5"
+        )

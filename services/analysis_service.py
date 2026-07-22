@@ -113,6 +113,7 @@ class AnalysisService:
             self,
             feedback,
             model=None,
+            temperature=None,
             system_prompt_version=None,
             feedback_prompt_version=None,
     ):
@@ -131,6 +132,7 @@ class AnalysisService:
     def test_sample(
             self,
             model=None,
+            temperature=None,
             system_prompt_version=None,
             feedback_prompt_version=None,
     ):
@@ -146,6 +148,7 @@ class AnalysisService:
         return self._process_prompt_tests(
             feedback_items=feedback_items,
             model=model,
+            temperature=temperature,
             system_prompt_version=system_prompt_version,
             feedback_prompt_version=feedback_prompt_version,
         )
@@ -154,6 +157,7 @@ class AnalysisService:
             self,
             feedback_items,
             model,
+            temperature,
             system_prompt_version,
             feedback_prompt_version,
     ):
@@ -196,6 +200,7 @@ class AnalysisService:
                     output = self.ai_service.test_prompt(
                         feedback.comment,
                         model=model,
+                        temperature=temperature,
                         system_prompt_version=system_prompt_version,
                         feedback_prompt_version=feedback_prompt_version,
                     )

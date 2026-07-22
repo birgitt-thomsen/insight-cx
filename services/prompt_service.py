@@ -46,6 +46,7 @@ class PromptService:
     def get_prompts(
             self,
             model=None,
+            temperature=None,
             system_prompt_version=None,
             feedback_prompt_version=None,
     ):
@@ -58,6 +59,7 @@ class PromptService:
 
         if (
                 model is None
+                or temperature is None
                 or system_prompt_version is None
                 or feedback_prompt_version is None
         ):
@@ -78,6 +80,8 @@ class PromptService:
         return {
 
             "model": model,
+
+            "temperature": temperature,
 
             "system_prompt": self.load(
                 "system",

@@ -17,7 +17,10 @@
 
         <label>Model</label><br>
 
-        <select name="model">
+            <select
+                    id="model"
+                    name="model"
+                >
 
             <option
                 value="gpt-5-mini"
@@ -47,6 +50,31 @@
             </option>
 
         </select>
+
+    </p>
+
+    <p>
+
+        <label>Temperature</label><br>
+
+            <input
+                    id="temperature"
+                    type="number"
+                    name="temperature"
+                    value="{{ settings.temperature }}"
+                    min="0"
+                    max="2"
+                    step="0.1"
+                >
+
+    </p>
+
+     <p
+        id="temperature-note"
+        class="helper-text"
+    >
+
+        Temperature is ignored by GPT-5 models.
 
     </p>
 
@@ -100,6 +128,19 @@
 
     </p>
 
+    <p>
+
+        <label>Release Notes</label><br>
+
+       <textarea
+        name="description"
+        rows="6"
+        placeholder="Describe what changed in this AI configuration. For example: Improved sentiment consistency, refined theme extraction, reduced false High priority classifications."
+        >{{ settings.description }}
+       </textarea>
+
+    </p>
+
     <button type="submit">
 
         Save AI Settings
@@ -110,44 +151,59 @@
 
 <hr>
 
-<h3>Current Active Configuration</h3>
+    <h3>Current Active Configuration</h3>
 
-<table class="config-table">
+    <table class="config-table">
 
-    <tr>
+        <tr>
 
-        <th>Setting</th>
+            <th>Setting</th>
 
-        <th>Active Value</th>
+            <th>Value</th>
 
-    </tr>
+        </tr>
 
-    <tr>
+        <tr>
 
-        <td>Model</td>
+            <td>Model</td>
 
-        <td>{{ settings.model }}</td>
+            <td>{{ settings.model }}</td>
 
-    </tr>
+        </tr>
 
-    <tr>
+        <tr>
 
-        <td>System Prompt</td>
+            <td>Temperature</td>
 
-        <td>v{{ settings.system_prompt_version }}</td>
+            <td>{{ settings.temperature }}</td>
 
-    </tr>
+        </tr>
 
-    <tr>
+        <tr>
 
-        <td>Feedback Prompt</td>
+            <td>System Prompt</td>
 
-        <td>v{{ settings.feedback_prompt_version }}</td>
+            <td>{{ settings.system_prompt_version }}</td>
 
-    </tr>
+        </tr>
 
-</table>
+        <tr>
 
+            <td>Feedback Prompt</td>
+
+            <td>{{ settings.feedback_prompt_version }}</td>
+
+        </tr>
+
+        <tr>
+
+            <td>Release Notes</td>
+
+            <td>{{ settings.description }}</td>
+
+        </tr>
+
+    </table>
 <hr>
 
 <h3>Maintenance</h3>
@@ -175,5 +231,17 @@
         Delete All Feedback
     </button>
 </form>
+
+<script src="{{ url_for('static', filename='js/ai_settings.js') }}"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    updateTemperatureUI(
+        "model",
+        "temperature",
+        "temperature-note"
+    );
+});
+</script>
 
 {% endblock %}

@@ -40,7 +40,10 @@
 
                 <label>Model</label><br>
 
-                <select name="model">
+                <select
+                    id="model"
+                    name="model"
+                >
 
                     <option value="gpt-5-mini">
                         GPT-5 mini
@@ -58,6 +61,30 @@
 
             </p>
 
+            <p>
+
+                <label>Temperature</label><br>
+
+                 <input
+                    id="temperature"
+                    type="number"
+                    name="temperature"
+                    value="{{ settings.temperature }}"
+                    min="0"
+                    max="2"
+                    step="0.1"
+                >
+
+            </p>
+
+            <p
+                id="temperature-note"
+                class="helper-text"
+            >
+
+                Temperature is ignored by GPT-5 models.
+
+            </p>
             <p>
 
                 <label>System Prompt</label><br>
@@ -596,5 +623,16 @@
     {% endif %}
 
 </div>
+
+<script src="{{ url_for('static', filename='js/ai_settings.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    updateTemperatureUI(
+        "model",
+        "temperature",
+        "temperature-note"
+    );
+});
+</script>
 
 {% endblock %}

@@ -197,12 +197,23 @@ def update_ai_settings():
     ai_settings_storage.update_settings(
 
         model=request.form["model"],
+
+        temperature=float(
+            request.form["temperature"]
+        ),
+
         system_prompt_version=request.form[
             "system_prompt"
         ],
+
         feedback_prompt_version=request.form[
             "feedback_prompt"
         ],
+
+        description=request.form[
+            "description"
+        ],
+
     )
 
     flash(
@@ -301,6 +312,8 @@ def toggle_sample(feedback_id):
 def prompt_test():
     """Display the prompt testing page."""
 
+    settings = ai_settings_storage.get_settings()
+
     feedback_id = request.args.get(
         "feedback_id",
         type=int
@@ -343,6 +356,10 @@ def prompt_test():
 
         model = request.form["model"]
 
+        temperature = float(
+            request.form["temperature"]
+        )
+
         system_prompt = request.form[
             "system_prompt"
         ]
@@ -370,6 +387,7 @@ def prompt_test():
                 analysis_service.test_feedback(
                     feedback,
                     model=model,
+                    temperature=temperature,
                     system_prompt_version=system_prompt,
                     feedback_prompt_version=feedback_prompt,
                 )
@@ -383,6 +401,7 @@ def prompt_test():
             result = (
                 analysis_service.test_sample(
                     model=model,
+                    temperature=temperature,
                     system_prompt_version=system_prompt,
                     feedback_prompt_version=feedback_prompt,
                 )
@@ -393,6 +412,7 @@ def prompt_test():
         feedback=feedback,
         system_versions=system_versions,
         feedback_versions=feedback_versions,
+        settings=settings,
         result=result,
     )
 

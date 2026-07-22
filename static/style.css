@@ -142,3 +142,98 @@ body {
 .red {
     background: #ef4444;
 }
+
+/* ==========================
+   Prompt-Test Table
+========================== */
+.helper-text {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.comparison-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.comparison-table th:nth-child(1),
+.comparison-table td:nth-child(1){
+
+    width:15%;
+
+}
+
+.comparison-table th:nth-child(2),
+.comparison-table td:nth-child(2){
+
+    width:35%;
+
+}
+
+.comparison-table th:nth-child(3),
+.comparison-table td:nth-child(3){
+
+    width:35%;
+
+}
+
+.comparison-table th:nth-child(4),
+.comparison-table td:nth-child(4){
+
+    width:15%;
+    text-align:center;
+
+}
+
+.comparison-table th,
+.comparison-table td{
+
+    padding:10px;
+    border:1px solid #ddd;
+    vertical-align:top;
+
+}
+
+.changed-check{
+    color:#28a745;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.changed-row{
+    background:#fff8dc;
+}
+
+/* ==========================
+   Admin - Current Setting Table
+========================== */
+#temperature.readonly-field {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+}
+
+.config-table {
+
+    width: 500px;
+    border-collapse: collapse;
+    margin-top: 15px;
+
+}
+
+.config-table th,
+.config-table td {
+
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+
+}
+
+.config-table th {
+
+    background-color: #f5f5f5;
+    width: 40%;
+
+}
