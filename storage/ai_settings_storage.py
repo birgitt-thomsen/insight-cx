@@ -28,10 +28,12 @@ class AISettingsStorage:
         return settings
 
     def update_settings(
-        self,
-        model,
-        system_prompt_version,
-        feedback_prompt_version,
+            self,
+            model,
+            temperature,
+            system_prompt_version,
+            feedback_prompt_version,
+            description,
     ):
         """
         Update the production AI configuration.
@@ -40,12 +42,18 @@ class AISettingsStorage:
         settings = self.get_settings()
 
         settings.model = model
+
+        settings.temperature = temperature
+
         settings.system_prompt_version = (
             system_prompt_version
         )
+
         settings.feedback_prompt_version = (
             feedback_prompt_version
         )
+
+        settings.description = description
 
         db.session.commit()
 
