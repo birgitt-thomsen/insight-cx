@@ -19,6 +19,28 @@ class CSVImporter:
         "feedback_date",
     }
 
+    def calculate_nps_category(self, score):
+        """Return the NPS category for a score."""
+
+        if score >= 9:
+            return "Promoter"
+
+        if score >= 7:
+            return "Passive"
+
+        return "Detractor"
+
+    def calculate_csat_category(self, score):
+        """Return the CSAT category for a score."""
+
+        if score >= 4:
+            return "Satisfied"
+
+        if score == 3:
+            return "Neutral"
+
+        return "Dissatisfied"
+
     def import_feedback(self, file):
         """Import feedback from a CSV file."""
 
@@ -103,6 +125,16 @@ class CSVImporter:
                 "comment": row["comment"].strip(),
                 "survey_type": row["survey_type"].strip(),
                 "score": score,
+                "nps_category": (
+                    self.calculate_nps_category(score)
+                    if row["survey_type"].strip() == "NPS"
+                    else None
+                ),
+                "csat_category": (
+                    self.calculate_csat_category(score)
+                    if row["survey_type"].strip() == "CSAT"
+                    else None
+                ),
                 "source": row["source"].strip(),
                 "feedback_date": feedback_date,
             })

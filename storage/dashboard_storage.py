@@ -3,7 +3,7 @@ from sqlalchemy import func
 from collections import Counter
 from models import db, Feedback, Analysis
 
-class DashboardStorage:
+class ExecutiveDataService:
 
 	def get_dashboard_metrics(self):
 		""" Return main dashboard metrics. """

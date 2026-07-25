@@ -13,6 +13,15 @@ class Feedback(db.Model):
     comment = db.Column(db.Text, nullable=False)
     survey_type = db.Column(db.String(20), nullable=False)
     score = db.Column(db.Integer, nullable=False)
+
+    nps_category = db.Column(
+        db.String(10)
+    )
+
+    csat_category = db.Column(
+        db.String(10)
+    )
+
     source = db.Column(db.String(50))
 
     feedback_date = db.Column(
@@ -38,7 +47,7 @@ class Feedback(db.Model):
         "Analysis",
         backref="feedback",
         lazy=True
-    )
+)
 
 
 class Analysis(db.Model):
@@ -66,10 +75,16 @@ class Analysis(db.Model):
     )
 
     # Prompt version for re-analysis action
-    prompt_version = db.Column(
-        db.Integer,
+    system_prompt_version = db.Column(
+        db.String(10),
         nullable=False,
-        default=1
+        default="v1"
+    )
+
+    prompt_version = db.Column(
+        db.String(10),
+        nullable=False,
+        default="v1"
     )
 
     #Captures version for re-analysis action
@@ -101,28 +116,48 @@ class AISettings(db.Model):
         primary_key=True
     )
 
-    # Active OpenAI model
-    model = db.Column(
+    # Active feedback model
+    feedback_model = db.Column(
         db.String(50),
         nullable=False,
         default="gpt-5-mini"
     )
 
-    # Active prompt versions
+    # Active system prompt
     system_prompt_version = db.Column(
-        db.Integer,
+        db.String(10),
         nullable=False,
-        default=1
+        default="v1"
     )
 
     feedback_prompt_version = db.Column(
-        db.Integer,
+        db.String(10),
         nullable=False,
-        default=1
+        default="v1"
     )
 
     # Useful for models prior to GTP-5
-    temperature = db.Column(
+    feedback_temperature = db.Column(
+        db.Float,
+        nullable=False,
+        default=0.2
+    )
+
+    # Active executive model
+    executive_model = db.Column(
+        db.String(50),
+        nullable=False,
+        default="gpt-5-mini"
+    )
+
+    executive_prompt_version = db.Column(
+        db.String(10),
+        nullable=False,
+        default="v1"
+    )
+
+    # Active executive temperature (gtp-4 only)
+    executive_temperature = db.Column(
         db.Float,
         nullable=False,
         default=0.2
@@ -139,3 +174,88 @@ class AISettings(db.Model):
         onupdate=datetime.utcnow,
         nullable=False
     )
+
+
+
+class ExecutiveInsight(db.Model):
+    """ Stores execution insights to be displayed in the UI. """
+
+    __tablename__ = "executive_insights"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    period_type = db.Column(db.String(20), nullable=False)
+    # all_time
+    # month
+    # week
+    # custom
+
+    period_start = db.Column(db.Date, nullable=False)
+    period_end = db.Column(db.Date, nullable=False)
+
+    feedback_count = db.Column(db.Integer)
+
+    summary_json = db.Column(db.JSON)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    model = db.Column(db.String(50))
+    prompt_version = db.Column(db.String(10))
+
+
+# class AISettings(db.Model):
+#     """
+#     Stores the active AI configuration used by
+#     the production analysis pipeline.
+#
+#     There should only ever be one row.
+#     """
+#
+#     __tablename__ = "ai_settings"
+#
+#     id = db.Column(
+#         db.Integer,
+#         primary_key=True
+#     )
+#
+#     # Active OpenAI model
+#     model = db.Column(
+#         db.String(50),
+#         nullable=False,
+#         default="gpt-5-mini"
+#     )
+#
+#     # Active prompt versions
+#     system_prompt_version = db.Column(
+#         db.Integer,
+#         nullable=False,
+#         default=1
+#     )
+#
+#     feedback_prompt_version = db.Column(
+#         db.Integer,
+#         nullable=False,
+#         default=1
+#     )
+#
+#     # Useful for models prior to GTP-5
+#     temperature = db.Column(
+#         db.Float,
+#         nullable=False,
+#         default=0.2
+#     )
+#
+#     # Optional metadata
+#     description = db.Column(
+#         db.String(200)
+#     )
+#
+#     updated_at = db.Column(
+#         db.DateTime,
+#         default=datetime.utcnow,
+#         onupdate=datetime.utcnow,
+#         nullable=False
+#     )
