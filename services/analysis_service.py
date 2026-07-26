@@ -125,6 +125,7 @@ class AnalysisService:
         return self._process_prompt_tests(
             feedback_items=[feedback],
             model=model,
+            temperature=temperature,
             system_prompt_version=system_prompt_version,
             feedback_prompt_version=feedback_prompt_version,
         )
@@ -197,7 +198,7 @@ class AnalysisService:
 
                 try:
 
-                    output = self.ai_service.test_prompt(
+                    output = self.ai_service.execute_test_prompt(
                         feedback.comment,
                         model=model,
                         temperature=temperature,
