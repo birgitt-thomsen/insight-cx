@@ -175,87 +175,52 @@ class AISettings(db.Model):
         nullable=False
     )
 
+class ExecutiveInsights(db.Model):
+    """
+    Stores AI-generated executive summaries.
 
-
-class ExecutiveInsight(db.Model):
-    """ Stores execution insights to be displayed in the UI. """
+    Each row represents one generated summary,
+    allowing InsightCX to keep a historical record.
+    """
 
     __tablename__ = "executive_insights"
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    period_type = db.Column(db.String(20), nullable=False)
-    # all_time
-    # month
-    # week
-    # custom
-
-    period_start = db.Column(db.Date, nullable=False)
-    period_end = db.Column(db.Date, nullable=False)
-
-    feedback_count = db.Column(db.Integer)
-
-    summary_json = db.Column(db.JSON)
-
-    created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow
+    id = db.Column(
+        db.Integer,
+        primary_key=True
     )
 
-    model = db.Column(db.String(50))
-    prompt_version = db.Column(db.String(10))
+    input_json = db.Column(
+        db.JSON,
+        nullable=False
+    )
+    
+    # AI-generated summary
 
+    summary_json = db.Column(
+        db.JSON,
+        nullable=False
+    )
 
-# class AISettings(db.Model):
-#     """
-#     Stores the active AI configuration used by
-#     the production analysis pipeline.
-#
-#     There should only ever be one row.
-#     """
-#
-#     __tablename__ = "ai_settings"
-#
-#     id = db.Column(
-#         db.Integer,
-#         primary_key=True
-#     )
-#
-#     # Active OpenAI model
-#     model = db.Column(
-#         db.String(50),
-#         nullable=False,
-#         default="gpt-5-mini"
-#     )
-#
-#     # Active prompt versions
-#     system_prompt_version = db.Column(
-#         db.Integer,
-#         nullable=False,
-#         default=1
-#     )
-#
-#     feedback_prompt_version = db.Column(
-#         db.Integer,
-#         nullable=False,
-#         default=1
-#     )
-#
-#     # Useful for models prior to GTP-5
-#     temperature = db.Column(
-#         db.Float,
-#         nullable=False,
-#         default=0.2
-#     )
-#
-#     # Optional metadata
-#     description = db.Column(
-#         db.String(200)
-#     )
-#
-#     updated_at = db.Column(
-#         db.DateTime,
-#         default=datetime.utcnow,
-#         onupdate=datetime.utcnow,
-#         nullable=False
-#     )
+    # Metadata
+
+    model = db.Column(
+        db.String(50),
+        nullable=False
+    )
+
+    system_prompt_version = db.Column(
+        db.String(10),
+        nullable=False
+    )
+
+    executive_prompt_version = db.Column(
+        db.String(10),
+        nullable=False
+    )
+
+    generated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
