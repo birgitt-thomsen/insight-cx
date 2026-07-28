@@ -4,12 +4,14 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
 from models import db, Feedback
 from storage.feedback_storage import FeedbackStorage
-from storage.dashboard_storage import DashboardStorage
 from storage.ai_settings_storage import AISettingsStorage
 from storage.analysis_storage import AnalysisStorage
+from storage.executive_insights_storage import ExecutiveInsightsStorage
 from services.csv_importer import CSVImporter
 from services.analysis_service import AnalysisService
 from services.prompt_service import PromptService
+from services.executive_data_service import ExecutiveDataService
+from services.executive_summary_service import ExecutiveSummaryService
 
 load_dotenv() #Load variables from .env
 app = Flask(__name__)
@@ -26,24 +28,32 @@ db.init_app(app)  # Link the database and the app.
 
 csv_importer = CSVImporter()
 feedback_storage = FeedbackStorage()
-dashboard_storage = DashboardStorage()
 analysis_storage = AnalysisStorage()
 ai_settings_storage = AISettingsStorage()
+executive_storage = ExecutiveInsightsStorage()
 analysis_service = AnalysisService()
 prompt_service = PromptService()
+executive_data_service = ExecutiveDataService()
+executive_summary_service = ExecutiveSummaryService()
 
-@app.route('/')
+@app.route("/")
 def dashboard():
-    """ Display the main dashboard page. """
+    """
+    Display the Executive Dashboard.
+    """
 
-    metrics = dashboard_storage.get_dashboard_metrics()
-    themes = dashboard_storage.get_theme_breakdown()
-    sentiments = dashboard_storage.get_sentiment_breakdown()
+    latest_summary = (
+        executive_storage.get_latest_summary()
+    )
+
     return render_template(
         "dashboard.html",
-        metrics=metrics,
-        themes=themes,
-        sentiments=sentiments
+        latest_summary=latest_summary,
+        summary=(
+            latest_summary.summary_json
+            if latest_summary
+            else None
+        ),
     )
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -174,15 +184,22 @@ def admin():
     """Display the admin page."""
 
     settings = ai_settings_storage.get_settings()
+    latest_summary = (executive_storage
+        .get_latest_summary()
+    )
 
     system_versions = prompt_service.get_versions("system")
     feedback_versions = prompt_service.get_versions("feedback")
+    executive_versions = prompt_service.get_versions("executive")
 
     return render_template(
         "admin.html",
         settings=settings,
         system_versions=system_versions,
         feedback_versions=feedback_versions,
+        executive_versions=executive_versions,
+        latest_summary=latest_summary,
+
     )
 
 @app.route(
@@ -194,7 +211,7 @@ def update_ai_settings():
     and/or feedback prompt version."""
 
     # Call update_settings to save new model and prompt settings
-    ai_settings_storage.update_settings(
+    ai_settings_storage.update_feedback_settings(
 
         model=request.form["model"],
 
@@ -281,7 +298,7 @@ def reanalyze_all():
 @app.post("/feedback/<int:feedback_id>/sample")
 
 def toggle_sample(feedback_id):
-    """Handles check boxes for testing flag."""
+    """Handles check boxes flagging for testing sample."""
 
     selected = (
         request.form["selected"]
@@ -416,6 +433,85 @@ def prompt_test():
         result=result,
     )
 
+# # TEMPORARY SUMMARY TESTING ROUTE
+# @app.route(
+#     "/admin/generate-summary"
+# )
+# def generate_summary():
+#     """
+#     Generate an executive summary from the
+#     current feedback dataset.
+#     """
+#
+#     summary_data = (
+#         executive_data_service
+#         .build_summary_data()
+#     )
+#
+#     result = (
+#         executive_summary_service
+#         .generate_summary(
+#             summary_data
+#         )
+#     )
+#
+#     print("\n========== EXECUTIVE SUMMARY ==========\n")
+#
+#     print(
+#         json.dumps(
+#             result["summary"],
+#             indent=2
+#         )
+#     )
+#
+#     print("\n======================================\n")
+#
+#     return (
+#         "Executive summary generated. "
+#         "Check the terminal."
+#     )
+
+# FINAL SUMMARY ROUTE
+@app.post("/admin/generate-summary")
+def generate_summary():
+    """
+    Generate and save the latest executive summary.
+    """
+
+    try:
+        selected_model = request.form.get("model")
+
+        if selected_model == "":
+            selected_model = None
+
+        summary_data = (
+            executive_data_service
+            .build_summary_data()
+        )
+
+        result = (
+            executive_summary_service
+            .generate_summary(
+                summary_data,
+                model=selected_model,
+            )
+        )
+
+        flash(
+            "Executive summary generated successfully.",
+            "success"
+        )
+
+    except Exception as e:
+
+        flash(
+            f"Error generating executive summary: {e}",
+            "danger"
+        )
+
+    return redirect(
+        url_for("admin")
+    )
 
 if __name__ == "__main__":
     # One-time creation of database
