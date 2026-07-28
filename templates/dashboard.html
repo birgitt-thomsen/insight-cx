@@ -1,89 +1,732 @@
 {% extends "layout.html" %}
+
 {% block content %}
 
-<div class="dashboard-container">
+{% if not latest_summary %}
 
-    <h2 class="dashboard-title">Dashboard</h2>
+<div class="empty-dashboard">
 
-    <!-- Metric Cards -->
-    <div class="metric-row">
+    <h2>Executive Brief</h2>
 
-        <div class="metric-card">
-            <h4>Total Feedback</h4>
-            <p>{{ metrics.feedback_count }}</p>
+    <p>No executive summary has been generated yet.</p>
+
+    <a
+        href="{{ url_for('admin') }}"
+        class="primary-button"
+    >
+        Generate First Executive Summary
+    </a>
+
+</div>
+
+{% else %}
+
+<div class="executive-dashboard">
+
+<!-- ====================================================== -->
+<!-- HEADER -->
+<!-- ====================================================== -->
+
+<header class="executive-header">
+
+    <div>
+
+        <h1>Executive Brief</h1>
+
+        <p class="subtitle">
+
+            AI-generated Voice of Customer Summary
+
+        </p>
+
+    </div>
+
+    <div class="header-meta">
+
+        <div class="header-stat">
+
+            <span class="meta-label">
+
+                Generated
+
+            </span>
+
+            <strong>
+
+                {{ latest_summary.generated_at.strftime("%d %b %Y %H:%M") }}
+
+            </strong>
+
         </div>
 
-        <div class="metric-card">
-            <h4>NPS Responses</h4>
-            <p>{{ metrics.nps_count }}</p>
+        <div class="header-stat">
+
+            <span class="meta-label">
+
+                Responses
+
+            </span>
+
+            <strong>
+
+                {{ summary.key_metrics.feedback_count }}
+
+            </strong>
+
         </div>
 
-        <div class="metric-card">
-            <h4>CSAT Responses</h4>
-            <p>{{ metrics.csat_count }}</p>
-        </div>
+        <div class="header-stat">
 
-        <div class="metric-card">
-            <h4>Average NPS</h4>
-            <p>{{ metrics.avg_nps }}</p>
-        </div>
+            <span class="meta-label">
 
-        <div class="metric-card">
-            <h4>Average CSAT</h4>
-            <p>{{ metrics.avg_csat }}</p>
+                Confidence
+
+            </span>
+
+            <strong>
+
+                {{ summary.confidence.score }}%
+
+            </strong>
+
         </div>
 
     </div>
 
-    <!-- Charts Section -->
-    <div class="dashboard-row">
+</header>
 
-        <!-- Theme Chart -->
-        <div class="panel chart-panel">
+<!-- ====================================================== -->
+<!-- PERIOD COMPARISON STRIP-->
+<!-- ====================================================== -->
 
-            <h3>Top Themes</h3>
+{% if previous_summary %}
 
-            <div class="chart-container">
-                <canvas id="themeChart"></canvas>
+<section class="comparison-strip">
+
+    <h3>
+
+        Compared with Previous Summary
+
+    </h3>
+
+    <div class="comparison-grid">
+
+        <!-- Overall Health -->
+
+        <div class="comparison-card">
+
+            <div class="trend-{{ summary.customer_health.period_comparison.trend }}">
+
+                {% if summary.customer_health.period_comparison.trend == "up" %}
+                    ▲
+                {% elif summary.customer_health.period_comparison.trend == "down" %}
+                    ▼
+                {% elif summary.customer_health.period_comparison.trend == "stable" %}
+                    ●
+                {% else %}
+                    ★
+                {% endif %}
+
             </div>
+
+            <h4>
+
+                Customer Health
+
+            </h4>
+
+            <p>
+
+                {{ summary.customer_health.period_comparison.summary }}
+
+            </p>
 
         </div>
 
-        <!-- Sentiment -->
-        <div class="panel sentiment-panel">
+        {% for theme in summary.top_themes[:3] %}
 
-            <h3>Sentiment Distribution</h3>
+        <div class="comparison-card">
 
-            {% for sentiment in sentiments %}
+            <div class="trend-{{ theme.period_comparison.trend }}">
 
-            <div class="sentiment-item">
-
-                <div class="sentiment-label">
-
-                    <span class="sentiment-dot {{ sentiment.color }}"></span>
-
-                    <span>{{ sentiment.label }}</span>
-
-                </div>
-
-                <strong>{{ sentiment.percentage }}%</strong>
+                {% if theme.period_comparison.trend == "up" %}
+                    ▲
+                {% elif theme.period_comparison.trend == "down" %}
+                    ▼
+                {% elif theme.period_comparison.trend == "stable" %}
+                    ●
+                {% else %}
+                    ★
+                {% endif %}
 
             </div>
 
-            {% endfor %}
+            <h4>
+
+                {{ theme.theme }}
+
+            </h4>
+
+            <p>
+
+                {{ theme.period_comparison.summary }}
+
+            </p>
 
         </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
+<!-- ====================================================== -->
+<!-- CUSTOMER HEALTH HERO -->
+<!-- ====================================================== -->
+
+<section
+    class="health-banner
+    health-{{ summary.customer_health.color }}"
+>
+
+    <div class="health-status">
+
+        {{ summary.customer_health.status }}
+
+    </div>
+
+    <div class="health-content">
+
+        <h2>
+
+            {{ summary.customer_health.headline }}
+
+        </h2>
+
+        <p>
+
+            {{ summary.business_impact }}
+
+        </p>
+
+    </div>
+
+</section>
+
+<!-- ====================================================== -->
+<!-- THEMES -->
+<!-- ====================================================== -->
+
+<div class="brief-grid">
+
+<section class="brief-card">
+
+<h3>Top Customer Themes</h3>
+
+{% for theme in summary.top_themes %}
+
+<div class="theme-card">
+
+<div class="theme-header">
+
+<div>
+
+<strong>
+
+{{ theme.theme }}
+
+</strong>
+
+</div>
+
+<div>
+
+<span class="theme-count">
+
+{{ theme.count }}
+
+</span>
+
+</div>
+
+</div>
+
+<p>
+
+{{ theme.insight }}
+
+</p>
+
+{% if theme.period_comparison.summary %}
+
+<div
+class="theme-trend
+theme-trend-{{ theme.period_comparison.trend }}"
+>
+
+{% if theme.period_comparison.trend=="up" %}
+
+▲ Increasing
+
+{% elif theme.period_comparison.trend=="down" %}
+
+▼ Improving
+
+{% elif theme.period_comparison.trend=="stable" %}
+
+● Stable
+
+{% else %}
+
+★ New
+
+{% endif %}
+
+</div>
+
+<p class="comparison-text">
+
+{{ theme.period_comparison.summary }}
+
+</p>
+
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+</section>
+
+<!-- ====================================================== -->
+<!-- CUSTOMER SENTIMENT -->
+<!-- ====================================================== -->
+
+<section class="brief-card insight-card">
+
+    <h3>
+
+        Customer Sentiment
+
+    </h3>
+
+    <div class="insight-description">
+
+        <p>
+
+            {{ summary.sentiment_summary.insight }}
+
+        </p>
+
+    </div>
+
+    <!-- Overall Sentiment -->
+
+    <div class="mini-metrics">
+
+        <div class="mini-card positive">
+
+            <h2>
+
+                {{ summary.sentiment_summary.positive_percentage }}%
+
+            </h2>
+
+            <span>
+
+                Positive
+
+            </span>
+
+        </div>
+
+        <div class="mini-card neutral">
+
+            <h2>
+
+                {{ summary.sentiment_summary.mixed_percentage }}%
+
+            </h2>
+
+            <span>
+
+                Mixed
+
+            </span>
+
+        </div>
+
+        <div class="mini-card negative">
+
+            <h2>
+
+                {{ summary.sentiment_summary.negative_percentage }}%
+
+            </h2>
+
+            <span>
+
+                Negative
+
+            </span>
+
+        </div>
+
+    </div>
+
+    <hr class="section-divider">
+
+        <h4 class="emotion-title">
+
+            Dominant Emotions
+
+        </h4>
+
+    <div class="emotion-list">
+
+        {% for emotion in summary.emotion_summary %}
+
+        <div class="emotion-item">
+
+            <div class="emotion-header">
+
+                <span class="emotion-badge">
+
+                    {{ emotion.emotion }}
+
+                </span>
+
+                <span class="emotion-percentage">
+                    {{ emotion.percentage }}%
+                </span>
+
+            </div>
+
+            <p>{{ emotion.business_meaning }}</p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- LEADERSHIP PRIORITIES -->
+<!-- ====================================================== -->
+
+<section class="brief-card">
+
+<h3>Leadership Priorities</h3>
+
+{% for item in summary.leadership_priorities %}
+
+<div class="priority-card">
+
+<div class="priority-header">
+
+<strong>
+
+{{ item.title }}
+
+</strong>
+
+<span
+class="priority-badge
+priority-{{ item.priority|lower }}"
+>
+
+{{ item.priority }}
+
+</span>
+
+</div>
+
+<p>
+
+{{ item.rationale }}
+
+</p>
+
+</div>
+
+{% endfor %}
+
+</section>
+
+<!-- ====================================================== -->
+<!-- EXECUTIVE SUMMARY -->
+<!-- ====================================================== -->
+
+<section class="brief-card">
+
+    <h3>Executive Summary</h3>
+
+    <p class="executive-summary">
+
+        {{ summary.executive_summary }}
+
+    </p>
+
+</section>
+
+<!-- ====================================================== -->
+<!-- ROOT CAUSES / ACTIONS -->
+<!-- ====================================================== -->
+
+<div class="brief-grid">
+
+<section class="brief-card">
+
+<h3>Likely Root Causes</h3>
+
+<ul class="bullet-list">
+
+{% for cause in summary.likely_root_causes %}
+
+<li>
+
+{{ cause.root_cause }}
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+</section>
+
+<section class="brief-card">
+
+<h3>Recommended Actions</h3>
+
+{% for action in summary.recommended_actions %}
+
+<div class="action-item">
+
+<h4>
+
+{{ action.action }}
+
+</h4>
+
+<p>
+
+{{ action.details }}
+
+</p>
+
+<div class="action-meta">
+
+    <div>
+
+        <strong>Priority</strong>
+
+        <span class="priority-badge priority-{{ action.priority|lower }}">
+
+            {{ action.priority }}
+
+        </span>
+
+    </div>
+
+    <div>
+
+        <strong>Owner</strong><br>
+
+        {{ action.owner }}
+
+    </div>
+
+    <div>
+
+        <strong>Timeframe</strong><br>
+
+        {{ action.timeframe }}
 
     </div>
 
 </div>
 
-<!-- Pass Python data to JavaScript -->
-<script>
-    const themeLabels = {{ themes | map(attribute=0) | list | tojson }};
-    const themeCounts = {{ themes | map(attribute=1) | list | tojson }};
-</script>
+<div class="expected-outcome">
 
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<strong>
+
+Expected Outcome
+
+</strong>
+
+<p>
+
+{{ action.expected_outcome }}
+
+</p>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</section>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- CUSTOMER VOICE -->
+<!-- ====================================================== -->
+
+<section class="brief-card">
+
+<h3>Voice of the Customer</h3>
+
+{% for quote in summary.customer_verbatims %}
+
+<div class="quote-card">
+
+    <div class="quote-theme">
+
+        {{ quote.theme }}
+
+    </div>
+
+    <blockquote>
+
+        "{{ quote.comment }}"
+
+    </blockquote>
+
+</div>
+
+{% endfor %}
+
+</section>
+
+<!-- ====================================================== -->
+<!-- EXPERIENCE METRICS -->
+<!-- ====================================================== -->
+
+<div class="brief-grid">
+
+<section class="brief-card insight-card">
+
+<h3>NPS</h3>
+
+<div class="insight-description">
+
+    <p>
+        {{ summary.nps_insight.interpretation }}
+    </p>
+
+</div>
+
+<div class="mini-metrics">
+
+<div class="mini-card">
+
+<h2>
+
+{{ summary.nps_insight.promoter_percentage }}%
+
+</h2>
+
+Promoters
+
+</div>
+
+<div class="mini-card">
+
+<h2>
+
+{{ summary.nps_insight.passive_percentage }}%
+
+</h2>
+
+Passives
+
+</div>
+
+<div class="mini-card">
+
+<h2>
+
+{{ summary.nps_insight.detractor_percentage }}%
+
+</h2>
+
+Detractors
+
+</div>
+
+</div>
+
+</section>
+
+<section class="brief-card insight-card">
+
+<h3>CSAT</h3>
+
+    <div class="insight-description">
+        <p>
+
+        {{ summary.csat_insight.interpretation }}
+
+        </p>
+    </div>
+
+<div class="mini-metrics">
+
+<div class="mini-card">
+
+<h2>
+
+{{ summary.csat_insight.satisfied_percentage }}%
+
+</h2>
+
+Satisfied
+
+</div>
+
+<div class="mini-card">
+
+<h2>
+
+{{ summary.csat_insight.neutral_percentage }}%
+
+</h2>
+
+Neutral
+
+</div>
+
+<div class="mini-card">
+
+<h2>
+
+{{ summary.csat_insight.dissatisfied_percentage }}%
+
+</h2>
+
+Dissatisfied
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+
+{% endif %}
 
 {% endblock %}
