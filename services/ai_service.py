@@ -1,3 +1,5 @@
+"""This script handles the AI call for feedback analysis."""
+
 import json
 import os
 from openai import OpenAI
@@ -15,50 +17,63 @@ class AIService:
     def __init__(self):
         self.prompt_service = PromptService()
 
+    def _supports_temperature(
+            self,
+            model,
+    ):
+        """
+        Return True if the selected model
+        supports the temperature parameter.
+        """
+
+        return not model.startswith(
+            "gpt-5"
+        )
+
     def analyze_feedback(
-        self,
-        feedback_text: str
+            self,
+            feedback_text: str
     ) -> dict:
         """
         Analyze feedback using the current production
         model and prompts.
         """
 
-        response = self.test_prompt(
-            feedback_text
+        config = (
+            self.prompt_service
+            .get_feedback_prompts()
         )
 
-        # return json.loads(response) original version
-        analysis = json.loads(response.output_text)
+        analysis = self.execute_prompt(
+            feedback_text,
+            config
+        )
 
         return {
             "analysis": analysis,
-            "model": self.model,
-            "temperature": self.temperature,
-            "system_prompt_version": self.system_prompt_version,
-            "feedback_prompt_version": self.feedback_prompt_version,
+
+            "model": config["model"],
+
+            "temperature": config["temperature"],
+
+            "system_prompt_version":
+                config["system_prompt_version"],
+
+            "feedback_prompt_version":
+                config["feedback_prompt_version"],
         }
 
-
-    def test_prompt(
+    def execute_prompt(
             self,
             feedback_text: str,
-            model=None,
-            temperature=None,
-            system_prompt_version=None,
-            feedback_prompt_version=None,
+            config: dict,
     ):
         """
-        Execute the active production prompt.
-        Returns parsed model output as a dictionary.
-        """
+        Execute a feedback analysis prompt.
 
-        config = self.prompt_service.get_prompts(
-            model=model,
-            temperature=temperature,
-            system_prompt_version=system_prompt_version,
-            feedback_prompt_version=feedback_prompt_version,
-        )
+        Receives a complete prompt configuration
+        from PromptService.
+        """
 
         user_prompt = (
             config["feedback_prompt"]
@@ -95,27 +110,88 @@ class AIService:
             **request
         )
 
-        import json
-
-        content = response.output_text.strip()
+        content = (
+            response.output_text
+            .strip()
+        )
 
         try:
             return json.loads(content)
 
         except json.JSONDecodeError:
+
             raise ValueError(
                 f"AI response was not valid JSON:\n{content}"
             )
 
-    def _supports_temperature(
+
+    def execute_test_prompt(
             self,
-            model,
+            feedback_text: str,
+            model=None,
+            temperature=None,
+            system_prompt_version=None,
+            feedback_prompt_version=None,
     ):
         """
-        Return True if the selected model
-        supports the temperature parameter.
+        Execute a prompt test with optional overrides.
+
+        Does not save anything.
         """
 
-        return not model.startswith(
-            "gpt-5"
+        config = (
+            self.prompt_service
+            .get_feedback_prompts(
+                model=model,
+                temperature=temperature,
+                system_prompt_version=system_prompt_version,
+                feedback_prompt_version=feedback_prompt_version,
+            )
         )
+
+        return self.execute_prompt(
+            feedback_text,
+            config
+        )
+
+    # def _parse_and_validate_json(self, content: str) -> dict:
+    #     """
+    #     Try to parse the model output as JSON and do a minimal sanity check.
+    #     Raises ValueError if something is clearly wrong.
+    #     """
+    #     try:
+    #         response = json.loads(content)
+    #     except json.JSONDecodeError as e:
+    #         raise ValueError(
+    #             f"Model returned invalid JSON: {e}\nRaw content: {content!r}")
+    #
+    #     # Basic structure check
+    #     required_keys = ["sentiment", "emotion", "confidence", "priority",
+    #                      "themes", "summary"]
+    #     for key in required_keys:
+    #         if key not in response:
+    #             raise ValueError(
+    #                 f"Missing key in JSON output: {key}. Got: {response}")
+    #
+    #     if not isinstance(response["sentiment"], str):
+    #         raise ValueError(
+    #             f"sentiment must be a string, got:"
+    #             f" {type(response['sentiment'])}")
+    #     if not isinstance(response["emotion"], str):
+    #         raise ValueError(
+    #             f"emotion must be a string, got: {type(response['emotion'])}")
+    #     if not isinstance(response["confidence"], (int, float)):
+    #         raise ValueError(
+    #             f"confidence must be a number, got: {type(response['confidence'])}")
+    #     if not isinstance(response["priority"], str):
+    #         raise ValueError(
+    #             f"priority must be a string, got:"
+    #             f" {type(response['priority'])}")
+    #     if not isinstance(response["themes"], list):
+    #         raise ValueError(
+    #             f"themes must be a list, got: {type(response['themes'])}")
+    #     if not isinstance(response["summary"], str):
+    #         raise ValueError(
+    #             f"summary must be a string, got: {type(response['summary'])}")
+    #
+    #     return response
