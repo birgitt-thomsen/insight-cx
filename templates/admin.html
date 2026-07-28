@@ -4,244 +4,537 @@
 
 <h2>Administration</h2>
 
-<h3>AI Settings</h3>
 
-<hr>
+<div class="admin-grid">
+
+
+<!-- ================================================= -->
+<!-- FEEDBACK ANALYSIS CONFIGURATION -->
+<!-- ================================================= -->
+
+<section class="admin-card">
+
+    <h3>Feedback Analysis</h3>
+
+    <form
+        method="POST"
+        action="{{ url_for('update_ai_settings') }}"
+    >
+
+
+        <p>
+
+            <label>Model</label><br>
+
+            <select
+                id="model"
+                name="model"
+            >
+
+                <option
+                    value="gpt-5-mini"
+                    {% if settings.feedback_model == "gpt-5-mini" %}
+                    selected
+                    {% endif %}
+                >
+                    GPT-5 mini
+                </option>
+
+
+                <option
+                    value="gpt-4o-mini"
+                    {% if settings.feedback_model == "gpt-4o-mini" %}
+                    selected
+                    {% endif %}
+                >
+                    GPT-4o mini
+                </option>
+
+
+                <option
+                    value="gpt-4.1-mini"
+                    {% if settings.feedback_model == "gpt-4.1-mini" %}
+                    selected
+                    {% endif %}
+                >
+                    GPT-4.1 mini
+                </option>
+
+            </select>
+
+        </p>
+
+
+
+        <p>
+
+            <label>Temperature</label><br>
+
+            <input
+                id="temperature"
+                type="number"
+                name="temperature"
+                value="{{ settings.feedback_temperature }}"
+                min="0"
+                max="2"
+                step="0.1"
+            >
+
+        </p>
+
+
+        <p
+            id="temperature-note"
+            class="helper-text"
+        >
+            Temperature is ignored by GPT-5 models.
+        </p>
+
+
+
+        <p>
+
+            <label>System Prompt</label><br>
+
+            <select name="system_prompt">
+
+                {% for version in system_versions %}
+
+                <option
+                    value="{{ version }}"
+                    {% if version == settings.system_prompt_version %}
+                    selected
+                    {% endif %}
+                >
+
+                    {{ version }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </p>
+
+
+
+        <p>
+
+            <label>Feedback Prompt</label><br>
+
+            <select name="feedback_prompt">
+
+                {% for version in feedback_versions %}
+
+                <option
+                    value="{{ version }}"
+                    {% if version == settings.feedback_prompt_version %}
+                    selected
+                    {% endif %}
+                >
+
+                    {{ version }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </p>
+
+
+
+        <p>
+
+            <label>Release Notes</label><br>
+
+            <textarea
+                name="description"
+                rows="5"
+                placeholder="Describe what changed in this AI configuration."
+            >{{ settings.description or "" }}</textarea>
+
+        </p>
+
+
+        <button type="submit">
+
+            Save Feedback Settings
+
+        </button>
+
+
+    </form>
+
+</section>
+
+
+
+
+
+<!-- ================================================= -->
+<!-- EXECUTIVE SUMMARY -->
+<!-- ================================================= -->
+
+<section class="admin-card">
+
+
+<h3>Executive Summary</h3>
+
+
+<p>
+Generate an AI-powered summary from your latest
+customer feedback insights.
+</p>
+
+
 
 <form
     method="POST"
-    action="{{ url_for('update_ai_settings') }}"
+    action="{{ url_for('generate_summary') }}"
+    id="generate-summary-form"
 >
 
-    <p>
+    <label>Model</label>
 
-        <label>Model</label><br>
+    <select name="model">
 
-            <select
-                    id="model"
-                    name="model"
-                >
+        <option value="gpt-5-mini">
+            GPT-5 mini
+        </option>
 
-            <option
-                value="gpt-5-mini"
-                {% if settings.model == "gpt-5-mini" %}
-                selected
-                {% endif %}
-            >
-                GPT-5 mini
-            </option>
+        <option value="gpt-4.1-mini">
+            GPT-4.1 mini
+        </option>
 
-            <option
-                value="gpt-4o-mini"
-                {% if settings.model == "gpt-4o-mini" %}
-                selected
-                {% endif %}
-            >
-                GPT‑4o mini
-            </option>
+        <option value="gpt-4o-mini">
+            GPT-4o mini
+        </option>
 
-            <option
-                value="gpt-4.1-mini"
-                {% if settings.model == "gpt-4.1-mini" %}
-                selected
-                {% endif %}
-            >
-                GPT-4.1 mini
-            </option>
+    </select>
 
-        </select>
+    <br><br>
 
-    </p>
-
-    <p>
-
-        <label>Temperature</label><br>
-
-            <input
-                    id="temperature"
-                    type="number"
-                    name="temperature"
-                    value="{{ settings.temperature }}"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                >
-
-    </p>
-
-     <p
-        id="temperature-note"
-        class="helper-text"
+    <button
+        id="generate-summary-button"
+        class="primary-button"
+        type="submit"
     >
 
-        Temperature is ignored by GPT-5 models.
-
-    </p>
-
-    <p>
-
-        <label>System Prompt</label><br>
-
-        <select name="system_prompt">
-
-            {% for version in system_versions %}
-
-            <option
-                value="{{ version }}"
-                {% if version == settings.system_prompt_version %}
-                selected
-                {% endif %}
-            >
-
-                {{ version }}
-
-            </option>
-
-            {% endfor %}
-
-        </select>
-
-    </p>
-
-    <p>
-
-        <label>Feedback Prompt</label><br>
-
-        <select name="feedback_prompt">
-
-            {% for version in feedback_versions %}
-
-            <option
-                value="{{ version }}"
-                {% if version == settings.feedback_prompt_version %}
-                selected
-                {% endif %}
-            >
-
-                {{ version }}
-
-            </option>
-
-            {% endfor %}
-
-        </select>
-
-    </p>
-
-    <p>
-
-        <label>Release Notes</label><br>
-
-       <textarea
-        name="description"
-        rows="6"
-        placeholder="Describe what changed in this AI configuration. For example: Improved sentiment consistency, refined theme extraction, reduced false High priority classifications."
-        >{{ settings.description }}
-       </textarea>
-
-    </p>
-
-    <button type="submit">
-
-        Save AI Settings
+        Generate Executive Summary
 
     </button>
 
 </form>
 
+
+
+
+{% if latest_summary %}
+
+
 <hr>
 
-    <h3>Current Active Configuration</h3>
+
+<h4>Latest Generation</h4>
+
+
+<table class="config-table">
+
+<tr>
+    <th>Generated</th>
+    <td>
+        {{ latest_summary.generated_at.strftime("%d %b %Y %H:%M") }}
+    </td>
+</tr>
+
+
+<tr>
+    <th>Model</th>
+    <td>
+        {{ latest_summary.model }}
+    </td>
+</tr>
+
+
+<tr>
+    <th>Executive Prompt</th>
+    <td>
+        {{ latest_summary.executive_prompt_version }}
+    </td>
+</tr>
+
+
+</table>
+
+
+
+<h4>Summary Preview</h4>
+
+    <h5>Raw Summary JSON</h5>
+
+        <pre class="json-preview">
+            {{ latest_summary.summary_json | tojson(indent=2) }}
+        </pre>
+
+<!--<h5>Overall</h5>-->
+
+<!--<p>-->
+<!--{{ latest_summary.summary_json.overall_summary }}-->
+<!--</p>-->
+
+
+
+<!--<h5>Strengths</h5>-->
+
+<!--<ul>-->
+
+<!--{% for item in latest_summary.summary_json.strengths %}-->
+
+<!--<li>{{ item }}</li>-->
+
+<!--{% endfor %}-->
+
+<!--</ul>-->
+
+
+
+<!--<h5>Risks</h5>-->
+
+<!--<ul>-->
+
+<!--{% for item in latest_summary.summary_json.risks %}-->
+
+<!--<li>{{ item }}</li>-->
+
+<!--{% endfor %}-->
+
+<!--</ul>-->
+
+
+
+<!--<h5>Recommendations</h5>-->
+
+<!--<ul>-->
+
+<!--{% for item in latest_summary.summary_json.recommendations %}-->
+
+<!--<li>{{ item }}</li>-->
+
+<!--{% endfor %}-->
+
+<!--</ul>-->
+
+
+{% else %}
+
+<p>
+No executive summary generated yet.
+</p>
+
+{% endif %}
+
+
+</section>
+
+
+
+<!-- ================================================= -->
+<!-- ACTIVE CONFIGURATIONS -->
+<!-- ================================================= -->
+
+
+<section class="admin-card">
+
+
+<h3>Feedback Configuration</h3>
+
 
     <table class="config-table">
 
         <tr>
-
             <th>Setting</th>
-
             <th>Value</th>
-
         </tr>
 
         <tr>
-
             <td>Model</td>
-
-            <td>{{ settings.model }}</td>
-
+            <td>{{ settings.feedback_model }}</td>
         </tr>
 
         <tr>
-
             <td>Temperature</td>
-
-            <td>{{ settings.temperature }}</td>
-
+            <td>{{ settings.feedback_temperature }}</td>
         </tr>
 
         <tr>
-
             <td>System Prompt</td>
-
             <td>{{ settings.system_prompt_version }}</td>
-
         </tr>
 
         <tr>
-
             <td>Feedback Prompt</td>
-
             <td>{{ settings.feedback_prompt_version }}</td>
-
-        </tr>
-
-        <tr>
-
-            <td>Release Notes</td>
-
-            <td>{{ settings.description }}</td>
-
         </tr>
 
     </table>
-<hr>
 
-<h3>Maintenance</h3>
 
-<form method="POST" action="{{ url_for('reanalyze_all') }}">
-    <button type="submit">
-        Re-analyze All Feedback
-    </button>
-</form>
+</section>
 
-<br>
-<hr>
+<section class="admin-card">
 
-<h3>Database</h3>
-<form method="POST" action="{{ url_for('delete_all_analyses') }}">
-    <button type="submit">
-        Delete All Analyses
-    </button>
-</form>
 
-<br>
+<h3>Executive Configuration</h3>
 
-<form method="POST" action="{{ url_for('delete_all_feedback') }}">
-    <button type="submit">
-        Delete All Feedback
-    </button>
-</form>
+
+<table class="config-table">
+
+
+<tr>
+<th>Setting</th>
+<th>Value</th>
+</tr>
+
+
+<tr>
+<td>Model</td>
+<td>{{ settings.executive_model }}</td>
+</tr>
+
+
+<tr>
+<td>Temperature</td>
+<td>{{ settings.executive_temperature }}</td>
+</tr>
+
+
+<tr>
+<td>System Prompt</td>
+<td>{{ settings.system_prompt_version }}</td>
+</tr>
+
+
+<tr>
+<td>Executive Prompt</td>
+<td>{{ settings.executive_prompt_version }}</td>
+</tr>
+
+
+</table>
+
+</section>
+
+</div>
+
+<!-- ================================================= -->
+<!-- MAINTENANCE -->
+<!-- ================================================= -->
+
+
+<div class="admin-grid">
+
+
+<section class="admin-card">
+
+    <h3>Maintenance</h3>
+
+    <form
+        method="POST"
+        action="{{ url_for('reanalyze_all') }}"
+    >
+
+        <button type="submit">
+            Re-analyze All Feedback
+        </button>
+
+    </form>
+
+</section>
+
+
+
+<section class="admin-card">
+
+    <h3>Database</h3>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('delete_all_analyses') }}"
+    >
+
+        <button type="submit">
+            Delete All Analyses
+        </button>
+
+    </form>
+
+
+    <br>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('delete_all_feedback') }}"
+    >
+
+        <button type="submit">
+            Delete All Feedback
+        </button>
+
+    </form>
+
+
+</section>
+
+
+</div>
+
+
 
 <script src="{{ url_for('static', filename='js/ai_settings.js') }}"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    updateTemperatureUI(
-        "model",
-        "temperature",
-        "temperature-note"
+
+document.addEventListener(
+"DOMContentLoaded",
+function () {
+
+updateTemperatureUI(
+    "model",
+    "temperature",
+    "temperature-note"
+);
+
+const form =
+document.getElementById(
+    "generate-summary-form"
+);
+
+if(form){
+
+    form.addEventListener(
+    "submit",
+    function(){
+
+    const button =
+    document.getElementById(
+        "generate-summary-button"
     );
+
+    button.disabled = true;
+
+    button.innerText =
+    "Generating summary...";
+    });
+}
+
 });
+
 </script>
+
 
 {% endblock %}

@@ -24,3 +24,15 @@ function updateTemperatureUI(modelId, temperatureId, noteId) {
     model.addEventListener("change", refresh);
     refresh();
 }
+
+function disableGenerateSummaryButton() {
+
+    const button = document.getElementById(
+        "generate-summary-button"
+    );
+
+    button.disabled = true;
+
+    button.innerText =
+        "Generating Executive Summary...";
+}
