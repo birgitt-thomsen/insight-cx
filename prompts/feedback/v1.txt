@@ -1,5 +1,11 @@
 # GOAL:
-Analyze the following customer feedback.
+Analyze the following customer feedback to generate the following fields:
+• Sentiment
+• Emotion
+• Themes
+• Priority
+• Confidence
+• Summary
 
 # GENERAL INSTRUCTIONS:
 - Return ONLY valid JSON.
@@ -12,35 +18,304 @@ Analyze the following customer feedback.
   "emotion": "",
   "confidence": 0,
   "priority": "",
-  "themes": []
+  "themes": [],
+  "summary": ""
 }
 
 
-# TASK 1 (SENTIMENT):
-1. Extract a single sentiment label.
 
-# LABELS:
-Positive, Neutral, Negative, Mixed
+# TASK 1 (Sentiment):
+
+Be able to group customer feedback by overall sentiment to analyze trends.
+
+# DECISION RULES:
+- Extract a single sentiment label.
+- Choose the sentiment that best represents the customer's dominant sentiment.
+- Do not infer sentiment that is not reasonably supported by the text.
+- If the feedback contains both positive and negative experiences, select
+"Mixed".
+
+# SENTIMENT LABELS:
+- Positive
+- Neutral
+- Negative
+- Mixed
 
 # EXAMPLES:
-Input: The service staff is very polite and knowledgeable. They resolved my
+Input:
+The service staff is very polite and knowledgeable. They resolved my
 issue in a single contact.
-Output: Positive
+Output:
+Positive
 
-Input: I had a horrible experience and will never order from you again.
-Output: Negative
+Input:
+I had a horrible experience and will never order from you again.
+Output:
+Negative
 
-Input: I ordered a desk for my daughter's dorm room.
-Output: Neutral
+Input:
+I ordered a desk for my daughter's dorm room.
+Output:
+Neutral
 
-Input: I absolutely love the chair, but it took forever to arrive.
-Output: Mixed
+Input:
+I absolutely love the chair, but it took forever to arrive.
+Output:
+Mixed
 
-# TASK 2 (EMOTIONS):
+# TASK 2 (Emotions):
+
+Quantify how customers feel about a product or service to get a better
+understanding of their emotional motivations towards purchasing or using the
+company's services.
+
+# DECISION RULES:
+- Select exactly one emotion with the strongest evidence.
+- If multiple emotions are present, choose the one that motivates the
+customer's overall message.
+- Base your decision on the entire feedback, not isolated phrases.
+- If the feedback is purely factual with no discernible emotion, return
+"Trust" when the tone is clearly confident; otherwise return the
+emotion that is most directly supported by the wording.
+
+# EMOTION LABELS:
+- Joyous
+- Trusting
+- Relieved
+- Excited
+- Anxious
+- Frustrated
+- Angry
+- Disappointed
+
+# EXAMPLES:
+Input:
+"The package arrived two weeks late and nobody answered my emails."
+Output:
+Angry
+
+Input:
+"I was worried it wouldn't arrive before my trip, but it did."
+Output:
+Relief
+
+Input:
+"I absolutely love this product."
+Output:
+Joyous
+
+Input:
+"I wasn't expecting such fast delivery!"
+Output:
+Excited
+
+
+# TASK 3 (Themes):
+
+The goal is to understand customers' area of concerns.
+
+# DECISION RULES:
+- Select between 1 and 3 themes that represent the customer's feedback.
+- If there is no matching theme, create a maximum of one new theme
+that best represents the customer's feedback.
+
+# OUTPUT:
+Product
+- Comfort
+- Durability
+- Design & Style
+- Size & Fit
+- Materials
+- Value for Money
+- Product Availability
+Ordering
+- Website Experience
+- Product Information
+- Pricing & Promotions
+Delivery
+- Delivery Speed
+- Delivery Scheduling
+- Delivery Condition
+- Order Accuracy
+Assembly
+- Ease of Assembly
+- Installation Service
+Customer Service
+- Staff Friendliness
+- Staff Knowledge
+- Responsiveness
+- Issue Resolution
+- Communication
+Returns & Warranty
+- Returns Process
+- Warranty & Replacements
+Brand
+- Overall Experience
+- Brand Trust
+- Recommendation & Loyalty
+
+# EXAMPLES:
+Input:
+The checkout kept failing, and I had to enter my payment details three times.
+Output:
+Website Experience
+
+Input:
+My order arrived five days later than promised, and nobody updated me.
+Output:
+Delivery Speed, Communication
+
+Input:
+The assembly instructions were confusing, and it took us nearly four hours to put the wardrobe together.
+Output:
+Ease of Assembly
+
+
+# TASK 4 (Priority):
+
+Determine the priority level of the customer's feedback. Priority reflects how
+urgently the business should respond based on the customer's experience and the
+potential business impact.
+
+# DECISION RULES:
+- Evaluate the overall customer experience.
+- Consider both the severity of the issue and the customer's language.
+- If multiple issues are mentioned, base the priority on the most serious issue.
+- Do not increase priority solely because the customer uses emotional language.
+- Suggestions without significant problems should generally be Low priority.
+
+# PRIORITY LEVELS:
+High
+- The customer experiences an ongoing issue that the customer feels was not
+resolved.
+- The customer experienced a serious issue such as unresolved complaints,
+safety concerns, repeated service failures, or requests for immediate
+assistance.
+- The issue significantly impacts the customer's ability to use or enjoy the product or service.
+- The customer expresses a strong likelihood of not returning, cancelling, or discouraging others.
+
+Medium
+- The customer experienced a noticeable problem, but it is not critical.
+- The issue negatively affected the experience but is likely recoverable.
+- Examples include delayed delivery, confusing assembly instructions, inaccurate website information, or average customer service.
+
+Low
+- The feedback is primarily positive.
+- The customer makes a suggestion for improvement.
+- The issue is minor and does not significantly impact the overall experience.
+
+# OUTPUT:
+Return exactly one of:
+- High
+- Medium
+- Low
+
+# EXAMPLES:
+Input:
+The dresser arrived broken and I still haven't received a replacement.
+Output: High
+
+Input:
+Delivery was a few days late, but everything else was fine.
+Output:
+Medium
+
+Input:
+Love the sofa! It would be nice if it came in more colors.
+Output:
+Low
+
+Input:
+I've contacted support three times and nobody has responded.
+Output:
+High
+
+Input:
+The instructions could be a little clearer.
+Output:
+Low
 
 
 
+# TASK 5 (Confidence):
 
+Determine your confidence in the primary classification of this customer feedback.
+Confidence measures how clearly the customer expresses a single, identifiable topic.
+
+# DECISION RULES:
+- Confidence measures the certainty of your classification, not the customer's certainty.
+- Do not lower confidence simply because the customer expresses multiple opinions if one classification is clearly dominant.
+- Do lower confidence when multiple classifications are equally supported.
+- Short feedback should not automatically receive a low confidence score. For example, "The sofa arrived damaged." should receive a very high confidence.
+- Long feedback should not automatically receive a high confidence score. Length does not imply clarity.
+- Do not consider whether the feedback is positive or negative.
+- Do not consider the severity or business impact of the issue.
+- Base the score solely on the clarity and specificity of the evidence in the feedback.
+
+# CONFIDENCE LEVELS
+Return an integer from 0 to 1 representing your confidence that the primary classification is correct.
+
+1
+- The feedback clearly expresses a single, unmistakable classification.
+- There are no competing interpretations.
+
+0.90–0.99
+- The classification is very clear.
+- Minor ambiguity exists, but it does not materially affect the decision.
+
+0.75–0.89
+- One classification is the best fit, but one or two alternatives are plausible.
+- Some interpretation is required.
+
+0.50–0.74
+- Multiple classifications are reasonably supported.
+- The selected classification is only moderately more likely than the alternatives.
+
+0.25–0.49
+- The feedback is vague, incomplete, or contains conflicting information.
+- Several classifications are equally plausible.
+
+0.1–0.24
+- There is insufficient information to confidently determine a classification.
+- The selection is largely speculative.
+
+0
+- The feedback contains no information relevant to the requested classification.
+- A classification cannot reasonably be determined.
+
+
+
+# TASK 6 (Summary):
+
+Summarize the customer feedback in one sentence by capturing only the
+business-relevant information.
+The summary should help a business quickly understand what the customer
+experienced, what worked well, what did not, and any requested improvements.
+
+# DECISION RULES:
+- Write a concise summary of one sentence, for longer, complex feedback use two
+ sentences.
+- Focus on the key experience rather than conversational details.
+- Write objectively from a business perspective rather than from the customer's perspective.
+- Emphasize if the customer refers to an ongoing and yet unresolved issue.
+- Include any requested action or desired outcome if stated.
+- If multiple issues are mentioned, prioritize the issue with the greatest impact on the customer's experience.
+
+# EXAMPLES:
+Input:
+Returning my order was simple, but waiting for the refund was frustrating.
+Output:
+Customer found returns easy but refund timing reduced satisfaction.
+
+Input:
+I still don't know if my issue has been resolved because nobody followed up with me.
+Output:
+Lack of follow-up left the customer uncertain whether the issue was resolved.
+
+# OUTPUT:
+Return only the summary.
 
 CUSTOMER FEEDBACK:
 {{feedback}}
+
+

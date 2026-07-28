@@ -1,0 +1,57 @@
+Analyze the following customer feedback.
+
+Determine:
+
+• sentiment
+• emotion
+• themes
+• priority
+• confidence
+• summary
+
+Business Rules
+
+Sentiment must be one of:
+- Positive
+- Neutral
+- Negative
+- Mixed
+
+Priority must be one of:
+- Low
+- Medium
+- High
+
+Themes should come from this list whenever possible:
+
+- Delivery
+- Product Quality
+- Returns
+- Payment/Billing
+- Website Experience
+- Agent Helpfulness
+- Resolution Effectiveness
+- Communication
+- Empathy
+- Wait Time
+- Policies
+- Transfers
+- Issue Ownership
+- Follow-up
+- Professionalism
+- Brand Loyalty
+
+Return ONLY this JSON:
+
+{
+  "sentiment": "",
+  "emotion": "",
+  "themes": [],
+  "priority": "",
+  "confidence": 0.0,
+  "summary": ""
+}
+
+Customer Feedback:
+
+{{feedback}}
