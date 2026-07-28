@@ -217,6 +217,22 @@
 </section>
 
 <!-- ====================================================== -->
+<!-- EXECUTIVE SUMMARY -->
+<!-- ====================================================== -->
+
+<section class="brief-card">
+
+    <h3>Executive Summary</h3>
+
+    <p class="executive-summary">
+
+        {{ summary.executive_summary }}
+
+    </p>
+
+</section>
+
+<!-- ====================================================== -->
 <!-- THEMES -->
 <!-- ====================================================== -->
 
@@ -460,47 +476,153 @@ priority-{{ item.priority|lower }}"
 
 </section>
 
-<!-- ====================================================== -->
-<!-- EXECUTIVE SUMMARY -->
-<!-- ====================================================== -->
-
-<section class="brief-card">
-
-    <h3>Executive Summary</h3>
-
-    <p class="executive-summary">
-
-        {{ summary.executive_summary }}
-
-    </p>
-
-</section>
 
 <!-- ====================================================== -->
-<!-- ROOT CAUSES / ACTIONS -->
+<!-- AI INVESTIGATION -->
 <!-- ====================================================== -->
 
 <div class="brief-grid">
 
 <section class="brief-card">
 
-<h3>Likely Root Causes</h3>
+    <h3>
 
-<ul class="bullet-list">
+        AI Investigation
 
-{% for cause in summary.likely_root_causes %}
+    </h3>
 
-<li>
+    {% for finding in summary.ai_investigation %}
 
-{{ cause.root_cause }}
+    <div class="investigation-card">
 
-</li>
+        <!-- Header -->
 
-{% endfor %}
+        <div class="investigation-header">
 
-</ul>
+            <div>
+
+                <h4>
+
+                    {{ finding.hypothesis }}
+
+                </h4>
+
+                <p class="investigation-summary">
+
+                    {{ finding.summary }}
+
+                </p>
+
+            </div>
+
+            <div
+                class="confidence-badge
+                confidence-{{ finding.confidence.level|lower }}"
+            >
+
+                <span>
+
+                    Confidence
+
+                </span>
+
+                <strong>
+
+                    {{ finding.confidence.level }}
+
+                </strong>
+
+                <small>
+
+                    {{ finding.confidence.score }}%
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <!-- Evidence -->
+
+        <div class="investigation-section">
+
+            <h5>
+
+                Why the AI believes this
+
+            </h5>
+
+            <ul class="evidence-list">
+
+            {% for evidence in finding.evidence %}
+
+            <li>
+
+                <span class="evidence-icon">
+
+                    ✓
+
+                </span>
+
+                <span>
+
+                    {{ evidence }}
+
+                </span>
+
+            </li>
+
+            {% endfor %}
+
+            </ul>
+
+        </div>
+
+        <!-- Business Risk -->
+
+        <div class="investigation-section">
+
+            <h5>
+
+                Business Risk
+
+            </h5>
+
+            <p>
+
+                {{ finding.business_risk }}
+
+            </p>
+
+        </div>
+
+        <!-- Validation -->
+
+        <div class="investigation-section validation">
+
+            <h5>
+
+                Recommended Validation
+
+            </h5>
+
+            <p>
+
+                {{ finding.recommended_validation }}
+
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
 
 </section>
+
+<!-- ====================================================== -->
+<!-- RECOMMENDATIONS -->
+<!-- ====================================================== -->
 
 <section class="brief-card">
 
@@ -725,7 +847,6 @@ Dissatisfied
 </div>
 
 </div>
-
 
 {% endif %}
 

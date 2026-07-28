@@ -24,15 +24,22 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                         "amber",
                         "red"
                     ],
-                    "description": "Dashboard color matching the customer health status."
+                    "description": (
+                        "Dashboard color matching the customer health status."
+                    )
                 },
                 "headline": {
                     "type": "string",
-                    "description": "Executive headline summarizing overall customer health in 8–15 words."
+                    "description": (
+                        "Executive headline summarizing overall "
+                        "customer health in 8–15 words."
+                    )
                 },
                 "period_comparison": {
                     "type": "object",
-                    "description": "Comparison with the previous reporting period.",
+                    "description": (
+                        "Comparison with the previous reporting period."
+                    ),
                     "properties": {
                         "trend": {
                             "type": "string",
@@ -42,11 +49,18 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                                 "stable",
                                 "unknown"
                             ],
-                            "description": "Overall customer health trend compared with the previous reporting period."
+                            "description": (
+                                "Overall customer health trend "
+                                "compared with the previous reporting period."
+                            )
                         },
                         "summary": {
                             "type": "string",
-                            "description": "One sentence (15–30 words) explaining how customer health changed compared with the previous reporting period."
+                            "description": (
+                                "One sentence (15–30 words) explaining how "
+                                "customer health changed compared with the "
+                                "previous reporting period."
+                            )
                         }
                     },
                     "required": [
@@ -66,11 +80,17 @@ EXECUTIVE_SUMMARY_SCHEMA = {
         },
         "executive_summary": {
             "type": "string",
-            "description": "Executive overview of the current customer experience in approximately 80–120 words."
+            "description": (
+                "Executive overview of the current customer "
+                "experience in approximately 80–120 words."
+            )
         },
         "business_impact": {
             "type": "string",
-            "description": "Business-focused explanation of the operational or commercial impact in approximately 40–70 words."
+            "description": (
+                "Business-focused explanation of the operational or commercial "
+                "impact in approximately 40–70 words."
+            )
         },
         "top_themes": {
             "type": "array",
@@ -79,11 +99,16 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "properties": {
                     "theme": {
                         "type": "string",
-                        "description": "Name of the customer feedback theme."
+                        "description": (
+                            "Name of the customer feedback theme."
+                        )
                     },
                     "count": {
                         "type": "integer",
-                        "description": "Number of customer feedback records assigned to this theme."
+                        "description": (
+                            "Number of customer feedback records assigned to "
+                            "this theme."
+                        )
                     },
                     "priority": {
                         "type": "string",
@@ -92,15 +117,23 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                             "Medium",
                             "Low"
                         ],
-                        "description": "Business priority based on customer impact rather than frequency."
+                        "description": (
+                            "Business priority based on customer impact "
+                            "rather than frequency."
+                        )
                     },
                     "insight": {
                         "type": "string",
-                        "description": "Business insight explaining why this theme matters in approximately 20–35 words."
+                        "description": (
+                            "Business insight explaining why "
+                            "this theme matters in approximately 20–35 words."
+                        )
                     },
                     "period_comparison": {
                         "type": "object",
-                        "description": "Comparison with the previous reporting period.",
+                        "description": (
+                            "Comparison with the previous reporting period."
+                        ),
                         "properties": {
                             "trend": {
                                 "type": "string",
@@ -111,11 +144,19 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                                     "new",
                                     "unknown"
                                 ],
-                                "description": "Whether this theme increased, decreased, remained stable or is new compared with the previous reporting period."
+                                "description": (
+                                    "Whether this theme increased, decreased, "
+                                    "remained stable or is new compared with "
+                                    "the previous reporting period."
+                                )
                             },
                             "summary": {
                                 "type": "string",
-                                "description": "One sentence (15–30 words) summarizing how this theme changed compared with the previous reporting period."
+                                "description": (
+                                    "One sentence (15–30 words) summarizing how "
+                                    "this theme changed compared with the "
+                                    "previous reporting period."
+                                )
                             }
                         },
                         "required": [
@@ -140,23 +181,34 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             "properties": {
                 "overall": {
                     "type": "string",
-                    "description": "Overall sentiment classification."
+                    "description": (
+                        "Overall sentiment classification."
+                    )
                 },
                 "positive_percentage": {
                     "type": "number",
-                    "description": "Percentage of positive feedback."
+                    "description": (
+                        "Percentage of positive feedback."
+                    )
                 },
                 "mixed_percentage": {
                     "type": "number",
-                    "description": "Percentage of mixed or neutral feedback."
+                    "description": (
+                        "Percentage of mixed or neutral feedback."
+                    )
                 },
                 "negative_percentage": {
                     "type": "number",
-                    "description": "Percentage of negative feedback."
+                    "description": (
+                        "Percentage of negative feedback."
+                    )
                 },
                 "insight": {
                     "type": "string",
-                    "description": "Business interpretation of the sentiment distribution in approximately 20–35 words."
+                    "description": (
+                        "Business interpretation of the sentiment distribution "
+                        "in approximately 20–35 words."
+                    )
                 }
             },
             "required": [
@@ -175,15 +227,23 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "properties": {
                     "emotion": {
                         "type": "string",
-                        "description": "Name of the customer emotion."
+                        "description": (
+                            "Name of the customer emotion."
+                        )
                     },
                     "percentage": {
                         "type": "number",
-                        "description": "Percentage of feedback items expressing this emotion."
+                        "description": (
+                            "Percentage of feedback items expressing this "
+                            "emotion."
+                        )
                     },
                     "business_meaning": {
                         "type": "string",
-                        "description": "Business interpretation of why this emotion matters in approximately 15–30 words."
+                        "description": (
+                            "Business interpretation of why this emotion "
+                            "matters in approximately 15–30 words."
+                        )
                     }
                 },
                 "required": [
@@ -201,7 +261,9 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "properties": {
                     "title": {
                         "type": "string",
-                        "description": "Short title describing the leadership priority."
+                        "description": (
+                            "Short title describing the leadership priority."
+                        )
                     },
                     "priority": {
                         "type": "string",
@@ -210,11 +272,17 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                             "Medium",
                             "Low"
                         ],
-                        "description": "Business priority level."
+                        "description": (
+                            "Business priority level."
+                        )
                     },
                     "rationale": {
                         "type": "string",
-                        "description": "Business justification in approximately 20–40 words explaining why leadership should prioritize this issue."
+                        "description": (
+                            "Business justification in approximately "
+                            "20–40 words explaining why leadership should "
+                            "prioritize this issue."
+                        )
                     }
                 },
                 "required": [
@@ -232,11 +300,16 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "properties": {
                     "action": {
                         "type": "string",
-                        "description": "Short action title."
+                        "description": (
+                            "Short action title."
+                        )
                     },
                     "details": {
                         "type": "string",
-                        "description": "Specific recommended action in approximately 30–60 words."
+                        "description": (
+                            "Specific recommended action in approximately "
+                            "30–60 words."
+                        )
                     },
                     "priority": {
                         "type": "string",
@@ -245,19 +318,29 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                             "Medium",
                             "Low"
                         ],
-                        "description": "Business priority level."
+                        "description": (
+                            "Business priority level."
+                        )
                     },
                     "owner": {
                         "type": "string",
-                        "description": "Business function responsible for implementing the action."
+                        "description": (
+                            "Business function responsible for implementing "
+                            "the action."
+                        )
                     },
                     "timeframe": {
                         "type": "string",
-                        "description": "Recommended implementation timeframe."
+                        "description": (
+                            "Recommended implementation timeframe."
+                        )
                     },
                     "expected_outcome": {
                         "type": "string",
-                        "description": "Expected business or customer outcome in approximately 15–30 words."
+                        "description": (
+                            "Expected business or customer outcome in "
+                            "approximately 15–30 words."
+                        )
                     }
                 },
                 "required": [
@@ -271,21 +354,101 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "additionalProperties": False
             }
         },
-        "likely_root_causes": {
+        "ai_investigation": {
             "type": "array",
+            "description": (
+                "Return the 2-3 strongest AI-derived business hypotheses."
+                "Order by business importance, with the highest impact hypothesis first."
+            ),
             "items": {
                 "type": "object",
                 "properties": {
-                    "root_cause": {
+                    "hypothesis": {
                         "type": "string",
-                        "description": "Likely underlying business cause described in one concise sentence of approximately 10–20 words."
+                        "description": (
+                            "Short title (2-5 words) naming the underlying business issue."
+                        )
+                    },
+                    "confidence": {
+                        "type": "object",
+                        "description": (
+                            "The AI's confidence in this hypothesis."
+                        ),
+                        "properties": {
+                            "level": {
+                                "type": "string",
+                                "enum": [
+                                    "High",
+                                    "Medium",
+                                    "Low"
+                                ],
+                                "description": (
+                                    "Confidence category."
+                                )
+                            },
+                            "score": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 100,
+                                "description": (
+                                    "Confidence score from 0-100."
+                                )
+                            }
+                        },
+                        "required": [
+                            "level",
+                            "score"
+                        ],
+                        "additionalProperties": False
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": (
+                            "One concise sentence (15-25 words) explaining why this "
+                            "hypothesis matters to the business."
+                        )
+                    },
+                    "evidence": {
+                        "type": "array",
+                        "description": (
+                            "Return 3-5 short evidence statements supporting the hypothesis. "
+                            "Each statement should be 6-12 words and reference observed "
+                            "customer feedback patterns."
+                        ),
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 3,
+                        "maxItems": 5
+                    },
+                    "business_risk": {
+                        "type": "string",
+                        "description": (
+                            "One concise sentence (12-20 words) describing the likely "
+                            "business consequence if the issue continues."
+                        )
+                    },
+                    "recommended_validation": {
+                        "type": "string",
+                        "description": (
+                            "One concise sentence (8-15 words) suggesting what team, "
+                            "process or operational data should be reviewed to confirm "
+                            "this hypothesis."
+                        )
                     }
                 },
                 "required": [
-                    "root_cause"
+                    "hypothesis",
+                    "confidence",
+                    "summary",
+                    "evidence",
+                    "business_risk",
+                    "recommended_validation"
                 ],
                 "additionalProperties": False
-            }
+            },
+            "minItems": 2,
+            "maxItems": 3
         },
         "customer_verbatims": {
             "type": "array",
@@ -294,11 +457,16 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "properties": {
                     "theme": {
                         "type": "string",
-                        "description": "Theme supported by this customer comment."
+                        "description": (
+                            "Theme supported by this customer comment."
+                        )
                     },
                     "comment": {
                         "type": "string",
-                        "description": "Original customer comment copied verbatim without summarizing or rewriting."
+                        "description": (
+                            "Original customer comment copied verbatim "
+                            "without summarizing or rewriting."
+                        )
                     }
                 },
                 "required": [
@@ -313,23 +481,35 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             "properties": {
                 "interpretation": {
                     "type": "string",
-                    "description": "Business interpretation of the NPS distribution in approximately 25–40 words."
+                    "description": (
+                        "Business interpretation of the NPS "
+                        "distribution in approximately 25–40 words."
+                    )
                 },
                 "recommended_follow_up": {
                     "type": "string",
-                    "description": "Recommended next step based on the NPS results in one concise sentence."
+                    "description": (
+                        "Recommended next step based on the NPS "
+                        "results in one concise sentence."
+                    )
                 },
                 "promoter_percentage": {
                     "type": "number",
-                    "description": "Percentage of Promoters."
+                    "description": (
+                        "Percentage of Promoters."
+                    )
                 },
                 "passive_percentage": {
                     "type": "number",
-                    "description": "Percentage of Passives."
+                    "description": (
+                        "Percentage of Passives."
+                    )
                 },
                 "detractor_percentage": {
                     "type": "number",
-                    "description": "Percentage of Detractors."
+                    "description": (
+                        "Percentage of Detractors."
+                    )
                 }
             },
             "required": [
@@ -346,23 +526,35 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             "properties": {
                 "interpretation": {
                     "type": "string",
-                    "description": "Business interpretation of the CSAT distribution in approximately 25–40 words."
+                    "description": (
+                        "Business interpretation of the CSAT "
+                        "distribution in approximately 25–40 words."
+                    )
                 },
                 "recommended_follow_up": {
                     "type": "string",
-                    "description": "Business interpretation of the CSAT distribution in approximately 25–40 words."
+                    "description": (
+                        "Business interpretation of the CSAT "
+                        "distribution in approximately 25–40 words."
+                    )
                 },
                 "satisfied_percentage": {
                     "type": "number",
-                    "description": "Percentage of satisfied customers."
+                    "description": (
+                        "Percentage of satisfied customers."
+                    )
                 },
                 "neutral_percentage": {
                     "type": "number",
-                    "description": "Percentage of neutral customers."
+                    "description": (
+                        "Percentage of neutral customers."
+                    )
                 },
                 "dissatisfied_percentage": {
                     "type": "number",
-                    "description": "Percentage of dissatisfied customers."
+                    "description": (
+                        "Percentage of dissatisfied customers."
+                    )
                 }
             },
             "required": [
@@ -379,15 +571,25 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             "properties": {
                 "level": {
                     "type": "string",
-                    "description": "Overall confidence level for the executive summary."
+                    "description": (
+                        "Overall confidence level for the executive summary."
+                    )
                 },
                 "score": {
                     "type": "number",
-                    "description": "Confidence score between 0 and 100."
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": (
+                        "Confidence score between 0 and 100."
+                    )
                 },
                 "reason": {
                     "type": "string",
-                    "description": "Brief explanation in approximately 20–35 words describing why this confidence level was assigned."
+                    "description": (
+                        "Brief explanation in approximately "
+                        "20–35 words describing why this confidence level was "
+                        "assigned."
+                    )
                 }
             },
             "required": [
@@ -402,7 +604,9 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             "properties": {
                 "feedback_count": {
                     "type": "integer",
-                    "description": "Count of feedback items."
+                    "description": (
+                        "Count of feedback items."
+                    )
                 }
             },
             "required": [
@@ -420,7 +624,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
         "emotion_summary",
         "leadership_priorities",
         "recommended_actions",
-        "likely_root_causes",
+        "ai_investigation",
         "customer_verbatims",
         "nps_insight",
         "csat_insight",
