@@ -1,3 +1,6 @@
+"""This script handles the loading and retrieval of the feedback and
+executive prompts."""
+
 from pathlib import Path
 from storage.ai_settings_storage import AISettingsStorage
 
@@ -43,7 +46,25 @@ class PromptService:
             encoding="utf-8"
         )
 
-    def get_prompts(
+    def get_versions(self, prompt_type):
+        """
+        Return all available versions for a prompt type.
+
+        Example:
+            ["v1", "v2", "v3"]
+        """
+
+        prompt_dir = (
+                self.prompts_path
+                / prompt_type
+        )
+
+        return sorted(
+            file.stem
+            for file in prompt_dir.glob("*.txt")
+        )
+
+    def get_feedback_prompts(
             self,
             model=None,
             temperature=None,
@@ -67,7 +88,7 @@ class PromptService:
                 self.ai_settings_storage.get_settings()
             )
 
-            model = settings.model
+            model = settings.feedback_model
 
             system_prompt_version = (
                 settings.system_prompt_version
@@ -101,20 +122,55 @@ class PromptService:
 
         }
 
-    def get_versions(self, prompt_type):
+    def get_executive_prompts(
+            self,
+            model=None,
+            temperature=None,
+            system_prompt_version=None,
+            executive_prompt_version=None,
+    ):
         """
-        Return all available versions for a prompt type.
-
-        Example:
-            ["v1", "v2", "v3"]
+        Return active executive summary prompt configuration.
         """
 
-        prompt_dir = (
-                self.prompts_path
-                / prompt_type
-        )
+        settings = self.ai_settings_storage.get_settings()
 
-        return sorted(
-            file.stem
-            for file in prompt_dir.glob("*.txt")
-        )
+        if model is None:
+            model = settings.executive_model
+
+        if temperature is None:
+            temperature = settings.executive_temperature
+
+        if system_prompt_version is None:
+            system_prompt_version = (
+                settings.system_prompt_version
+            )
+
+        if executive_prompt_version is None:
+            executive_prompt_version = (
+                settings.executive_prompt_version
+            )
+
+        return {
+
+            "model": model,
+
+            "temperature": temperature,
+
+            "system_prompt": self.load(
+                "system",
+                system_prompt_version
+            ),
+
+            "executive_prompt": self.load(
+                "executive",
+                executive_prompt_version
+            ),
+
+            "system_prompt_version":
+                system_prompt_version,
+
+            "executive_prompt_version":
+                executive_prompt_version,
+
+        }
