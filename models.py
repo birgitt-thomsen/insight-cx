@@ -54,11 +54,13 @@ class Analysis(db.Model):
     """ Defines columns for analysis table. """
     id = db.Column(db.Integer, primary_key=True)
     sentiment = db.Column(db.String(20), nullable=False)
-    emotion = db.Column(db.String(30))
-    themes = db.Column(db.JSON)
+    emotions = db.Column(db.JSON)
+    intent = db.Column(db.JSON)
     priority = db.Column(db.String(20))
-    confidence = db.Column(db.Float)
-    summary = db.Column(db.Text)
+    confidence_score = db.Column(db.Float)
+    confidence_level = db.Column(db.String(20))
+    reason_codes = db.Column(db.JSON)
+    business_signal = db.Column(db.String(255))
     analysis_json = db.Column(db.JSON)
 
     # Datetime set by system
@@ -81,7 +83,7 @@ class Analysis(db.Model):
         default="v1"
     )
 
-    prompt_version = db.Column(
+    feedback_prompt_version = db.Column(
         db.String(10),
         nullable=False,
         default="v1"
@@ -194,7 +196,7 @@ class ExecutiveInsights(db.Model):
         db.JSON,
         nullable=False
     )
-    
+
     # AI-generated summary
 
     summary_json = db.Column(
