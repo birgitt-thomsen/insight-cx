@@ -172,8 +172,15 @@ class AnalysisService:
 
         sentiment_counter = Counter()
         priority_counter = Counter()
-        theme_counter = Counter()
         emotion_counter = Counter()
+        intent_counter = Counter()
+        confidence_counter = Counter()
+
+        reason_code_counter = Counter()
+        rank_1_reason_counter = Counter()
+        rank_2_reason_counter = Counter()
+        rank_3_reason_counter = Counter()
+
         confidence_total = 0
         confidence_count = 0
 
@@ -206,14 +213,25 @@ class AnalysisService:
                         feedback_prompt_version=feedback_prompt_version,
                     )
 
+                    # FOR TESTING ONLY
+                    # print("\n====================")
+                    # print(type(output))
+                    # print(output)
+                    # print("====================\n")
+
                     result["output"] = output
 
-                    result["changed_fields"] = (
-                        self._compare_analysis(
-                            result["current"],
-                            output,
+                    try:
+                        result["changed_fields"] = (
+                            self._compare_analysis(
+                                result["current"],
+                                output,
+                            )
                         )
-                    )
+                    except Exception as e:
+                        import traceback
+                        traceback.print_exc()
+                        raise
 
                     #
                     # Optional summary statistics
@@ -221,32 +239,74 @@ class AnalysisService:
 
                     sentiment = output.get("sentiment")
 
+                    # FOR TESTING ONLY
+                    # print("Processing feedback:", feedback.id)
+                    # print("Sentiment:", sentiment)
+
                     if sentiment:
                         sentiment_counter[sentiment] += 1
 
-                    emotion = output.get("emotion")
+                    # FOR TESTING ONLY
+                    # print(sentiment_counter)
 
-                    if emotion:
+                    for emotion in output.get("emotions", []):
                         emotion_counter[emotion] += 1
 
-                    confidence = output.get("confidence")
-
-                    if confidence is not None:
-                        confidence_total += float(confidence)
-                        confidence_count += 1
+                    for intent in output.get("intent", []):
+                        intent_counter[intent] += 1
 
                     priority = output.get("priority")
 
                     if priority:
                         priority_counter[priority] += 1
 
-                    themes = output.get(
-                        "themes",
+                    confidence = output.get("confidence")
+
+                    if confidence:
+
+                        # Average confidence score
+                        score = confidence.get("score")
+
+                        if score is not None:
+                            confidence_total += float(score)
+                            confidence_count += 1
+
+                        # Distribution of confidence levels
+                        level = confidence.get("level")
+
+                        if level:
+                            confidence_counter[level] += 1
+
+                    #
+                    # Reason code statistics
+                    #
+
+                    reason_codes = output.get(
+                        "reason_codes",
                         []
                     )
 
-                    for theme in themes:
-                        theme_counter[theme] += 1
+                    for reason in reason_codes:
+
+                        code = reason.get("code")
+
+                        if not code:
+                            continue
+
+                        rank = reason.get("rank")
+
+                        # Count every occurrence
+                        reason_code_counter[code] += 1
+
+                        # Count by rank
+                        if rank == 1:
+                            rank_1_reason_counter[code] += 1
+
+                        elif rank == 2:
+                            rank_2_reason_counter[code] += 1
+
+                        elif rank == 3:
+                            rank_3_reason_counter[code] += 1
 
                     break
 
@@ -261,7 +321,6 @@ class AnalysisService:
                     time.sleep(wait)
 
                 except Exception as e:
-
                     result["error"] = str(e)
 
                     break
@@ -315,27 +374,43 @@ class AnalysisService:
                 "sentiment":
                     dict(sentiment_counter),
 
-                "emotion":
+                "emotions":
                     dict(emotion_counter),
+
+                "intent":
+                    dict(intent_counter),
 
                 "priority":
                     dict(priority_counter),
 
-                "average_confidence":
-                    average_confidence,
+                "confidence": {
 
-                "themes":
-                    # dict(theme_counter),
-                    theme_counter.most_common(10)
+                    "average_score": average_confidence,
+
+                    "levels": dict(confidence_counter),
+
+                },
+
+                "reason_codes":
+                    reason_code_counter.most_common(10),
+
+                "primary_reason_codes":
+                    rank_1_reason_counter.most_common(10),
+
+                "secondary_reason_codes":
+                    rank_2_reason_counter.most_common(10),
+
+                "tertiary_reason_codes":
+                    rank_3_reason_counter.most_common(10),
 
             }
 
         }
 
     def _compare_analysis(
-        self,
-        current,
-        output,
+            self,
+            current,
+            output,
     ):
         """
         Compare an existing analysis with a new AI output.
@@ -349,27 +424,57 @@ class AnalysisService:
 
         changed = []
 
+        #
+        # Simple fields
+        #
+
         if current.sentiment != output.get("sentiment"):
             changed.append("sentiment")
 
-        if current.emotion != output.get("emotion"):
-            changed.append("emotion")
+        if current.emotions != output.get("emotions", []):
+            changed.append("emotions")
+
+        if current.intent != output.get("intent", []):
+            changed.append("intent")
 
         if current.priority != output.get("priority"):
             changed.append("priority")
 
-        if abs(
-            current.confidence -
-            output.get("confidence", 0)
-        ) > 0.05:
+        current_score = current.confidence_score or 0
+
+        output_confidence = output.get("confidence", {})
+
+        output_score = output_confidence.get("score", 0)
+        output_level = output_confidence.get("level")
+
+        if abs(current_score - output_score) >= 5:
             changed.append("confidence")
 
-        if set(current.themes) != set(
-            output.get("themes", [])
-        ):
-            changed.append("themes")
+        elif current.confidence_level != output_level:
+            changed.append("confidence")
 
-        if current.summary != output.get("summary"):
-            changed.append("summary")
+        #
+        # Reason codes
+        #
+
+        current_reason_codes = sorted(
+            current.reason_codes or [],
+            key=lambda r: r.get("rank", 99)
+        )
+
+        output_reason_codes = sorted(
+            output.get("reason_codes", []),
+            key=lambda r: r.get("rank", 99)
+        )
+
+        if current_reason_codes != output_reason_codes:
+            changed.append("reason_codes")
+
+        #
+        # Business signal
+        #
+
+        if current.business_signal != output.get("business_signal"):
+            changed.append("business_signal")
 
         return changed

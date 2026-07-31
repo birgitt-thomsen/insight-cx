@@ -3,8 +3,9 @@
 import json
 import os
 from openai import OpenAI
-from services.prompt_service import PromptService
 from dotenv import load_dotenv
+from services.prompt_service import PromptService
+from schemas.feedback_analysis_schema import FEEDBACK_ANALYSIS_SCHEMA
 
 load_dotenv()
 client = OpenAI(
@@ -70,9 +71,6 @@ class AIService:
     ):
         """
         Execute a feedback analysis prompt.
-
-        Receives a complete prompt configuration
-        from PromptService.
         """
 
         user_prompt = (
@@ -88,15 +86,35 @@ class AIService:
             "model": config["model"],
 
             "input": [
+
                 {
                     "role": "system",
                     "content": config["system_prompt"],
                 },
+
                 {
                     "role": "user",
                     "content": user_prompt,
                 },
+
             ],
+
+            "text": {
+
+                "format": {
+
+                    "type": "json_schema",
+
+                    "name": "feedback_analysis",
+
+                    "strict": True,
+
+                    "schema": FEEDBACK_ANALYSIS_SCHEMA,
+
+                }
+
+            }
+
         }
 
         if self._supports_temperature(
@@ -110,19 +128,9 @@ class AIService:
             **request
         )
 
-        content = (
+        return json.loads(
             response.output_text
-            .strip()
         )
-
-        try:
-            return json.loads(content)
-
-        except json.JSONDecodeError:
-
-            raise ValueError(
-                f"AI response was not valid JSON:\n{content}"
-            )
 
 
     def execute_test_prompt(

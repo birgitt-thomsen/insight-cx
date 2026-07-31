@@ -46,11 +46,27 @@ class AnalysisStorage:
 			analysis = result["analysis"]
 
 			analysis_record.sentiment = analysis["sentiment"]
-			analysis_record.emotion = analysis["emotion"]
-			analysis_record.themes = analysis["themes"]
+
+			analysis_record.emotions = analysis["emotions"]
+
+			analysis_record.intent = analysis["intent"]
+
+			analysis_record.reason_codes = analysis["reason_codes"]
+
 			analysis_record.priority = analysis["priority"]
-			analysis_record.confidence = analysis["confidence"]
-			analysis_record.summary = analysis["summary"]
+
+			analysis_record.confidence_score = (
+				analysis["confidence"]["score"]
+			)
+
+			analysis_record.confidence_level = (
+				analysis["confidence"]["level"]
+			)
+
+			analysis_record.business_signal = (
+				analysis["business_signal"]
+			)
+
 			analysis_record.analysis_json = analysis
 
 			#
@@ -63,7 +79,7 @@ class AnalysisStorage:
 				result["system_prompt_version"]
 			)
 
-			analysis_record.feedback_prompt_version = (
+			analysis_record.prompt_version = (
 				result["feedback_prompt_version"]
 			)
 
