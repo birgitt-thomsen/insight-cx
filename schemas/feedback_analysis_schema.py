@@ -7,9 +7,9 @@ FEEDBACK_ANALYSIS_SCHEMA = {
         "sentiment": {
             "type": "string",
             "enum": [
-                "positive",
-                "neutral",
-                "negative"
+                "Positive",
+                "Neutral",
+                "Negative"
             ],
             "description": (
                 "Overall customer sentiment. "
@@ -29,7 +29,6 @@ FEEDBACK_ANALYSIS_SCHEMA = {
                     "Delighted",
                     "Confident",
                     "Appreciated",
-
                     "Frustrated",
                     "Disappointed",
                     "Confused",
