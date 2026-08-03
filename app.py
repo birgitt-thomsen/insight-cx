@@ -1,4 +1,5 @@
 """ This script handles all flask routes for the application."""
+
 import os
 from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
@@ -210,33 +211,68 @@ def update_ai_settings():
     """Updates the ai_settings table with a new model, system prompt
     and/or feedback prompt version."""
 
-    # Call update_settings to save new model and prompt settings
-    ai_settings_storage.update_feedback_settings(
+    settings_type = request.form["settings_type"]
 
-        model=request.form["model"],
+    # Call update_settings to save new model and prompt settings based on
+    # which settings were updated (feedback or executive)
+    if settings_type == "feedback":
 
-        temperature=float(
-            request.form["temperature"]
-        ),
+        ai_settings_storage.update_feedback_settings(
 
-        system_prompt_version=request.form[
-            "system_prompt"
-        ],
+            model=request.form["model"],
 
-        feedback_prompt_version=request.form[
-            "feedback_prompt"
-        ],
+            temperature=float(
+                request.form["temperature"]
+            ),
 
-        description=request.form[
-            "description"
-        ],
+            system_prompt_version=request.form[
+                "system_prompt"
+            ],
 
-    )
+            feedback_prompt_version=request.form[
+                "feedback_prompt"
+            ],
 
-    flash(
-        "AI settings updated.",
-        "success"
-    )
+            description=request.form[
+                "description"
+            ],
+
+        )
+
+    else:
+
+        ai_settings_storage.update_executive_settings(
+
+            executive_model=request.form[
+                "executive_model"
+            ],
+
+            executive_temperature=float(
+                request.form[
+                    "executive_temperature"
+                ]
+            ),
+
+            executive_prompt_version=request.form[
+                "executive_prompt"
+            ],
+
+        )
+
+    # Set success message based on the setting type that was updated
+    if settings_type == "feedback":
+
+        flash(
+            "Feedback AI settings updated.",
+            "success"
+        )
+
+    else:
+
+        flash(
+            "Executive AI settings updated.",
+            "success"
+        )
 
     return redirect(
         url_for("admin")
