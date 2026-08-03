@@ -1,91 +1,398 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="panel">
+<div class="executive-dashboard">
+    <!--HEADER SECTION-->
+    <header class="executive-header">
+        <div>
+            <h1>
+                Feedback Explorer
+            </h1>
+            <p class="subtitle">
+                Browse, review and manage customer feedback.
+            </p>
+        </div>
+    </header>
 
-    <strong>Benchmark sample:</strong>
+    <!-- ====================================================== -->
+    <!-- FILTERS -->
+    <!-- ====================================================== -->
 
-    <span id="sample-count">
-        {{ sample_count }}
-    </span>
+    <div class="panel">
 
-    item(s) selected
+        <h3>Search Feedback</h3>
 
-</div>
-
-<table>
-<tr>
-    <th>Flagged</th>
-    <th>Customer Name</th>
-    <th>Order Number</th>
-    <th>Survey Type</th>
-    <th>Survey Comment</th>
-    <th>Date</th>
-    <th></th>
-</tr>
-
-{% for feedback in feedback_page.items %}
-
-<tr>
-   <td>
-
-        <input
-            type="checkbox"
-            class="sample-checkbox"
-            data-id="{{ feedback.id }}"
-            {% if feedback.is_test_sample %}
-                checked
-            {% endif %}
+        <form
+            method="GET"
+            class="filter-bar"
         >
 
-        <span
-            class="save-status"
-            id="status-{{ feedback.id }}"
-        ></span>
+            <input
+                class="search-box"
+                type="text"
+                name="search"
+                value="{{ filters.search }}"
+                placeholder="Search customer, order or comment..."
+            >
 
-    </td>
-    <td>{{ feedback.customer_name }}</td>
-    <td>{{ feedback.order_number }}</td>
-    <td>{{ feedback.survey_type }}</td>
-    <td>{{ feedback.comment }}</td>
-    <td>{{ feedback.feedback_date.strftime("%d %b %Y") }}</td>
-    <td>
-        <a href="{{ url_for('feedback_details',
-                        feedback_id=feedback.id) }}">
-        View Details
+            <!-- Survey -->
+
+            <select name="survey_type">
+
+                <option value="">All Surveys</option>
+
+                {% for survey in survey_types %}
+
+                <option
+                    value="{{ survey }}"
+                    {% if filters.survey_type == survey %}
+                        selected
+                    {% endif %}
+                >
+                    {{ survey }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+            <!-- Sentiment -->
+
+            <select name="sentiment">
+
+                <option value="">All Sentiment</option>
+
+                <option value="positive"
+                    {% if filters.sentiment=="positive" %}
+                        selected
+                    {% endif %}
+                >
+                    Positive
+                </option>
+
+                <option value="neutral"
+                    {% if filters.sentiment=="neutral" %}
+                        selected
+                    {% endif %}
+                >
+                    Neutral
+                </option>
+
+                <option value="negative"
+                    {% if filters.sentiment=="negative" %}
+                        selected
+                    {% endif %}
+                >
+                    Negative
+                </option>
+
+            </select>
+
+            <!-- Priority -->
+
+            <select name="priority">
+
+                <option value="">All Priority</option>
+
+                <option value="high"
+                    {% if filters.priority=="high" %}
+                        selected
+                    {% endif %}
+                >
+                    High
+                </option>
+
+                <option value="medium"
+                    {% if filters.priority=="medium" %}
+                        selected
+                    {% endif %}
+                >
+                    Medium
+                </option>
+
+                <option value="low"
+                    {% if filters.priority=="low" %}
+                        selected
+                    {% endif %}
+                >
+                    Low
+                </option>
+
+            </select>
+
+           <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Apply Filters
+                </button>
+
+                <a
+                    href="{{ url_for('feedback') }}"
+                    class="btn"
+                >
+                    Clear
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- FEEDBACK TABLE -->
+    <div class="panel">
+
+    <table class="feedback-table">
+    <tr>
+
+        <th>✓</th>
+
+        <th>Date</th>
+
+        <th>Customer</th>
+
+        <th>Survey</th>
+
+        <th>Score</th>
+
+        <th>Sentiment</th>
+
+        <th>Priority</th>
+
+        <th>Comment</th>
+
+        <th></th>
+
+    </tr>
+
+    {% for feedback in feedback_page.items %}
+
+    <tr>
+
+        <!-- Benchmark -->
+
+        <td>
+
+            <input
+                type="checkbox"
+                class="sample-checkbox"
+                data-id="{{ feedback.id }}"
+                {% if feedback.is_test_sample %}
+                    checked
+                {% endif %}
+            >
+
+            <span
+                class="save-status"
+                id="status-{{ feedback.id }}"
+            ></span>
+
+        </td>
+
+        <!-- Date -->
+
+        <td>
+
+            {{ feedback.feedback_date.strftime("%d %b %Y") }}
+
+        </td>
+
+        <!-- Customer -->
+
+        <td>
+
+            {{ feedback.customer_name }}
+
+        </td>
+
+        <!-- Survey -->
+
+        <td>
+
+            <span class="survey-badge">
+
+                {{ feedback.survey_type }}
+
+            </span>
+
+        </td>
+
+        <!-- Score -->
+
+        <td>
+
+            {{ feedback.score }}
+
+        </td>
+
+        <!-- Sentiment -->
+
+        <td>
+
+            {% if feedback.latest_analysis %}
+
+                <span class="sentiment-badge sentiment-{{ feedback.latest_analysis.sentiment|lower }}">
+
+                    {{ feedback.latest_analysis.sentiment }}
+
+                </span>
+
+            {% endif %}
+
+        </td>
+
+        <!-- Priority -->
+
+        <td>
+
+            {% if feedback.latest_analysis %}
+
+                <span
+                        class="priority-badge priority-{{ feedback.latest_analysis.priority|lower }}">
+
+                    {{ feedback.latest_analysis.priority }}
+
+                </span>
+
+            {% endif %}
+
+        </td>
+
+        <!-- Comment -->
+
+        <td class="comment-preview">
+
+            {{ feedback.comment }}
+
+        </td>
+
+        <!-- Action -->
+
+        <td>
+
+            <a
+                class="table-action"
+                href="{{ url_for(
+                    'feedback_details',
+                    feedback_id=feedback.id
+                ) }}"
+            >
+
+                View Analysis →
+
+            </a>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+    </table>
+
+    </div>
+
+    <!--PAGINATION-->
+
+    <div class="pagination">
+
+        {% if feedback_page.has_prev %}
+
+            <a href="{{ url_for(
+                            'feedback',
+                            page=feedback_page.prev_num,
+                            search=filters.search,
+                            survey_type=filters.survey_type,
+                            sentiment=filters.sentiment,
+                            priority=filters.priority
+                        ) }}">
+
+                ← Previous
+
+            </a>
+
+        {% endif %}
+
+        <span>
+
+            Page {{ feedback_page.page }}
+            of {{ feedback_page.pages }}
+
+        </span>
+
+        {% if feedback_page.has_next %}
+
+            <a href="{{ url_for(
+                        'feedback',
+                        page=feedback_page.next_num,
+                        search=filters.search,
+                        survey_type=filters.survey_type,
+                        sentiment=filters.sentiment,
+                        priority=filters.priority
+                    ) }}">
+
+                Next →
+
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    <!-- ====================================================== -->
+    <!-- BENCHMARK SAMPLE -->
+    <!-- ====================================================== -->
+
+    <div class="panel sample-panel">
+
+        <div class="sample-header">
+
+            <div>
+
+                <h3>Benchmark Sample</h3>
+
+                <p>
+
+                    Select representative feedback using the ✓ column.
+
+                </p>
+
+            </div>
+
+            <div class="sample-summary">
+
+                <span class="sample-number"
+                      id="sample-count">
+
+                    {{ sample_count }}
+
+                </span>
+
+                <span>
+
+                    selected
+
+                </span>
+
+            </div>
+
+        </div>
+
+        <a
+            href="{{ url_for('prompt_test') }}"
+            class="primary-button"
+        >
+
+        Run Benchmark Evaluation
+
         </a>
-    </td>
-</tr>
 
-{% endfor %}
-
-</table>
-
-<div class="pagination">
-
-    {% if feedback_page.has_prev %}
-        <a href="{{ url_for('feedback', page=feedback_page.prev_num) }}">
-            Previous
-        </a>
-    {% endif %}
-
-    Page {{ feedback_page.page }}
-    of {{ feedback_page.pages }}
-
-    {% if feedback_page.has_next %}
-        <a href="{{ url_for('feedback', page=feedback_page.next_num) }}">
-            Next
-        </a>
-    {% endif %}
+    </div>
 
 </div>
-
-<a
-    href="{{ url_for('prompt_test') }}"
-    class="btn btn-primary"
->
-    Evaluate Prompt on Benchmark Sample
-</a>
 
 <script>
 
@@ -128,6 +435,11 @@ document
                 .then(data => {
 
                     status.textContent = "✓ Saved";
+
+                    setTimeout(() => {
+
+                    status.textContent = "";
+                    }, 2000);
 
                     countElement.textContent =
                         data.sample_count;

@@ -110,9 +110,41 @@ def feedback():
         type=int
     )
 
+    search = request.args.get(
+        "search",
+        default="",
+        type=str
+    )
+
+    survey_type = request.args.get(
+        "survey_type",
+        default="",
+        type=str
+    )
+
+    sentiment = request.args.get(
+        "sentiment",
+        default="",
+        type=str
+    )
+
+    priority = request.args.get(
+        "priority",
+        default="",
+        type=str
+    )
+
+    filters = {
+        "search": search,
+        "survey_type": survey_type,
+        "sentiment": sentiment,
+        "priority": priority,
+    }
+
     feedback_page = feedback_storage.get_feedback_page(
         page=page,
-        per_page=25
+        per_page=25,
+        filters=filters
     )
 
     sample_count = (
@@ -121,10 +153,25 @@ def feedback():
         .count()
     )
 
+    survey_types = (
+        db.session.query(Feedback.survey_type)
+        .distinct()
+        .order_by(Feedback.survey_type)
+        .all()
+    )
+
+    survey_types = [
+        row[0]
+        for row in survey_types
+        if row[0]
+    ]
+
     return render_template(
         "feedback.html",
         feedback_page=feedback_page,
         sample_count=sample_count,
+        survey_types=survey_types,
+        filters=filters,
     )
 
 @app.route("/feedback/<int:feedback_id>")
