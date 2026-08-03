@@ -46,9 +46,23 @@ class Feedback(db.Model):
     analyses = db.relationship(
         "Analysis",
         backref="feedback",
-        lazy=True
-)
+        lazy=True,
+        order_by="Analysis.analysis_version"
+    )
 
+    @property
+    def latest_analysis(self):
+        """
+        Return the newest analysis version.
+        """
+
+        if not self.analyses:
+            return None
+
+        return max(
+            self.analyses,
+            key=lambda analysis: analysis.analysis_version
+        )
 
 class Analysis(db.Model):
     """ Defines columns for analysis table. """
