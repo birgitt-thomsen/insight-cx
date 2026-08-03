@@ -68,6 +68,34 @@ class AISettingsStorage:
             executive_model,
             executive_temperature,
             executive_prompt_version,
+    ):
+        """
+        Update executive summary AI configuration.
+        """
+
+        settings = self.get_settings()
+
+        settings.executive_model = (
+            executive_model
+        )
+
+        settings.executive_temperature = (
+            executive_temperature
+        )
+
+        settings.executive_prompt_version = (
+            executive_prompt_version
+        )
+
+        db.session.commit()
+
+        return settings
+
+    def update_executive_settings(
+            self,
+            executive_model,
+            executive_temperature,
+            executive_prompt_version,
             description=None,
     ):
         """
