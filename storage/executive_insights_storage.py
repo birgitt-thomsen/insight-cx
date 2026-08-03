@@ -34,9 +34,9 @@ class ExecutiveInsightsStorage:
 	    db.session.commit()
 
 		# FOR TESTING ONLY
-	    print("\nSaving to ExecutiveInsights table...")
-	    print(f"Summary keys: {list(summary.keys())}")
-	    print(f"Input keys: {list(input_data.keys())}")
+	    # print("\nSaving to ExecutiveInsights table...")
+	    # print(f"Summary keys: {list(summary.keys())}")
+	    # print(f"Input keys: {list(input_data.keys())}")
 
 	    return insight
 

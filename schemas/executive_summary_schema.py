@@ -5,6 +5,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
 
     "type": "object",
     "properties": {
+        # CUSTOMER HEALTH
         "customer_health": {
             "type": "object",
             "properties": {
@@ -78,6 +79,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+        # EXECUTIVE SUMMARY
         "executive_summary": {
             "type": "string",
             "description": (
@@ -85,6 +87,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "experience in approximately 80–120 words."
             )
         },
+        # BUSINESS IMPACT
         "business_impact": {
             "type": "string",
             "description": (
@@ -92,70 +95,76 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "impact in approximately 40–70 words."
             )
         },
-        "top_themes": {
+        # TOP THEMES
+        "top_business_drivers": {
             "type": "array",
+            "description": (
+                "Summarize the most important business drivers identified from "
+                "primary reason codes. Focus on customer issues that have the "
+                "greatest operational or commercial impact."
+            ),
             "items": {
                 "type": "object",
                 "properties": {
-                    "theme": {
+                    "driver": {
                         "type": "string",
                         "description": (
-                            "Name of the customer feedback theme."
+                            "The primary business driver or reason code "
+                            "representing a recurring customer issue or "
+                            "positive experience."
                         )
                     },
+
                     "count": {
                         "type": "integer",
                         "description": (
-                            "Number of customer feedback records assigned to "
-                            "this theme."
+                            "The number of customer feedback responses primarily "
+                            "associated with this business driver."
                         )
                     },
-                    "priority": {
-                        "type": "string",
-                        "enum": [
-                            "High",
-                            "Medium",
-                            "Low"
-                        ],
-                        "description": (
-                            "Business priority based on customer impact "
-                            "rather than frequency."
-                        )
-                    },
+
                     "insight": {
                         "type": "string",
                         "description": (
-                            "Business insight explaining why "
-                            "this theme matters in approximately 20–35 words."
+                            "Summarize what customers are consistently saying "
+                            "about this business driver and why it is significant."
                         )
                     },
+
+                    "driver_impact": {
+                        "type": "string",
+                        "description": (
+                            "Explain how this business driver affects customer "
+                            "satisfaction, loyalty, operational performance, "
+                            "revenue, costs, or business risk."
+                        )
+                    },
+
                     "period_comparison": {
                         "type": "object",
                         "description": (
-                            "Comparison with the previous reporting period."
+                            "Compare this business driver with the previous "
+                            "reporting period and explain whether its importance has changed."
                         ),
                         "properties": {
                             "trend": {
                                 "type": "string",
+                                "description": (
+                                    "Indicate how this business driver has changed "
+                                    "compared with the previous period."
+                                ),
                                 "enum": [
                                     "up",
                                     "down",
                                     "stable",
-                                    "new",
-                                    "unknown"
-                                ],
-                                "description": (
-                                    "Whether this theme increased, decreased, "
-                                    "remained stable or is new compared with "
-                                    "the previous reporting period."
-                                )
+                                    "new"
+                                ]
                             },
                             "summary": {
                                 "type": "string",
                                 "description": (
-                                    "One sentence (15–30 words) summarizing how "
-                                    "this theme changed compared with the "
-                                    "previous reporting period."
+                                    "Briefly explain the change in frequency or "
+                                    "business importance since the previous reporting period."
                                 )
                             }
                         },
@@ -167,15 +176,16 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                     }
                 },
                 "required": [
-                    "theme",
+                    "driver",
                     "count",
-                    "priority",
                     "insight",
+                    "driver_impact",
                     "period_comparison"
                 ],
                 "additionalProperties": False
             }
         },
+        # SENTIMENT SUMMARY
         "sentiment_summary": {
             "type": "object",
             "properties": {
@@ -220,6 +230,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 ],
                 "additionalProperties": False
         },
+        # EMOTION SUMMARY
         "emotion_summary": {
             "type": "array",
             "items": {
@@ -254,6 +265,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "additionalProperties": False
             }
         },
+        # LEADERSHIP PRIORITIES
         "leadership_priorities": {
             "type": "array",
             "items": {
@@ -293,6 +305,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "additionalProperties": False
             }
         },
+        # RECOMMENDED ACTIONS
         "recommended_actions": {
             "type": "array",
             "items": {
@@ -354,6 +367,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "additionalProperties": False
             }
         },
+        # AI INVESTIGATION
         "ai_investigation": {
             "type": "array",
             "description": (
@@ -450,6 +464,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             "minItems": 2,
             "maxItems": 3
         },
+        # CUSTOMER VERBATIMS
         "customer_verbatims": {
             "type": "array",
             "items": {
@@ -476,6 +491,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "additionalProperties": False
             }
         },
+        # NPS INSIGHT
         "nps_insight": {
             "type": "object",
             "properties": {
@@ -521,6 +537,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+        # CSAT INSIGHT
         "csat_insight": {
             "type": "object",
             "properties": {
@@ -566,6 +583,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+        # CONFIDENCE
         "confidence": {
             "type": "object",
             "properties": {
@@ -599,6 +617,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+        # KEY METRICS
         "key_metrics": {
             "type": "object",
             "properties": {
@@ -614,12 +633,178 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+        "emerging_business_risks": {
+            "type": "array",
+            "description": (
+                "Identify the most important emerging business risks based on "
+                "recurring reason codes, customer intent, emotions, sentiment "
+                "and business signals. Focus on risks leadership should "
+                "proactively monitor."
+            ),
+            "items": {
+                "type": "object",
+                "properties": {
+                    "signal_type": {
+                        "type": "string",
+                        "description": (
+                            "Classify the business signal as a "
+                            "risk, opportunity, or emerging trend."
+                        ),
+                        "enum": [
+                            "Risk",
+                            "Opportunity",
+                            "Trend"
+                        ]
+                    },
+                    "risk": {
+                        "type": "string",
+                        "description": (
+                            "A short title describing the identified business "
+                            "signal or issue."
+                        )
+                    },
+                    "severity": {
+                        "type": "string",
+                        "description": ("Assess the potential business "
+                                        "impact if the signal continues or is "
+                                        "not addressed."
+                        ),
+                        "enum": [
+                            "High",
+                            "Medium",
+                            "Low"
+                        ]
+                    },
+                    "likelihood": {
+                        "type": "string",
+                        "description": (
+                            "Estimate how likely the signal is to persist or "
+                            "grow based on the available customer feedback."
+                        ),
+                        "enum": [
+                            "Increasing",
+                            "Stable",
+                            "Emerging",
+                            "Declining"
+                        ]
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": (
+                            "Explain the business signal, why it matters, and "
+                            "the underlying customer feedback patterns "
+                            "driving it."
+                        ),
+                    },
+                    "leading_indicators": {
+                        "type": "array",
+                        "description": (
+                            "List the key customer behaviors, reason codes, "
+                            "emotions, intents, or feedback patterns that support "
+                            "this business signal."
+                        ),
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "recommended_monitoring": {
+                        "type": "string",
+                        "description": (
+                        "Recommend the metrics, operational indicators, or "
+                        "customer feedback trends leadership should monitor to "
+                        "validate or track this business signal over time."
+                        )
+                    }
+                },
+                "required": [
+                    "signal_type",
+                    "risk",
+                    "severity",
+                    "likelihood",
+                    "description",
+                    "leading_indicators",
+                    "recommended_monitoring"
+                ],
+
+                "additionalProperties": False
+            },
+        },
+        "intent_summary": {
+            "type": "object",
+            "description": (
+                "Summarize the dominant customer intentions expressed across "
+                "the analyzed feedback and explain what they indicate about "
+                "future customer behavior."
+            ),
+            "properties": {
+                "headline": {
+                    "type": "string",
+                     "description": (
+                         "A concise executive headline summarizing the "
+                         "overall customer intent landscape."
+                     )
+                },
+                "insight": {
+                    "type": "string",
+                    "description": (
+                        "Explain the most important customer intentions, the "
+                        "underlying drivers, and their potential business implications."
+                    )
+                },
+                "top_intents": {
+                    "type": "array",
+                    "description": (
+                        "List the most common customer intents identified in "
+                        "the analyzed feedback."
+                    ),
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "intent": {
+                                "type": "string",
+                                "description": (
+                                    "The customer intent category identified "
+                                    "from the feedback."
+                                ),
+                            },
+                            "percentage": {
+                                "type": "number",
+                                "description": (
+                                    "Percentage of analyzed feedback expressing "
+                                    "this customer intent."
+                                )
+                            },
+                            "business_meaning": {
+                                "type": "string",
+                                "description": (
+                                    "Explain what this customer intent indicates "
+                                    "about customer behavior and why it matters "
+                                    "for the business."
+                                )
+                            }
+                        },
+                        "required": [
+                            "intent",
+                            "percentage",
+                            "business_meaning"
+                        ],
+                        "additionalProperties": False
+                    }
+                }
+            },
+            "required": [
+                "headline",
+                "insight",
+                "top_intents"
+            ],
+            "additionalProperties": False
+        }
     },
     "required": [
         "customer_health",
         "executive_summary",
         "business_impact",
-        "top_themes",
+        "top_business_drivers",
         "sentiment_summary",
         "emotion_summary",
         "leadership_priorities",
@@ -629,7 +814,9 @@ EXECUTIVE_SUMMARY_SCHEMA = {
         "nps_insight",
         "csat_insight",
         "confidence",
-        "key_metrics"
+        "key_metrics",
+        "emerging_business_risks",
+        "intent_summary",
     ],
     "additionalProperties": False
 }

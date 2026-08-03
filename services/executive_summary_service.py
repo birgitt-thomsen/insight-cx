@@ -44,40 +44,16 @@ class ExecutiveSummaryService:
             )
         )
 
-        # FOR TESTING ONLY
-        print("\nExecutive configuration")
-        print("-----------------------")
-        print(f"Requested model: {model}")
-        print(f"Using model: {config['model']}")
-        print(f"Prompt: {config['executive_prompt_version']}")
-
         summary = self.execute_prompt(
             summary_data,
             config
         )
 
-        # FOR TESTING ONLY
-        print("\n========== EXECUTIVE SUMMARY ==========\n")
-
-        print(
-            json.dumps(
-                summary,
-                indent=2
-            )
-        )
-
-        # TURN OFF FOR TESTING ONLY
         self.executive_storage.save_summary(
             input_data=summary_data,
             summary=summary,
             config=config,
         )
-
-        # FOR TESTING ONLY
-        print("Saving executive summary...")
-        print(f"Model: {config['model']}")
-        print(f"Prompt: {config['executive_prompt_version']}")
-        print(f"Generated: {datetime.utcnow()}")
 
         return {
 

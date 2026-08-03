@@ -49,9 +49,9 @@ class ExecutiveDataService:
                         "customer_health"
                     ),
 
-                "top_themes":
+                "top_business_drivers":
                     previous_summary.summary_json.get(
-                        "top_themes",
+                        "top_business_drivers",
                         []
                     )
             }
@@ -60,7 +60,7 @@ class ExecutiveDataService:
 
             "metrics": self._get_metrics(),
 
-            "themes": self._get_themes(
+            "business_drivers": self._get_top_reason_codes(
                 analyses
             ),
 
@@ -194,32 +194,34 @@ class ExecutiveDataService:
             }
         }
 
-    def _get_themes(
-        self,
-        analyses
+    def _get_top_reason_codes(
+            self,
+            analyses
     ):
         """
-        Return the most common themes.
+        Return the most common primary reason codes.
         """
 
         counter = Counter()
 
         for analysis in analyses:
 
-            if analysis.themes:
+            if not analysis.reason_codes:
+                continue
 
-                counter.update(
-                    analysis.themes
-                )
+            for reason in analysis.reason_codes:
+
+                if reason.get("rank") == 1:
+                    counter[reason["code"]] += 1
 
         return [
 
             {
-                "theme": theme,
-                "count": count
+                "theme": code,
+                "count": count,
             }
 
-            for theme, count
+            for code, count
             in counter.most_common(5)
 
         ]
@@ -296,8 +298,8 @@ class ExecutiveDataService:
         ]
 
     def _get_emotions(
-        self,
-        analyses
+            self,
+            analyses
     ):
         """
         Return emotion distribution.
@@ -307,11 +309,11 @@ class ExecutiveDataService:
 
         for analysis in analyses:
 
-            if analysis.emotion:
+            if not analysis.emotions:
+                continue
 
-                counter[
-                    analysis.emotion
-                ] += 1
+            for emotion in analysis.emotions:
+                counter[emotion] += 1
 
         return [
 
@@ -321,7 +323,7 @@ class ExecutiveDataService:
             }
 
             for emotion, count
-            in counter.items()
+            in counter.most_common()
 
         ]
 
@@ -330,7 +332,7 @@ class ExecutiveDataService:
             analyses,
     ):
         """
-        Return representative comments grouped by theme.
+        Return representative comments grouped by primary reason code.
         """
 
         comments = {}
@@ -339,27 +341,45 @@ class ExecutiveDataService:
 
             if (
                     not analysis.feedback
-                    or not analysis.themes
+                    or not analysis.reason_codes
             ):
                 continue
 
-            for theme in analysis.themes:
+            primary_reason = next(
 
-                comments.setdefault(
-                    theme,
-                    []
-                )
+                (
+                    reason["code"]
+                    for reason in analysis.reason_codes
+                    if reason.get("rank") == 1
+                ),
 
-                # Keep up to three example comments
-                if len(comments[theme]) < 3:
-                    comments[theme].append({
+                None
 
-                        "sentiment": analysis.sentiment,
+            )
 
-                        "priority": analysis.priority,
+            if not primary_reason:
+                continue
 
-                        "comment": analysis.feedback.comment
+            comments.setdefault(
+                primary_reason,
+                []
+            )
 
-                    })
+            if len(comments[primary_reason]) < 3:
+                comments[primary_reason].append({
+
+                    "sentiment": analysis.sentiment,
+
+                    "emotions": analysis.emotions,
+
+                    "intent": analysis.intent,
+
+                    "priority": analysis.priority,
+
+                    "business_signal": analysis.business_signal,
+
+                    "comment": analysis.feedback.comment
+
+                })
 
         return comments
