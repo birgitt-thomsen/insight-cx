@@ -5,6 +5,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
 
     "type": "object",
     "properties": {
+
         # CUSTOMER HEALTH
         "customer_health": {
             "type": "object",
@@ -79,6 +80,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+
         # EXECUTIVE SUMMARY
         "executive_summary": {
             "type": "string",
@@ -87,6 +89,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "experience in approximately 80–120 words."
             )
         },
+
         # BUSINESS IMPACT
         "business_impact": {
             "type": "string",
@@ -95,6 +98,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "impact in approximately 40–70 words."
             )
         },
+
         # TOP THEMES
         "top_business_drivers": {
             "type": "array",
@@ -123,20 +127,13 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                         )
                     },
 
-                    "insight": {
+                    "summary": {
                         "type": "string",
                         "description": (
-                            "Summarize what customers are consistently saying "
-                            "about this business driver and why it is significant."
-                        )
-                    },
-
-                    "driver_impact": {
-                        "type": "string",
-                        "description": (
-                            "Explain how this business driver affects customer "
-                            "satisfaction, loyalty, operational performance, "
-                            "revenue, costs, or business risk."
+                            "Summarize what customers are consistently saying about "
+                            "this business driver in approximately 15–30 words. "
+                            "Focus only on observed customer feedback patterns and "
+                            "avoid explaining business implications."
                         )
                     },
 
@@ -178,13 +175,13 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "required": [
                     "driver",
                     "count",
-                    "insight",
-                    "driver_impact",
+                    "summary",
                     "period_comparison"
                 ],
                 "additionalProperties": False
             }
         },
+
         # SENTIMENT SUMMARY
         "sentiment_summary": {
             "type": "object",
@@ -201,10 +198,10 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                         "Percentage of positive feedback."
                     )
                 },
-                "mixed_percentage": {
+                "neutral_percentage": {
                     "type": "number",
                     "description": (
-                        "Percentage of mixed or neutral feedback."
+                        "Percentage of neutral feedback."
                     )
                 },
                 "negative_percentage": {
@@ -224,12 +221,13 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             "required": [
                 "overall",
                 "positive_percentage",
-                "mixed_percentage",
+                "neutral_percentage",
                 "negative_percentage",
                 "insight",
                 ],
                 "additionalProperties": False
         },
+
         # EMOTION SUMMARY
         "emotion_summary": {
             "type": "array",
@@ -265,46 +263,69 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "additionalProperties": False
             }
         },
+
         # LEADERSHIP PRIORITIES
         "leadership_priorities": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
-                    "title": {
+                    "strategic_priority": {
                         "type": "string",
                         "description": (
-                            "Short title describing the leadership priority."
+                            "Short title describing the strategic business area "
+                            "requiring executive attention."
                         )
                     },
-                    "priority": {
+                    "business_objective": {
                         "type": "string",
-                        "enum": [
-                            "High",
-                            "Medium",
-                            "Low"
-                        ],
                         "description": (
-                            "Business priority level."
+                            "State the desired business outcome leadership should "
+                            "achieve by prioritizing this area."
                         )
                     },
-                    "rationale": {
+                    "business_objective": {
                         "type": "string",
                         "description": (
-                            "Business justification in approximately "
-                            "20–40 words explaining why leadership should "
-                            "prioritize this issue."
+                            "State the desired business outcome leadership should "
+                            "achieve by prioritizing this area."
+                        )
+                    },
+                    "why_now": {
+                        "type": "string",
+                        "description": (
+                            "Explain why this priority requires immediate leadership "
+                            "attention based on customer trends, business impact, or "
+                            "operational performance."
+                        )
+                    },
+                    "expected_business_value": {
+                        "type": "string",
+                        "description": (
+                            "Describe the expected customer, financial, operational, "
+                            "or strategic benefit if leadership successfully addresses "
+                            "this priority."
+                        )
+                    },
+                    "executive_owner": {
+                        "type": "string",
+                        "description": (
+                            "Identify the executive business function that should own "
+                            "or sponsor this strategic priority."
                         )
                     }
                 },
                 "required": [
-                    "title",
-                    "priority",
-                    "rationale",
+                    "strategic_priority",
+                    "business_objective",
+                    "why_now",
+                    "expected_business_value",
+                    "executive_owner"
                 ],
                 "additionalProperties": False
             }
         },
+
         # RECOMMENDED ACTIONS
         "recommended_actions": {
             "type": "array",
@@ -348,11 +369,31 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                             "Recommended implementation timeframe."
                         )
                     },
-                    "expected_outcome": {
+                    "supports_priority": {
+                        "type": "array",
+                        "description": (
+                            "Identify the Executive Focus priority or priorities that "
+                            "this recommended action directly supports. Each value must "
+                            "exactly match one of the priorities listed in the "
+                            "'executive_focus' section. Most actions should support one "
+                            "priority, but an action may support multiple priorities if "
+                            "it contributes meaningfully to more than one strategic objective."
+                        ),
+                        "items": {
+                            "type": "string",
+                            "description": (
+                                "The title of an Executive Focus priority supported by "
+                                "this action."
+                            )
+                        },
+                        "minItems": 1,
+                        "maxItems": 2
+                    },
+                    "success_measure": {
                         "type": "string",
                         "description": (
-                            "Expected business or customer outcome in "
-                            "approximately 15–30 words."
+                            "Describe how leadership can determine whether this action "
+                            "was successful using measurable business or customer outcomes."
                         )
                     }
                 },
@@ -362,13 +403,15 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                     "priority",
                     "owner",
                     "timeframe",
-                    "expected_outcome"
+                    "supports_priority",
+                    "success_measure"
                 ],
                 "additionalProperties": False
             }
         },
+
         # AI INVESTIGATION
-        "ai_investigation": {
+        "ai_root_cause_analysis": {
             "type": "array",
             "description": (
                 "Return the 2-3 strongest AI-derived business hypotheses."
@@ -449,6 +492,15 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                             "process or operational data should be reviewed to confirm "
                             "this hypothesis."
                         )
+                    },
+
+                    "operational_validation": {
+                        "type": "string",
+                        "description": (
+                            "Recommend the operational data, business process, "
+                            "department, or KPI that should be reviewed to confirm "
+                            "or reject this hypothesis."
+                        )
                     }
                 },
                 "required": [
@@ -457,13 +509,15 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                     "summary",
                     "evidence",
                     "business_risk",
-                    "recommended_validation"
+                    "recommended_validation",
+                    "operational_validation"
                 ],
                 "additionalProperties": False
             },
             "minItems": 2,
             "maxItems": 3
         },
+
         # CUSTOMER VERBATIMS
         "customer_verbatims": {
             "type": "array",
@@ -491,6 +545,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "additionalProperties": False
             }
         },
+
         # NPS INSIGHT
         "nps_insight": {
             "type": "object",
@@ -537,6 +592,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+
         # CSAT INSIGHT
         "csat_insight": {
             "type": "object",
@@ -583,6 +639,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+
         # CONFIDENCE
         "confidence": {
             "type": "object",
@@ -617,6 +674,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
+
         # KEY METRICS
         "key_metrics": {
             "type": "object",
@@ -633,7 +691,9 @@ EXECUTIVE_SUMMARY_SCHEMA = {
             ],
             "additionalProperties": False
         },
-        "emerging_business_risks": {
+
+        # EMERGING BUSINESS SIGNALS
+        "emerging_business_signals": {
             "type": "array",
             "description": (
                 "Identify the most important emerging business risks based on "
@@ -656,7 +716,7 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                             "Trend"
                         ]
                     },
-                    "risk": {
+                    "business_signal": {
                         "type": "string",
                         "description": (
                             "A short title describing the identified business "
@@ -714,21 +774,31 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                         "customer feedback trends leadership should monitor to "
                         "validate or track this business signal over time."
                         )
+                    },
+                    "potential_impact": {
+                        "type": "string",
+                        "description": (
+                            "Explain the likely effect on customers, operations, revenue, "
+                            "or business performance if this signal continues to develop."
+                        )
                     }
                 },
                 "required": [
                     "signal_type",
-                    "risk",
+                    "business_signal",
                     "severity",
                     "likelihood",
                     "description",
                     "leading_indicators",
-                    "recommended_monitoring"
+                    "recommended_monitoring",
+                    "potential_impact"
                 ],
 
                 "additionalProperties": False
             },
         },
+
+        # INTENT SUMMARY
         "intent_summary": {
             "type": "object",
             "description": (
@@ -798,6 +868,48 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                 "top_intents"
             ],
             "additionalProperties": False
+        },
+        # EXECUTIVE FOCUS
+        # Identify the top 3 enterprise priorities to guide everything else.
+        "executive_focus": {
+            "type": "array",
+            "description": (
+                "Identify the 3 highest-level strategic business priorities "
+                "leadership should focus on during this reporting period. "
+                "These priorities should summarize the most important customer, "
+                "operational, or commercial challenges revealed across the "
+                "entire dataset."
+            ),
+            "items": {
+                "type": "object",
+                "properties": {
+
+                    "priority": {
+                        "type": "string",
+                        "description": (
+                            "Short title (3–6 words) describing the strategic "
+                            "business priority."
+                        )
+                    },
+
+                    "why_it_matters": {
+                        "type": "string",
+                        "description": (
+                            "Explain in approximately 20–35 words why this "
+                            "priority deserves executive attention based on the "
+                            "customer feedback analysis."
+                        )
+                    }
+
+                },
+                "required": [
+                    "priority",
+                    "why_it_matters"
+                ],
+                "additionalProperties": False
+            },
+            "minItems": 3,
+            "maxItems": 3
         }
     },
     "required": [
@@ -809,14 +921,15 @@ EXECUTIVE_SUMMARY_SCHEMA = {
         "emotion_summary",
         "leadership_priorities",
         "recommended_actions",
-        "ai_investigation",
+        "ai_root_cause_analysis",
         "customer_verbatims",
         "nps_insight",
         "csat_insight",
         "confidence",
         "key_metrics",
-        "emerging_business_risks",
+        "emerging_business_signals",
         "intent_summary",
+        "executive_focus",
     ],
     "additionalProperties": False
 }
