@@ -3,6 +3,7 @@
 import os
 from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
+from collections import Counter
 from models import db, Feedback
 from storage.feedback_storage import FeedbackStorage
 from storage.ai_settings_storage import AISettingsStorage
@@ -14,16 +15,16 @@ from services.prompt_service import PromptService
 from services.executive_data_service import ExecutiveDataService
 from services.executive_summary_service import ExecutiveSummaryService
 
-load_dotenv() #Load variables from .env
+load_dotenv()  # Load variables from .env
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 # Define path to database file
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f"sqlite:///{os.path.join(basedir, 'data/insightcx.db')}"
-)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config[
+    "SQLALCHEMY_DATABASE_URI"
+] = f"sqlite:///{os.path.join(basedir, 'data/insightcx.db')}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)  # Link the database and the app.
 
@@ -37,25 +38,41 @@ prompt_service = PromptService()
 executive_data_service = ExecutiveDataService()
 executive_summary_service = ExecutiveSummaryService()
 
+
+# TEMPLATE FILTERS
+@app.template_filter("percent")
+def percent(value):
+    return f"{round(value)}%"
+
+
 @app.route("/")
 def dashboard():
     """
     Display the Executive Dashboard.
     """
 
-    latest_summary = (
-        executive_storage.get_latest_summary()
-    )
+    latest_summary = executive_storage.get_latest_summary()
+
+    summary = latest_summary.summary_json if latest_summary else None
+
+    # Count how many recommended actions support each Executive Focus priority
+    priority_counts = Counter()
+
+    if summary:
+
+        for action in summary.get("recommended_actions", []):
+
+            for priority in action.get("supports_priority", []):
+
+                priority_counts[priority] += 1
 
     return render_template(
         "dashboard.html",
         latest_summary=latest_summary,
-        summary=(
-            latest_summary.summary_json
-            if latest_summary
-            else None
-        ),
+        summary=summary,
+        priority_counts=priority_counts,
     )
+
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
@@ -64,14 +81,10 @@ def upload():
     if request.method == "POST":
 
         try:
-            records = csv_importer.import_feedback(
-                request.files.get("file")
-            )
+            records = csv_importer.import_feedback(request.files.get("file"))
 
             # Save feedback records
-            feedback_objects = feedback_storage.add_feedback(
-                records
-            )
+            feedback_objects = feedback_storage.add_feedback(records)
 
             # Analyze newly imported feedback
             result = analysis_service.analyze_feedback_list(feedback_objects)
@@ -100,39 +113,20 @@ def upload():
 
     return render_template("upload.html")
 
+
 @app.route("/feedback")
 def feedback():
-    """ Display the feedback page. """
+    """Display the feedback page."""
 
-    page = request.args.get(
-        "page",
-        default=1,
-        type=int
-    )
+    page = request.args.get("page", default=1, type=int)
 
-    search = request.args.get(
-        "search",
-        default="",
-        type=str
-    )
+    search = request.args.get("search", default="", type=str)
 
-    survey_type = request.args.get(
-        "survey_type",
-        default="",
-        type=str
-    )
+    survey_type = request.args.get("survey_type", default="", type=str)
 
-    sentiment = request.args.get(
-        "sentiment",
-        default="",
-        type=str
-    )
+    sentiment = request.args.get("sentiment", default="", type=str)
 
-    priority = request.args.get(
-        "priority",
-        default="",
-        type=str
-    )
+    priority = request.args.get("priority", default="", type=str)
 
     filters = {
         "search": search,
@@ -142,16 +136,10 @@ def feedback():
     }
 
     feedback_page = feedback_storage.get_feedback_page(
-        page=page,
-        per_page=25,
-        filters=filters
+        page=page, per_page=25, filters=filters
     )
 
-    sample_count = (
-        db.session.query(Feedback)
-        .filter_by(is_test_sample=True)
-        .count()
-    )
+    sample_count = db.session.query(Feedback).filter_by(is_test_sample=True).count()
 
     survey_types = (
         db.session.query(Feedback.survey_type)
@@ -160,11 +148,7 @@ def feedback():
         .all()
     )
 
-    survey_types = [
-        row[0]
-        for row in survey_types
-        if row[0]
-    ]
+    survey_types = [row[0] for row in survey_types if row[0]]
 
     return render_template(
         "feedback.html",
@@ -173,6 +157,7 @@ def feedback():
         survey_types=survey_types,
         filters=filters,
     )
+
 
 @app.route("/feedback/<int:feedback_id>")
 def feedback_details(feedback_id):
@@ -187,54 +172,36 @@ def feedback_details(feedback_id):
     analysis = analysis_storage.get_analysis(feedback_id)
 
     return render_template(
-        "feedback_details.html",
-        feedback=feedback_record,
-        analysis=analysis
+        "feedback_details.html", feedback=feedback_record, analysis=analysis
     )
 
-@app.route(
-    "/feedback/<int:feedback_id>/reanalyze",
-    methods=["POST"]
-)
+
+@app.route("/feedback/<int:feedback_id>/reanalyze", methods=["POST"])
 def reanalyze_feedback(feedback_id):
     """Re-analyze a single feedback record."""
 
     try:
         analysis_service.reanalyze(feedback_id)
 
-        flash(
-            "Feedback successfully re-analyzed.",
-            "success"
-        )
+        flash("Feedback successfully re-analyzed.", "success")
 
     except ValueError as e:
         flash(str(e), "error")
 
     except Exception:
-        app.logger.exception(
-            "Failed to re-analyze feedback."
-        )
+        app.logger.exception("Failed to re-analyze feedback.")
 
-        flash(
-            "An unexpected error occurred.",
-            "error"
-        )
+        flash("An unexpected error occurred.", "error")
 
-    return redirect(
-        url_for(
-            "feedback_details",
-            feedback_id=feedback_id
-        )
-    )
+    return redirect(url_for("feedback_details", feedback_id=feedback_id))
+
 
 @app.route("/admin")
 def admin():
     """Display the admin page."""
 
     settings = ai_settings_storage.get_settings()
-    latest_summary = (executive_storage
-        .get_latest_summary()
-    )
+    latest_summary = executive_storage.get_latest_summary()
 
     system_versions = prompt_service.get_versions("system")
     feedback_versions = prompt_service.get_versions("feedback")
@@ -247,13 +214,10 @@ def admin():
         feedback_versions=feedback_versions,
         executive_versions=executive_versions,
         latest_summary=latest_summary,
-
     )
 
-@app.route(
-    "/admin/ai-settings",
-    methods=["POST"]
-)
+
+@app.route("/admin/ai-settings", methods=["POST"])
 def update_ai_settings():
     """Updates the ai_settings table with a new model, system prompt
     and/or feedback prompt version."""
@@ -265,105 +229,56 @@ def update_ai_settings():
     if settings_type == "feedback":
 
         ai_settings_storage.update_feedback_settings(
-
             model=request.form["model"],
-
-            temperature=float(
-                request.form["temperature"]
-            ),
-
-            system_prompt_version=request.form[
-                "system_prompt"
-            ],
-
-            feedback_prompt_version=request.form[
-                "feedback_prompt"
-            ],
-
-            description=request.form[
-                "description"
-            ],
-
+            temperature=float(request.form["temperature"]),
+            system_prompt_version=request.form["system_prompt"],
+            feedback_prompt_version=request.form["feedback_prompt"],
+            description=request.form["description"],
         )
 
     else:
 
         ai_settings_storage.update_executive_settings(
-
-            executive_model=request.form[
-                "executive_model"
-            ],
-
-            executive_temperature=float(
-                request.form[
-                    "executive_temperature"
-                ]
-            ),
-
-            executive_prompt_version=request.form[
-                "executive_prompt"
-            ],
-
+            executive_model=request.form["executive_model"],
+            executive_temperature=float(request.form["executive_temperature"]),
+            executive_prompt_version=request.form["executive_prompt"],
         )
 
     # Set success message based on the setting type that was updated
     if settings_type == "feedback":
 
-        flash(
-            "Feedback AI settings updated.",
-            "success"
-        )
+        flash("Feedback AI settings updated.", "success")
 
     else:
 
-        flash(
-            "Executive AI settings updated.",
-            "success"
-        )
+        flash("Executive AI settings updated.", "success")
 
-    return redirect(
-        url_for("admin")
-    )
+    return redirect(url_for("admin"))
 
-@app.route(
-    "/admin/delete-analyses",
-    methods=["POST"]
-)
 
+@app.route("/admin/delete-analyses", methods=["POST"])
 def delete_all_analyses():
     """Delete all analyses stored in the database."""
 
     analysis_storage.delete_all()
 
-    flash(
-        "All analyses deleted.",
-        "success"
-    )
+    flash("All analyses deleted.", "success")
 
     return redirect(url_for("admin"))
 
-@app.route(
-    "/admin/delete-feedback",
-    methods=["POST"]
-)
 
+@app.route("/admin/delete-feedback", methods=["POST"])
 def delete_all_feedback():
     """Delete all feedback stored in the database."""
 
     feedback_storage.delete_all()
 
-    flash(
-        "All feedback deleted.",
-        "success"
-    )
+    flash("All feedback deleted.", "success")
 
     return redirect(url_for("admin"))
 
-@app.route(
-    "/admin/reanalyze",
-    methods=["POST"]
-)
 
+@app.route("/admin/reanalyze", methods=["POST"])
 def reanalyze_all():
     """Re-analyze all feedback records."""
 
@@ -373,100 +288,61 @@ def reanalyze_all():
         f"Analysis complete. "
         f"{result['processed']} processed, "
         f"{result['failed']} failed.",
-        "success"
+        "success",
     )
 
     return redirect(url_for("admin"))
 
-@app.post("/feedback/<int:feedback_id>/sample")
 
+@app.post("/feedback/<int:feedback_id>/sample")
 def toggle_sample(feedback_id):
     """Handles check boxes flagging for testing sample."""
 
-    selected = (
-        request.form["selected"]
-        == "true"
-    )
+    selected = request.form["selected"] == "true"
 
-    feedback_storage.update_test_sample(
-        feedback_id,
-        selected
-    )
+    feedback_storage.update_test_sample(feedback_id, selected)
 
-    sample_count = (
-        Feedback.query
-        .filter_by(is_test_sample=True)
-        .count()
-    )
+    sample_count = Feedback.query.filter_by(is_test_sample=True).count()
 
-    return {
-        "sample_count": sample_count
-    }
+    return {"sample_count": sample_count}
 
 
-@app.route(
-    "/admin/prompt-test",
-    methods=["GET", "POST"]
-)
-
+@app.route("/admin/prompt-test", methods=["GET", "POST"])
 def prompt_test():
     """Display the prompt testing page."""
 
     settings = ai_settings_storage.get_settings()
 
-    feedback_id = request.args.get(
-        "feedback_id",
-        type=int
-    )
+    feedback_id = request.args.get("feedback_id", type=int)
 
     feedback = None
 
     # Single feedback mode
     if feedback_id:
 
-        feedback = feedback_storage.get_feedback(
-            feedback_id
-        )
+        feedback = feedback_storage.get_feedback(feedback_id)
 
         if feedback is None:
-            flash(
-                "Feedback not found.",
-                "error"
-            )
-            return redirect(
-                url_for("feedback")
-            )
+            flash("Feedback not found.", "error")
+            return redirect(url_for("feedback"))
 
-    system_versions = (
-        prompt_service.get_versions("system")
-    )
+    system_versions = prompt_service.get_versions("system")
 
-    feedback_versions = (
-        prompt_service.get_versions("feedback")
-    )
+    feedback_versions = prompt_service.get_versions("feedback")
 
     result = None
 
     if request.method == "POST":
 
-        mode = request.form.get(
-            "mode",
-            "single"
-        )
+        mode = request.form.get("mode", "single")
 
         model = request.form["model"]
 
-        temperature = float(
-            request.form["temperature"]
-        )
+        temperature = float(request.form["temperature"])
 
-        system_prompt = request.form[
-            "system_prompt"
-        ]
+        system_prompt = request.form["system_prompt"]
 
-        feedback_prompt = request.form[
-            "feedback_prompt"
-        ]
+        feedback_prompt = request.form["feedback_prompt"]
 
         # ----------------------------
         # Single feedback
@@ -474,23 +350,16 @@ def prompt_test():
         if mode == "single":
 
             if feedback is None:
-                flash(
-                    "No feedback selected.",
-                    "error"
-                )
+                flash("No feedback selected.", "error")
 
-                return redirect(
-                    url_for("feedback")
-                )
+                return redirect(url_for("feedback"))
 
-            result = (
-                analysis_service.test_feedback(
-                    feedback,
-                    model=model,
-                    temperature=temperature,
-                    system_prompt_version=system_prompt,
-                    feedback_prompt_version=feedback_prompt,
-                )
+            result = analysis_service.test_feedback(
+                feedback,
+                model=model,
+                temperature=temperature,
+                system_prompt_version=system_prompt,
+                feedback_prompt_version=feedback_prompt,
             )
 
         # ----------------------------
@@ -498,13 +367,11 @@ def prompt_test():
         # ----------------------------
         elif mode == "benchmark":
 
-            result = (
-                analysis_service.test_sample(
-                    model=model,
-                    temperature=temperature,
-                    system_prompt_version=system_prompt,
-                    feedback_prompt_version=feedback_prompt,
-                )
+            result = analysis_service.test_sample(
+                model=model,
+                temperature=temperature,
+                system_prompt_version=system_prompt,
+                feedback_prompt_version=feedback_prompt,
             )
 
     return render_template(
@@ -516,45 +383,7 @@ def prompt_test():
         result=result,
     )
 
-# # TEMPORARY SUMMARY TESTING ROUTE
-# @app.route(
-#     "/admin/generate-summary"
-# )
-# def generate_summary():
-#     """
-#     Generate an executive summary from the
-#     current feedback dataset.
-#     """
-#
-#     summary_data = (
-#         executive_data_service
-#         .build_summary_data()
-#     )
-#
-#     result = (
-#         executive_summary_service
-#         .generate_summary(
-#             summary_data
-#         )
-#     )
-#
-#     print("\n========== EXECUTIVE SUMMARY ==========\n")
-#
-#     print(
-#         json.dumps(
-#             result["summary"],
-#             indent=2
-#         )
-#     )
-#
-#     print("\n======================================\n")
-#
-#     return (
-#         "Executive summary generated. "
-#         "Check the terminal."
-#     )
 
-# FINAL SUMMARY ROUTE
 @app.post("/admin/generate-summary")
 def generate_summary():
     """
@@ -567,34 +396,21 @@ def generate_summary():
         if selected_model == "":
             selected_model = None
 
-        summary_data = (
-            executive_data_service
-            .build_summary_data()
+        summary_data = executive_data_service.build_summary_data()
+
+        result = executive_summary_service.generate_summary(
+            summary_data,
+            model=selected_model,
         )
 
-        result = (
-            executive_summary_service
-            .generate_summary(
-                summary_data,
-                model=selected_model,
-            )
-        )
-
-        flash(
-            "Executive summary generated successfully.",
-            "success"
-        )
+        flash("Executive summary generated successfully.", "success")
 
     except Exception as e:
 
-        flash(
-            f"Error generating executive summary: {e}",
-            "danger"
-        )
+        flash(f"Error generating executive summary: {e}", "danger")
 
-    return redirect(
-        url_for("admin")
-    )
+    return redirect(url_for("admin"))
+
 
 if __name__ == "__main__":
     # One-time creation of database
