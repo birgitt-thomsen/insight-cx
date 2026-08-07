@@ -1,69 +1,169 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "layout.html" %} {% block content %}
 
+<a class="back-link" href="{{ url_for('feedback') }}"> ← Back to Feedback </a>
 
-<a class="back-link" href="{{ url_for('feedback') }}">
-    ← Back to Feedback
-</a>
+<div class="brief-card">
+    <h2>Customer Feedback</h2>
 
-<hr>
-<h3><strong>Details</strong></h3>
-<p>Customer: {{ feedback.customer_name }}</p>
-<p>Customer ID: {{ feedback.customer_id }}</p>
-<p>Order: {{ feedback.order_number }}</p>
-<p>Feedback Date: {{ feedback.feedback_date }}</p>
-<p>Survey: {{ feedback.survey_type }}</p>
-<p>Score: {{ feedback.score }}</p>
-<p>Category: TBD</p>
+    <div class="brief-grid">
+        <div>
+            <p><strong>Customer</strong><br />{{ feedback.customer_name }}</p>
+            <p><strong>Customer ID</strong><br />{{ feedback.customer_id }}</p>
+            <p><strong>Order</strong><br />{{ feedback.order_number }}</p>
+        </div>
 
-<hr>
+        <div>
+            <p><strong>Feedback Date</strong><br />{{ feedback.feedback_date }}</p>
+            <p><strong>Survey</strong><br />{{ feedback.survey_type }}</p>
+            <p><strong>Score</strong><br />{{ feedback.score }}</p>
+        </div>
+    </div>
 
-<p>Customer Feedback:</p>
-<p>{{ feedback.comment }}</p>
+    <hr class="section-divider" />
 
-<hr>
+    <h4>Customer Comment</h4>
 
-<h3><strong>AI Analysis</strong></h3>
+    <blockquote>{{ feedback.comment }}</blockquote>
+</div>
 
-<p>Sentiment: {{ analysis.sentiment }}</p>
+<div class="brief-card">
+    <h2>AI Assessment</h2>
 
-<p>Emotions: {{ analysis.emotion }}</p>
+    <div class="brief-grid">
+        <div>
+            <p>
+                <strong>Sentiment</strong><br />
 
-<p>Themes</p>
-<ul>
-    {% for theme in analysis.themes %}
-        <li>{{ theme }}</li>
-    {% endfor %}
-</ul>
+                {{ analysis.sentiment }}
+            </p>
 
-<p>Priority: {{ analysis.priority }}</p>
-<p>Confidence: {{ analysis.confidence }}</p>
+            <p>
+                <strong>Intent</strong><br />
 
-<p>Summary:</p>
-<p>{{ analysis.summary }}</p>
+                {{ analysis.intent }}
+            </p>
 
-<p>Model: {{ analysis.model }}</p>
-<p>Prompt Version: {{ analysis.prompt_version }}</p>
-<p>Analysis Version: {{ analysis.analysis_version }}</p>
-<p>Analyzed: {{ analysis.analyzed_at }}</p>
+            <p>
+                <strong>Priority</strong><br />
 
-<form
-    method="POST"
-    action="{{ url_for('reanalyze_feedback',
-                       feedback_id=feedback.id) }}"
->
-    <button type="submit">
-        Re-analyze Feedback
-    </button>
-</form>
+                {{ analysis.priority }}
+            </p>
+        </div>
 
-<a
-    href="{{ url_for(
-        'prompt_test',
-        feedback_id=feedback.id
-    ) }}"
-    class="btn btn-secondary">
-    Test Prompt
-</a>
+        <div>
+            <p>
+                <strong>Confidence</strong><br />
+
+                {{ analysis.confidence_level }} ({{ analysis.confidence_score }}%)
+            </p>
+
+            <p>{{ analysis.analysis_json["confidence"]["reason"] }}</p>
+        </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <h4>Detected Emotions</h4>
+
+    <div class="emotion-list">
+        {% for emotion in analysis.emotions %}
+
+        <span class="emotion-badge"> {{ emotion }} </span>
+
+        {% endfor %}
+    </div>
+
+    <hr class="section-divider" />
+
+    <h4>Reason Codes</h4>
+
+    <table class="config-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Reason Code</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for reason in analysis.reason_codes %}
+
+            <tr>
+                <td>{{ reason.rank }}</td>
+
+                <td>{{ reason.code }}</td>
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="brief-card">
+    <h2>Business Interpretation</h2>
+
+    <p>{{ analysis.business_signal }}</p>
+</div>
+
+<div class="brief-card">
+    <h2>Analysis Metadata</h2>
+
+    <table class="config-table">
+        <tr>
+            <th>Model</th>
+            <td>{{ analysis.model }}</td>
+        </tr>
+
+        <tr>
+            <th>System Prompt</th>
+            <td>{{ analysis.system_prompt_version }}</td>
+        </tr>
+
+        <tr>
+            <th>Feedback Prompt</th>
+            <td>{{ analysis.feedback_prompt_version }}</td>
+        </tr>
+
+        <tr>
+            <th>Analysis Version</th>
+            <td>{{ analysis.analysis_version }}</td>
+        </tr>
+
+        <tr>
+            <th>Analyzed</th>
+            <td>{{ analysis.analyzed_at }}</td>
+        </tr>
+    </table>
+</div>
+
+<!--RAW RESPONSE DROP DOWN-->
+<details class="brief-card">
+    <summary>Raw AI Response</summary>
+
+    <pre>{{ analysis.analysis_json | tojson(indent=2) }}</pre>
+</details>
+
+<!--BUTTONS-->
+<div style="display: flex; gap: 16px; margin-top: 30px">
+    <form
+        method="POST"
+        action="{{ url_for(
+            'reanalyze_feedback',
+            feedback_id=feedback.id
+        ) }}"
+    >
+        <button type="submit">Re-analyze Feedback</button>
+    </form>
+
+    <a
+        href="{{ url_for(
+            'prompt_test',
+            feedback_id=feedback.id
+        ) }}"
+        class="btn btn-secondary"
+    >
+        Test Prompt
+    </a>
+</div>
 
 {% endblock %}

@@ -1,638 +1,697 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block content %}
 
-{% block content %}
-
-<div class="dashboard-container">
-
-    <h2>Prompt Testing</h2>
-
-    <form
-        method="POST"
-        action="{{ url_for(
-            'prompt_test',
-            feedback_id=feedback.id if feedback else None
-        ) }}"
-    >
-
-        {% if feedback %}
-
-            <input
-                type="hidden"
-                name="mode"
-                value="single"
-            >
-
-        {% else %}
-
-            <input
-                type="hidden"
-                name="mode"
-                value="benchmark"
-            >
-
-        {% endif %}
-
-        <div class="panel">
-
-            <h3>Configuration</h3>
-
-            <p>
-
-                <label>Model</label><br>
-
-                <select
-                    id="model"
-                    name="model"
-                >
-
-                    <option value="gpt-5-mini">
-                        GPT-5 mini
-                    </option>
-
-                    <option value="gpt-4o-mini">
-                        GPT‑4o mini
-                    </option>
-
-                    <option value="gpt-4.1-mini">
-                        GPT-4.1 mini
-                    </option>
-
-                </select>
-
+<div class="executive-dashboard">
+    <!--HEADER SECTION-->
+    <header class="executive-header">
+        <div>
+            <h1>Prompt Testing</h1>
+            <p class="subtitle">
+                Evaluate AI prompts and models using individual feedback or benchmark datasets to measure analysis quality and consistency.
             </p>
-
-            <p>
-
-                <label>Temperature</label><br>
-
-                 <input
-                    id="temperature"
-                    type="number"
-                    name="temperature"
-                    value="{{ settings.feedback_temperature }}"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                >
-
-            </p>
-
-            <p
-                id="temperature-note"
-                class="helper-text"
-            >
-
-                Temperature is ignored by GPT-5 models.
-
-            </p>
-            <p>
-
-                <label>System Prompt</label><br>
-
-                <select name="system_prompt">
-
-                    {% for version in system_versions %}
-
-                        <option value="{{ version }}">
-                            {{ version }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </p>
-
-            <p>
-
-                <label>Feedback Prompt</label><br>
-
-                <select name="feedback_prompt">
-
-                    {% for version in feedback_versions %}
-
-                        <option value="{{ version }}">
-                            {{ version }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </p>
-
-            <button type="submit">
-
-                Run Prompt Test
-
-            </button>
-
         </div>
+    </header>
 
-    </form>
 
-    <br>
+    <div class="dashboard-container">
+        <form
+            method="POST"
+            action="{{ url_for(
+                'prompt_test',
+                feedback_id=feedback.id if feedback else None
+            ) }}"
+        >
+            {% if feedback %}
 
-    {% if feedback %}
+            <input type="hidden" name="mode" value="single" />
 
+            {% else %}
+
+            <input type="hidden" name="mode" value="benchmark" />
+
+            {% endif %}
+
+            <!-- ====================================================== -->
+            <!-- CURRENT CONFIGURATION -->
+            <!-- ====================================================== -->
+            <div class="panel">
+                <h3>Test Configuration</h3>
+
+                <p>
+                    <label>Model</label><br />
+
+                    <select id="model" name="model">
+                        <option value="gpt-5-mini">GPT-5 mini</option>
+
+                        <option value="gpt-4o-mini">GPT‑4o mini</option>
+
+                        <option value="gpt-4.1-mini">GPT-4.1 mini</option>
+                    </select>
+                </p>
+
+                <p>
+                    <label>Temperature</label><br />
+
+                    <input
+                        id="temperature"
+                        type="number"
+                        name="temperature"
+                        value="{{ settings.feedback_temperature }}"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                    />
+                </p>
+
+                <p id="temperature-note" class="helper-text">Temperature is ignored by GPT-5 models.</p>
+                <p>
+                    <label>System Prompt</label><br />
+
+                    <select name="system_prompt">
+                        {% for version in system_versions %}
+
+                        <option value="{{ version }}">{{ version }}</option>
+
+                        {% endfor %}
+                    </select>
+                </p>
+
+                <p>
+                    <label>Feedback Prompt</label><br />
+
+                    <select name="feedback_prompt">
+                        {% for version in feedback_versions %}
+
+                        <option value="{{ version }}">{{ version }}</option>
+
+                        {% endfor %}
+                    </select>
+                </p>
+
+                {% if feedback %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Analyze Feedback
+
+                </button>
+
+                {% else %}
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Evaluate Benchmark
+
+                </button>
+
+                {% endif %}
+            </div>
+        </form>
+
+        <br />
+
+        <!-- ====================================================== -->
+        <!-- PROMPT TEST TYPES -->
+        <!-- ====================================================== -->
+        {% if feedback %}
+        <!-- SINGLE TEST -->
         <div class="panel">
-
             <h3>Selected Feedback</h3>
 
             <p>
-
                 <strong>ID:</strong>
 
                 {{ feedback.id }}
-
             </p>
 
             <p>
-
                 <strong>Survey:</strong>
 
                 {{ feedback.survey_type }}
-
             </p>
 
             <p>
-
                 <strong>Score:</strong>
 
                 {{ feedback.score }}
-
             </p>
 
             <p>
-
                 <strong>Comment</strong>
-
             </p>
 
-            <p>
-
-                {{ feedback.comment }}
-
-            </p>
-
+            <p>{{ feedback.comment }}</p>
         </div>
 
-    {% else %}
+        {% else %}
+        <!-- BENCHMARK TEST -->
+        <div class="panel">
+            <h3>Benchmark Sample</h3>
+
+            <p>This test evaluates the currently selected benchmark sample.</p>
+        </div>
+
+        {% endif %}
+
+        <!-- ====================================================== -->
+        <!-- EVALUATION SUMMARY -->
+        <!-- ====================================================== -->
+
+        {% if result %}
+
+        <!-- ====================================================== -->
+        <!-- EVALUATION CONFIGURATION -->
+        <!-- ====================================================== -->
 
         <div class="panel">
 
-            <h3>Benchmark Sample</h3>
+            <h3>
 
-            <p>
+                Evaluation Configuration
 
-                This test evaluates the currently selected
-                benchmark sample.
+            </h3>
+
+            <p class="metric-summary">
+
+                AI settings used to generate these evaluation results.
 
             </p>
 
+            <div class="configuration-grid">
+
+                <div>
+
+                    <strong>Model</strong><br>
+
+                    {{ request.form.model }}
+
+                </div>
+
+                <div>
+
+                    <strong>System Prompt</strong><br>
+
+                    {{ request.form.system_prompt }}
+
+                </div>
+
+                <div>
+
+                    <strong>Feedback Prompt</strong><br>
+
+                    {{ request.form.feedback_prompt }}
+
+                </div>
+
+                <div>
+
+                    <strong>Temperature</strong><br>
+
+                    {{ request.form.temperature }}
+
+                </div>
+
+                <div>
+
+                    <strong>Evaluation Type</strong><br>
+
+                    {% if feedback %}
+
+                        Single Feedback
+
+                    {% else %}
+
+                        Benchmark Dataset
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
         </div>
 
-    {% endif %}
-
-    {% if result %}
-
-        <br>
+        <br />
 
         <h2>Evaluation Summary</h2>
 
+        <p class="subtitle">Compare prompt performance and analysis consistency across the selected feedback sample.</p>
+
+        <!-- ============================================== -->
+        <!-- OVERVIEW METRICS -->
+        <!-- ============================================== -->
+
         <div class="metric-row">
-
             <div class="metric-card">
+                <span class="metric-label"> Processed </span>
 
-                <h4>Processed</h4>
-
-                <p>{{ result.total }}</p>
-
+                <h2>{{ result.total }}</h2>
             </div>
 
             <div class="metric-card">
+                <span class="metric-label"> Successful </span>
 
-                <h4>Successful</h4>
-
-                <p>{{ result.successful }}</p>
-
+                <h2>{{ result.successful }}</h2>
             </div>
 
             <div class="metric-card">
+                <span class="metric-label"> Failed </span>
 
-                <h4>Failed</h4>
-
-                <p>{{ result.failed }}</p>
-
+                <h2>{{ result.failed }}</h2>
             </div>
 
             <div class="metric-card">
+                <span class="metric-label"> Avg Confidence </span>
 
-                <h4>Avg Confidence</h4>
-
-                <p>
-
-                    {{ result.statistics.average_confidence }}
-
-                </p>
-
+                <h2>{{ result.statistics.confidence.average_score }}</h2>
             </div>
-
         </div>
+
+        <!-- ============================================== -->
+        <!-- DISTRIBUTIONS -->
+        <!-- ============================================== -->
 
         <div class="dashboard-row">
+            <!-- ------------------------------------------ -->
+            <!-- Sentiment -->
+            <!-- ------------------------------------------ -->
 
             <div class="panel">
-
-                <h3>Sentiment Distribution</h3>
+                <h3>Sentiment</h3>
 
                 <table>
-
                     <thead>
-
                         <tr>
-
                             <th>Sentiment</th>
-
                             <th>Count</th>
-
                         </tr>
-
                     </thead>
 
                     <tbody>
-
-                    {% for sentiment, count in result.statistics.sentiment.items() %}
+                        {% for sentiment, count in result.statistics.sentiment.items() %}
 
                         <tr>
-
                             <td>{{ sentiment }}</td>
-
                             <td>{{ count }}</td>
-
                         </tr>
 
-                    {% endfor %}
-
+                        {% endfor %}
                     </tbody>
-
                 </table>
-
             </div>
 
-            <div class="panel">
+            <!-- ------------------------------------------ -->
+            <!-- Intent -->
+            <!-- ------------------------------------------ -->
 
-                <h3>Priority Distribution</h3>
+            <div class="panel">
+                <h3>Customer Intent</h3>
 
                 <table>
-
                     <thead>
+                        <tr>
+                            <th>Intent</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for intent, count in result.statistics.intent.items() %}
 
                         <tr>
+                            <td>{{ intent }}</td>
+                            <td>{{ count }}</td>
+                        </tr>
 
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ------------------------------------------ -->
+            <!-- Priority -->
+            <!-- ------------------------------------------ -->
+
+            <div class="panel">
+                <h3>Priority</h3>
+
+                <table>
+                    <thead>
+                        <tr>
                             <th>Priority</th>
-
                             <th>Count</th>
-
                         </tr>
-
                     </thead>
 
                     <tbody>
-
-                    {% for priority, count in result.statistics.priority.items() %}
+                        {% for priority, count in result.statistics.priority.items() %}
 
                         <tr>
-
                             <td>{{ priority }}</td>
-
                             <td>{{ count }}</td>
-
                         </tr>
 
-                    {% endfor %}
-
+                        {% endfor %}
                     </tbody>
-
                 </table>
-
             </div>
-
-            <div class="panel">
-
-                <h3>Top Themes</h3>
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Theme</th>
-
-                            <th>Count</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    {% for theme, count in result.statistics.themes %}
-
-                        <tr>
-
-                            <td>{{ theme }}</td>
-
-                            <td>{{ count }}</td>
-
-                        </tr>
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
         </div>
 
-        <br>
+        <!-- ============================================== -->
+        <!-- SECOND ROW -->
+        <!-- ============================================== -->
+
+        <div class="dashboard-row">
+            <!-- ------------------------------------------ -->
+            <!-- Emotion -->
+            <!-- ------------------------------------------ -->
+
+            <div class="panel">
+                <h3>Emotion</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Emotion</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for emotion, count in result.statistics.emotions.items() %}
+
+                        <tr>
+                            <td>{{ emotion }}</td>
+                            <td>{{ count }}</td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ------------------------------------------ -->
+            <!-- Confidence -->
+            <!-- ------------------------------------------ -->
+
+            <div class="panel">
+                <h3>Confidence Levels</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for level, count in result.statistics.confidence.levels.items() %}
+
+                        <tr>
+                            <td>{{ level }}</td>
+                            <td>{{ count }}</td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ------------------------------------------ -->
+            <!-- Primary Reason Codes -->
+            <!-- ------------------------------------------ -->
+
+            <div class="panel">
+                <h3>Top Primary Reasons</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reason Code</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for code, count in result.statistics.primary_reason_codes %}
+
+                        <tr>
+                            <td>{{ code }}</td>
+                            <td>{{ count }}</td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <br />
+
+        <!-- ============================================== -->
+        <!-- ANALYSIS COMPARISON CARDS -->
+        <!-- ============================================== -->
 
         <h2>Individual Results</h2>
 
         {% for item in result.results %}
 
-            <details class="panel">
+        <details class="panel">
+            <summary>Feedback {{ item.feedback.id }}</summary>
 
-                <summary>
+            <br />
 
-                    Feedback {{ item.feedback.id }}
+            <strong>Comment</strong>
 
-                </summary>
+            <p>{{ item.feedback.comment }}</p>
 
-                <br>
+            {% if item.error %}
 
-                <strong>Comment</strong>
+            <strong>Error</strong>
 
-                <p>
+            <pre>{{ item.error }}</pre>
 
-                    {{ item.feedback.comment }}
+            {% else %}
 
-                </p>
+            <h4>{{ item.changed_fields|length }} field(s) changed</h4>
 
-                {% if item.error %}
+            <div class="analysis-comparison-grid">
+                <!-- SENTIMENT -->
 
-                    <strong>Error</strong>
+                <div class="analysis-card {% if 'sentiment' in item.changed_fields %} changed-card {% endif %}">
+                    <h4>Sentiment</h4>
 
-                    <pre>{{ item.error }}</pre>
+                    <div class="comparison-values">
+                        <div>
+                            <span class="comparison-label">  Current Analysis </span>
 
-                {% else %}
+                            <strong> {{ item.current.sentiment }} </strong>
+                        </div>
 
-                    <strong>Analysis</strong>
+                        <div>
+                            <span class="comparison-label"> New Analysis </span>
 
-                    <h4>
-                        {{ item.changed_fields|length }}
-                        field(s) changed
-                    </h4>
+                            <strong> {{ item.output.sentiment }} </strong>
+                        </div>
+                    </div>
 
-                   <table class="comparison-table">
+                    {% if "sentiment" in item.changed_fields %}
 
-                        <thead>
+                    <span class="changed-check"> ✓ Changed </span>
 
-                            <tr>
+                    {% endif %}
+                </div>
 
-                                <th>Field</th>
-                                <th>Current</th>
-                                <th>Prompt Test</th>
-                                <th>Changed</th>
+                <!-- EMOTION -->
 
-                            </tr>
-                        </thead>
+                <div class="analysis-card {% if 'emotions' in item.changed_fields %} changed-card {% endif %}">
+                    <h4>Emotion</h4>
 
-                        <tbody>
+                    <div class="comparison-values">
+                        <div>
+                            <span class="comparison-label"> Current Analysis </span>
 
-                            <tr
-                            {% if "sentiment" in item.changed_fields %}
-                            class="changed-row"
-                            {% endif %}
-                            >
+                            <strong> {{ item.current.emotions | join(", ") }} </strong>
+                        </div>
 
-                                <td>Sentiment</td>
+                        <div>
+                            <span class="comparison-label"> New Analysis </span>
 
-                                <td>{{ item.current.sentiment }}</td>
+                            <strong> {{ item.output.emotions | join(", ") }} </strong>
+                        </div>
+                    </div>
 
-                                <td>{{ item.output.sentiment }}</td>
+                    {% if "emotions" in item.changed_fields %}
 
-                                <td>
+                    <span class="changed-check"> ✓ Changed </span>
 
-                                    {% if "sentiment" in item.changed_fields %}
-                                        <span class="changed-check">
-                                        ✓
-                                        </span>
-                                    {% endif %}
+                    {% endif %}
+                </div>
 
-                                </td>
+                <!-- INTENT -->
 
-                            </tr>
+                <div class="analysis-card {% if 'intent' in item.changed_fields %} changed-card {% endif %}">
+                    <h4>Customer Intent</h4>
 
-                            <tr
-                            {% if "emotion" in item.changed_fields %}
-                            class="changed-row"
-                            {% endif %}
-                            >
+                    <div class="comparison-values">
+                        <div>
+                            <span class="comparison-label"> Current Analysis </span>
 
-                                <td>Emotion</td>
+                            <strong> {{ item.current.intent | join(", ") }} </strong>
+                        </div>
 
-                                <td>{{ item.current.emotion }}</td>
+                        <div>
+                            <span class="comparison-label"> New Analysis </span>
 
-                                <td>{{ item.output.emotion }}</td>
+                            <strong> {{ item.output.intent | join(", ") }} </strong>
+                        </div>
+                    </div>
 
-                                <td>
+                    {% if "intent" in item.changed_fields %}
 
-                                    {% if "emotion" in item.changed_fields %}
-                                        <span class="changed-check">
-                                        ✓
-                                        </span>
-                                    {% endif %}
+                    <span class="changed-check"> ✓ Changed </span>
 
-                                </td>
+                    {% endif %}
+                </div>
 
-                            </tr>
+                <!-- PRIORITY -->
 
-                            <tr
-                            {% if "priority" in item.changed_fields %}
-                            class="changed-row"
-                            {% endif %}
-                            >
+                <div class="analysis-card {% if 'priority' in item.changed_fields %} changed-card {% endif %}">
+                    <h4>Priority</h4>
 
-                                <td>Priority</td>
+                    <div class="comparison-values">
+                        <div>
+                            <span class="comparison-label"> Current Analysis </span>
 
-                                <td>{{ item.current.priority }}</td>
+                            <strong> {{ item.current.priority }} </strong>
+                        </div>
 
-                                <td>{{ item.output.priority }}</td>
+                        <div>
+                            <span class="comparison-label"> New Analysis </span>
 
-                                <td>
+                            <strong> {{ item.output.priority }} </strong>
+                        </div>
+                    </div>
 
-                                    {% if "priority" in item.changed_fields %}
-                                        <span class="changed-check">
-                                        ✓
-                                        </span>
-                                    {% endif %}
+                    {% if "priority" in item.changed_fields %}
 
-                                </td>
+                    <span class="changed-check"> ✓ Changed </span>
 
-                            </tr>
+                    {% endif %}
+                </div>
 
-                            <tr
-                            {% if "confidence" in item.changed_fields %}
-                            class="changed-row"
-                            {% endif %}
-                            >
+                <!-- CONFIDENCE -->
 
-                                <td>Confidence</td>
+                <div class="analysis-card wide-card {% if 'confidence' in item.changed_fields %} changed-card {% endif %}">
+                    <h4>Confidence</h4>
 
-                                <td>{{ item.current.confidence }}</td>
+                    <div class="confidence-comparison">
+                        <div>
+                            <span class="comparison-label"> Current Analysis </span>
 
-                                <td>{{ item.output.confidence }}</td>
+                            <strong> {{ item.current.confidence_level }} ({{ item.current.confidence_score }}%) </strong>
+                        </div>
 
-                                <td>
+                        <div>
+                            <span class="comparison-label"> New Analysis </span>
 
-                                    {% if "confidence" in
-                                    item.changed_fields %}
-                                        <span class="changed-check">
-                                        ✓
-                                        </span>
-                                    {% endif %}
+                            <strong> {{ item.output.confidence.level }} ({{ item.output.confidence.score }}%) </strong>
 
-                                </td>
+                            <p>{{ item.output.confidence.reason }}</p>
+                        </div>
+                    </div>
 
-                            </tr>
+                    {% if "confidence" in item.changed_fields %}
 
-                            <tr
-                            {% if "themes" in item.changed_fields %}
-                            class="changed-row"
-                            {% endif %}
-                            >
+                    <span class="changed-check"> ✓ Changed </span>
 
-                                <td>Themes</td>
+                    {% endif %}
+                </div>
 
-                                <td>{{ item.current.themes|join(", ") }}</td>
+                <!-- REASON CODES -->
 
-                                <td>{{ item.output.themes|join(", ") }}</td>
+                <div
+                    class="analysis-card wide-card {% if 'reason_codes' in item.changed_fields %} changed-card {% endif %}"
+                >
+                    <h4>Reason Codes</h4>
 
-                                <td>
+                    <div class="reason-columns">
+                        <div>
+                            <span class="comparison-label"> Current Analysis </span>
 
-                                    {% if "themes" in item.changed_fields %}
-                                        <span class="changed-check">
-                                        ✓
-                                        </span>
-                                    {% endif %}
+                            {% for reason in item.current.reason_codes %}
 
-                                </td>
+                            <p>{{ reason.rank }}. {{ reason.code }}</p>
 
-                            </tr>
+                            {% endfor %}
+                        </div>
 
-                            <tr
-                            {% if "summary" in item.changed_fields %}
-                            class="changed-row"
-                            {% endif %}
-                            >
+                        <div>
+                            <span class="comparison-label"> New Analysis </span>
 
-                                <td>Summary</td>
+                            {% for reason in item.output.reason_codes %}
 
-                                <td>{{ item.current.summary }}</td>
+                            <p>{{ reason.rank }}. {{ reason.code }}</p>
 
-                                <td>{{ item.output.summary }}</td>
+                            {% endfor %}
+                        </div>
+                    </div>
 
-                                <td>
+                    {% if "reason_codes" in item.changed_fields %}
 
-                                    {% if "summary" in item.changed_fields %}
-                                        <span class="changed-check">
-                                        ✓
-                                        </span>
-                                    {% endif %}
+                    <span class="changed-check"> ✓ Changed </span>
 
-                                </td>
+                    {% endif %}
+                </div>
 
-                            </tr>
+                <!-- BUSINESS SIGNAL -->
 
-                        </tbody>
+                <div
+                    class="analysis-card full-card {% if 'business_signal' in item.changed_fields %} changed-card {% endif %}"
+                >
+                    <h4>Business Signal</h4>
 
-                    </table>
+                    <div class="signal-columns">
+                        <div>
+                            <span class="comparison-label"> Current Analysis </span>
 
-                {% endif %}
+                            <p>{{ item.current.business_signal }}</p>
+                        </div>
 
-            </details>
+                        <div>
+                            <span class="comparison-label"> New Analysis </span>
 
-            <br>
+                            <p>{{ item.output.business_signal }}</p>
+                        </div>
+                    </div>
 
-        {% endfor %}
+                    {% if "business_signal" in item.changed_fields %}
 
-        {% if result.failures %}
+                    <span class="changed-check"> ✓ Changed </span>
 
-            <h3>Failed Items</h3>
-
-            <div class="panel">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>Feedback ID</th>
-
-                            <th>Error</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    {% for failure in result.failures %}
-
-                        <tr>
-
-                            <td>
-
-                                {{ failure.feedback_id }}
-
-                            </td>
-
-                            <td>
-
-                                {{ failure.error }}
-
-                            </td>
-
-                        </tr>
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-
+                    {% endif %}
+                </div>
             </div>
 
-        {% endif %}
+            {% endif %}
+        </details>
 
-    {% endif %}
+        <br />
 
+        {% endfor %} {% endif %}
+
+        <script src="{{ url_for('static', filename='js/ai_settings.js') }}"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                updateTemperatureUI("model", "temperature", "temperature-note");
+            });
+        </script>
+    </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/ai_settings.js') }}"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    updateTemperatureUI(
-        "model",
-        "temperature",
-        "temperature-note"
-    );
-});
-</script>
-
 {% endblock %}
+

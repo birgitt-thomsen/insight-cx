@@ -1,65 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>insight-cx</title>
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-</head>
+    <head>
+        <meta charset="UTF-8" />
+        <title>InsightCX</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    </head>
 
-<body>
-
-<header class="site-header">
-    <div class="header-content">
-        <h1>insight-cx</h1>
-        <p>Every Voice. Every Insight.</p>
-    </div>
-</header>
-
-<nav>
-    <p>Menu:</p>
-    <ul>
-        <li>
-            <a href="{{ url_for('dashboard') }}">
-                Dashboard
-            </a>
-        </li>
-        <li>
-            <a href="{{ url_for('upload') }}">Upload
-            </a>
-        </li>
-        <li>
-            <a href="{{ url_for('feedback') }}">
-                Feedback Explorer
-            </a>
-        </li>
-        <li>
-            <a href="{{ url_for('admin') }}">
-            Admin
-            </a>
-        </li>
-    </ul>
-</nav>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="flash {{ category }}">
-                {{ message }}
+    <body>
+        <header class="site-header">
+            <div class="header-content">
+                <h1>InsightCX</h1>
+                <p>Every Voice. Every Insight.</p>
             </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+        </header>
 
-<main>
-    {% block content %}{% endblock %}
-</main>
+        <nav>
+            <p>Menu:</p>
+            <ul>
+                <li>
+                    <a href="{{ url_for('dashboard') }}"> Dashboard </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('upload') }}">Upload </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('feedback') }}"> Feedback Explorer </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin') }}"> Admin </a>
+                </li>
+            </ul>
+        </nav>
 
-<br>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in
+        messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
 
-<footer class="site-footer">
-    &copy; insight-cx 2026
-</footer>
+        <main>{% block content %}{% endblock %}</main>
 
-</body>
+        <br />
+
+        <footer class="site-footer">&copy; InsightCX 2026</footer>
+    </body>
 </html>

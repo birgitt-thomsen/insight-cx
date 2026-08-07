@@ -1,12 +1,62 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "layout.html" %} {% block content %}
 
- <h1>File Upload</h1>
-    <form method="POST"
-          action="{{ url_for('upload') }}"
-          enctype="multipart/form-data">
-      <p><input type="file" name="file"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
+<div class="executive-dashboard">
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <header class="executive-header">
+        <div>
+            <h1>File Upload</h1>
+
+            <p class="subtitle">Import NPS and CSAT feedback datasets for AI analysis and executive reporting.</p>
+        </div>
+    </header>
+
+    <!-- ====================================================== -->
+    <!-- CSV UPLOAD -->
+    <!-- ====================================================== -->
+
+    <section class="brief-card">
+        <h3>
+            <i class="fa-solid fa-file-arrow-up"></i>
+
+            Upload CSV File
+        </h3>
+
+        <p class="metric-summary">Select a CSV file containing customer feedback to import into InsightCX.</p>
+
+        <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+            <div class="upload-box">
+                <input type="file" id="file" name="file" accept=".csv" required />
+            </div>
+
+            <div class="upload-requirements">
+                <h4>CSV Requirements</h4>
+
+                <ul>
+                    <li>CSV format (.csv)</li>
+
+                    <li>UTF-8 encoding</li>
+
+                    <li>Maximum 5,000 feedback records</li>
+
+                    <li>
+                        Required columns: Customer Name, Customer ID, Order Number, Comment, Survey Type, Survey Score,
+                        Source, Survey Date
+                    </li>
+                </ul>
+            </div>
+
+            <div class="upload-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-upload"></i>
+
+                    Import Feedback
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
 
 {% endblock %}
