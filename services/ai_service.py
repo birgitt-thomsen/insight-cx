@@ -68,9 +68,16 @@ class AIService:
             self,
             feedback_text: str,
             config: dict,
+            return_usage=False,
     ):
         """
         Execute a feedback analysis prompt.
+
+        By default, returns only the parsed AI analysis.
+
+        When return_usage=True, also returns the API usage
+        information so callers such as BenchmarkService can
+        measure token consumption.
         """
 
         user_prompt = (
@@ -82,39 +89,26 @@ class AIService:
         )
 
         request = {
-
             "model": config["model"],
-
             "input": [
-
                 {
                     "role": "system",
                     "content": config["system_prompt"],
                 },
-
                 {
                     "role": "user",
                     "content": user_prompt,
                 },
-
             ],
 
             "text": {
-
                 "format": {
-
                     "type": "json_schema",
-
                     "name": "feedback_analysis",
-
                     "strict": True,
-
                     "schema": FEEDBACK_ANALYSIS_SCHEMA,
-
                 }
-
             }
-
         }
 
         if self._supports_temperature(
@@ -124,14 +118,23 @@ class AIService:
                 config["temperature"]
             )
 
+        # Send the request to the OpenAI Responses API.
         response = client.responses.create(
             **request
         )
 
-        return json.loads(
+        # Convert the structured JSON response into a Python dictionary.
+        result = json.loads(
             response.output_text
         )
 
+        # Benchmarking can request the raw usage information.
+        # Normal application calls continue to receive only
+        # the analysis result.
+        if return_usage:
+            return result, response.usage
+
+        return result
 
     def execute_test_prompt(
             self,
@@ -140,11 +143,15 @@ class AIService:
             temperature=None,
             system_prompt_version=None,
             feedback_prompt_version=None,
+            return_usage=False,
     ):
         """
         Execute a prompt test with optional overrides.
 
         Does not save anything.
+
+        When return_usage=True, also returns API usage
+        information for benchmarking.
         """
 
         config = (
@@ -159,7 +166,8 @@ class AIService:
 
         return self.execute_prompt(
             feedback_text,
-            config
+            config,
+            return_usage=return_usage
         )
 
     # def _parse_and_validate_json(self, content: str) -> dict:
