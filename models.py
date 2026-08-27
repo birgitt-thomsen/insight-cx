@@ -117,6 +117,8 @@ class Analysis(db.Model):
         nullable=False
     )
 
+    # feedback = db.relationship("Feedback")
+
 class AISettings(db.Model):
     """
     Stores the active AI configuration used by
@@ -239,4 +241,102 @@ class ExecutiveInsights(db.Model):
         db.DateTime,
         default=datetime.utcnow,
         nullable=False
+    )
+
+
+class BenchmarkRun(db.Model):
+    """ Captures run-level values for model comparison. """
+
+    __tablename__ = "benchmark_runs"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Model used for this benchmark
+    model = db.Column(db.String(50), nullable=False)
+
+    # Prompt configuration used during the benchmark
+    system_prompt_version = db.Column(db.String(20), nullable=False)
+    feedback_prompt_version = db.Column(db.String(20), nullable=False)
+
+    # Number of feedback records included
+    feedback_count = db.Column(db.Integer, nullable=False)
+
+    # Overall benchmark metrics
+    average_latency_ms = db.Column(db.Float)
+    total_tokens = db.Column(db.Integer)
+    estimated_cost = db.Column(db.Float)
+
+    # Basic consistency score
+    consistency_score = db.Column(db.Float)
+
+    # Benchmark lifecycle
+    status = db.Column(db.String(20), default="running", nullable=False)
+
+    started_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    completed_at = db.Column(db.DateTime)
+
+    # Relationship to individual results
+    results = db.relationship(
+        "BenchmarkResult",
+        back_populates="benchmark",
+        cascade="all, delete-orphan"
+    )
+
+
+class BenchmarkResult(db.Model):
+    """Stores the result of one feedback item within a benchmark run."""
+
+    __tablename__ = "benchmark_results"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Link to the benchmark run
+    benchmark_id = db.Column(
+        db.Integer,
+        db.ForeignKey("benchmark_runs.id"),
+        nullable=False
+    )
+
+    # Link to the original feedback
+    feedback_id = db.Column(
+        db.Integer,
+        db.ForeignKey("feedback.id"),
+        nullable=False
+    )
+
+    # Performance metrics
+    latency_ms = db.Column(db.Float)
+
+    input_tokens = db.Column(db.Integer)
+    output_tokens = db.Column(db.Integer)
+    total_tokens = db.Column(db.Integer)
+
+    # Estimated API cost
+    estimated_cost = db.Column(db.Float)
+
+    # Whether the model successfully processed the feedback
+    success = db.Column(
+        db.Boolean,
+        default=True
+    )
+
+    # Used for basic consistency comparison
+    sentiment = db.Column(
+        db.String(20)
+    )
+
+    # Relationship to the BenchmarkRun
+    benchmark = db.relationship(
+        "BenchmarkRun",
+        back_populates="results"
+    )
+
+    # Relationship to the original Feedback
+    feedback = db.relationship(
+        "Feedback"
     )
