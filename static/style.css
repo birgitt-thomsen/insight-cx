@@ -1676,6 +1676,63 @@ body {
 }
 
 /* ==========================================================
+   MODEL BENCHMARK
+========================================================== */
+.benchmark-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.benchmark-table th {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #e5e7eb;
+    color: #64748b;
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.benchmark-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.benchmark-table td:first-child {
+    font-weight: 600;
+    color: #16365e;
+}
+
+/* ==========================================================
+   MODEL COMPARISON
+========================================================== */
+
+.page-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.comparison-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.comparison-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.benchmark-meta {
+    margin-top: 12px;
+    margin-bottom: 20px;
+}
+
+/* ==========================================================
    RESPONSIVE
 ========================================================== */
 
@@ -1724,6 +1781,23 @@ body {
     .pagination{
         flex-direction:column;
         gap:12px;
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .page-header-content {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
 }

@@ -9,6 +9,7 @@ from storage.feedback_storage import FeedbackStorage
 from storage.ai_settings_storage import AISettingsStorage
 from storage.analysis_storage import AnalysisStorage
 from storage.executive_insights_storage import ExecutiveInsightsStorage
+from services.benchmark_service import BenchmarkService
 from services.csv_importer import CSVImporter
 from services.analysis_service import AnalysisService
 from services.prompt_service import PromptService
@@ -411,6 +412,79 @@ def generate_summary():
 
     return redirect(url_for("admin"))
 
+@app.route("/admin/benchmarks")
+def benchmark_dashboard():
+    """
+    Display the AI model benchmark comparison dashboard.
+    """
+    
+    benchmark_service = BenchmarkService()
+
+    # Retrieve comparison data for the latest completed benchmark for each model
+    comparison = (
+        benchmark_service.get_model_comparison()
+    )
+
+    latest_benchmark = (
+        benchmark_service.get_latest_benchmark()
+    )
+
+    return render_template(
+        "admin/benchmarks.html",
+        comparison=comparison,
+        latest_benchmark=latest_benchmark
+    )
+
+
+@app.route("/admin/benchmarks/run", methods=["POST"])
+def run_benchmark_comparison():
+    """
+    Run a model comparison from the benchmark dashboard.
+    """
+
+    benchmark_service = BenchmarkService()
+
+    # ---------------------------------------------------------
+    # Use the same feedback records for every model.
+    # ---------------------------------------------------------
+
+    feedback_records = (
+        Feedback.query
+        .limit(5)
+        .all()
+    )
+
+    # ---------------------------------------------------------
+    # Models to compare.
+    # ---------------------------------------------------------
+
+    models = [
+        "gpt-5-mini",
+        "gpt-4.1-mini",
+        "gpt-4o-mini"
+    ]
+
+    # ---------------------------------------------------------
+    # Run the comparison.
+    # ---------------------------------------------------------
+
+    benchmark_service.compare_models(
+        feedback_records=feedback_records,
+        models=models,
+        system_prompt_version="v1",
+        feedback_prompt_version="v1"
+    )
+
+    # ---------------------------------------------------------
+    # Return to the benchmark dashboard.
+    #
+    # The dashboard will automatically retrieve the latest
+    # completed run for each model.
+    # ---------------------------------------------------------
+
+    return redirect(
+        url_for("benchmark_dashboard")
+    )
 
 if __name__ == "__main__":
     # One-time creation of database

@@ -1,0 +1,406 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="admin-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div class="page-header">
+
+        <div class="page-header-content">
+
+            <div>
+                <h2>Model Comparison</h2>
+
+                <p>
+                    Compare AI model performance across speed,
+                    token usage, cost, and consistency.
+                </p>
+            </div>
+
+            <form
+                method="POST"
+                action="{{ url_for('run_benchmark_comparison') }}"
+                id="benchmark-form"
+            >
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="run-benchmark-button"
+                >
+                    Run Model Comparison
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+         LATEST BENCHMARK
+     ===================================================== -->
+
+    {% if latest_benchmark %}
+
+        <div class="helper-text benchmark-meta">
+
+            <strong>Latest benchmark:</strong>
+
+            {{ latest_benchmark.completed_at.strftime(
+                "%d %b %Y, %H:%M"
+            ) }}
+
+            ·
+
+            {{ latest_benchmark.feedback_count }}
+            feedback records
+
+            ·
+
+            {{ comparison|length }}
+            models
+
+        </div>
+
+    {% endif %}
+    <!-- =====================================================
+         MODEL SUMMARY CARDS
+     ===================================================== -->
+
+    <div class="comparison-grid">
+
+        {% for model in comparison %}
+
+            <div class="comparison-card">
+
+                <h3>
+                    {{ model.model }}
+                </h3>
+
+                <!-- Average latency -->
+
+                <div class="metric-card">
+
+                    <span class="metric-label">
+                        Avg. Latency
+                    </span>
+
+                    <span class="metric-value">
+                        {{ "%.2f"|format(
+                            model.average_latency_ms / 1000
+                        ) }}s
+                    </span>
+
+                </div>
+
+
+                <!-- Average tokens -->
+
+                <div class="metric-card">
+
+                    <span class="metric-label">
+                        Avg. Tokens
+                    </span>
+
+                    <span class="metric-value">
+                        {{ "{:,.0f}".format(
+                            model.average_tokens
+                        ) }}
+                    </span>
+
+                </div>
+
+
+                <!-- Total cost -->
+
+                <div class="metric-card">
+
+                    <span class="metric-label">
+                        Total Cost
+                    </span>
+
+                    <span class="metric-value">
+                        ${{ "%.5f"|format(
+                            model.estimated_cost
+                        ) }}
+                    </span>
+
+                </div>
+
+
+                <!-- Cost per feedback -->
+
+                <div class="metric-card">
+
+                    <span class="metric-label">
+                        Cost / Feedback
+                    </span>
+
+                    <span class="metric-value">
+                        ${{ "%.6f"|format(
+                            model.average_cost_per_feedback
+                        ) }}
+                    </span>
+
+                </div>
+
+
+                <!-- Sentiment agreement -->
+
+                <div class="metric-card">
+
+                    <span class="metric-label">
+                        Agreement
+                    </span>
+
+                    <span class="metric-value">
+                        {{ model.agreement_score }}%
+                    </span>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- =====================================================
+         COMPARISON TABLE
+         ===================================================== -->
+
+    <div class="panel">
+
+        <div class="section-header">
+
+            <h3>Performance Comparison</h3>
+
+            <p class="helper-text">
+                Results from the latest completed benchmark
+                for each model.
+            </p>
+
+        </div>
+
+
+        <table class="benchmark-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Metric</th>
+
+                    {% for model in comparison %}
+
+                        <th>
+                            {{ model.model }}
+                        </th>
+
+                    {% endfor %}
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <!-- Feedback count -->
+
+                <tr>
+
+                    <td>
+                        Feedback Tested
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            {{ model.feedback_count }}
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                <!-- Average latency -->
+
+                <tr>
+
+                    <td>
+                        Avg. Latency
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            {{ "%.2f"|format(
+                                model.average_latency_ms / 1000
+                            ) }}s
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                <!-- Average tokens -->
+
+                <tr>
+
+                    <td>
+                        Avg. Tokens
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            {{ "{:,.0f}".format(
+                                model.average_tokens
+                            ) }}
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                <!-- Total tokens -->
+
+                <tr>
+
+                    <td>
+                        Total Tokens
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            {{ "{:,.0f}".format(
+                                model.total_tokens
+                            ) }}
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                <!-- Total cost -->
+
+                <tr>
+
+                    <td>
+                        Total Cost
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            ${{ "%.5f"|format(
+                                model.estimated_cost
+                            ) }}
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                <!-- Cost per feedback -->
+
+                <tr>
+
+                    <td>
+                        Cost / Feedback
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            ${{ "%.6f"|format(
+                                model.average_cost_per_feedback
+                            ) }}
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                <!-- Sentiment agreement -->
+
+                <tr>
+
+                    <td>
+                        Sentiment Agreement
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            {{ model.agreement_score }}%
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+
+                <!-- Successful tests -->
+
+                <tr>
+
+                    <td>
+                        Successful Tests
+                    </td>
+
+                    {% for model in comparison %}
+
+                        <td>
+                            {{ model.successful_tests }}
+                            /
+                            {{ model.feedback_count }}
+                        </td>
+
+                    {% endfor %}
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    const benchmarkForm =
+        document.getElementById("benchmark-form");
+
+    const benchmarkButton =
+        document.getElementById("run-benchmark-button");
+
+
+    benchmarkForm.addEventListener("submit", function () {
+
+        benchmarkButton.disabled = true;
+
+        benchmarkButton.textContent =
+            "Running Comparison...";
+
+    });
+
+</script>
+
+{% endblock %}
