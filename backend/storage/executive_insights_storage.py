@@ -1,6 +1,6 @@
 """This script handles the storage of the executive insights."""
 
-from models import db, ExecutiveInsights
+from backend.models import db, ExecutiveInsights
 
 class ExecutiveInsightsStorage:
     """

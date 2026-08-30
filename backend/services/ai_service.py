@@ -4,8 +4,8 @@ import json
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from services.prompt_service import PromptService
-from schemas.feedback_analysis_schema import FEEDBACK_ANALYSIS_SCHEMA
+from backend.services.prompt_service import PromptService
+from backend.schemas.feedback_analysis_schema import FEEDBACK_ANALYSIS_SCHEMA
 
 load_dotenv()
 client = OpenAI(

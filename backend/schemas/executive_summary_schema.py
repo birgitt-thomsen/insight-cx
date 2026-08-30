@@ -284,13 +284,6 @@ EXECUTIVE_SUMMARY_SCHEMA = {
                             "achieve by prioritizing this area."
                         )
                     },
-                    "business_objective": {
-                        "type": "string",
-                        "description": (
-                            "State the desired business outcome leadership should "
-                            "achieve by prioritizing this area."
-                        )
-                    },
                     "why_now": {
                         "type": "string",
                         "description": (

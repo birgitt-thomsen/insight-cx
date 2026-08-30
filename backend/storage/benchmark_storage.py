@@ -6,7 +6,7 @@ Calculations and API calls will be handled by BenchmarkService.
 """
 
 from datetime import datetime
-from models import db, BenchmarkRun, BenchmarkResult, Feedback
+from backend.models import db, BenchmarkRun, BenchmarkResult, Feedback
 
 
 class BenchmarkStorage:

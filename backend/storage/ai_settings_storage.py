@@ -1,6 +1,6 @@
 """This script handles database operations for AI settings."""
 
-from models import db, AISettings
+from backend.models import db, AISettings
 
 
 class AISettingsStorage:

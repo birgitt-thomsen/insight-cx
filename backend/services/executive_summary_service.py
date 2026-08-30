@@ -4,9 +4,9 @@ import json
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from services.prompt_service import PromptService
-from storage.executive_insights_storage import ExecutiveInsightsStorage
-from schemas.executive_summary_schema import EXECUTIVE_SUMMARY_SCHEMA
+from backend.services.prompt_service import PromptService
+from backend.storage.executive_insights_storage import ExecutiveInsightsStorage
+from backend.schemas.executive_summary_schema import EXECUTIVE_SUMMARY_SCHEMA
 
 
 load_dotenv()

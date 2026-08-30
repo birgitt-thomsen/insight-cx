@@ -2,7 +2,7 @@
 executive prompts."""
 
 from pathlib import Path
-from storage.ai_settings_storage import AISettingsStorage
+from backend.storage.ai_settings_storage import AISettingsStorage
 
 class PromptService:
     """Loads prompt files from disk."""

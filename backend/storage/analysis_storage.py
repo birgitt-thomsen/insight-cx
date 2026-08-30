@@ -1,4 +1,4 @@
-from models import db, Analysis
+from backend.models import db, Analysis
 
 
 class AnalysisStorage:

@@ -3,8 +3,8 @@
 from collections import Counter
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
-from models import db, Feedback, Analysis
-from storage.executive_insights_storage import ExecutiveInsightsStorage
+from backend.models import db, Feedback, Analysis
+from backend.storage.executive_insights_storage import ExecutiveInsightsStorage
 
 
 class ExecutiveDataService:

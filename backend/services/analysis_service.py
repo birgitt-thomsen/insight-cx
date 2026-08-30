@@ -2,9 +2,9 @@ import time
 from openai import RateLimitError
 from flask import current_app
 from collections import Counter
-from services.ai_service import AIService
-from storage.analysis_storage import AnalysisStorage
-from storage.feedback_storage import FeedbackStorage
+from backend.services.ai_service import AIService
+from backend.storage.analysis_storage import AnalysisStorage
+from backend.storage.feedback_storage import FeedbackStorage
 
 
 class AnalysisService:

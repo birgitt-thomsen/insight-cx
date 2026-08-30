@@ -4,7 +4,7 @@ import os
 from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
 from collections import Counter
-from models import db, Feedback
+from backend.models import db, Feedback
 from storage.feedback_storage import FeedbackStorage
 from storage.ai_settings_storage import AISettingsStorage
 from storage.analysis_storage import AnalysisStorage
@@ -417,7 +417,7 @@ def benchmark_dashboard():
     """
     Display the AI model benchmark comparison dashboard.
     """
-    
+
     benchmark_service = BenchmarkService()
 
     # Retrieve comparison data for the latest completed benchmark for each model

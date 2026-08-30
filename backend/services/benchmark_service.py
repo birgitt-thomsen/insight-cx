@@ -7,8 +7,8 @@ delegated to BenchmarkStorage.
 """
 
 import time
-from services.ai_service import AIService
-from storage.benchmark_storage import BenchmarkStorage
+from backend.services.ai_service import AIService
+from backend.storage.benchmark_storage import BenchmarkStorage
 
 # TEMP TOKEN COST
 # Prices are USD per 1 million tokens

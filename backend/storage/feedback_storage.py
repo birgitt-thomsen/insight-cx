@@ -1,5 +1,5 @@
 """ This script handles the interaction with the feedback table. """
-from models import db, Feedback, Analysis
+from backend.models import db, Feedback, Analysis
 from sqlalchemy import select
 
 class FeedbackStorage:
