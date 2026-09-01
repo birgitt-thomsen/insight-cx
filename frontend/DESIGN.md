@@ -25,8 +25,8 @@ Avoid loud, neon, gaming-oriented, overly futuristic, overly corporate, or gener
 
 ## Color Direction
 Light mode only.
-- Primary: indigo
-- Secondary: teal
+- Primary: dark teal
+- Secondary: indigo
 - Base: very light neutral background
 - Surfaces: white
 - Text: dark slate/charcoal
@@ -157,7 +157,7 @@ Priority:
 On smaller screens, tables may scroll or become cards, navigation may collapse, and multi-column layouts may stack. Preserve information hierarchy rather than simply shrinking everything.
 
 ## Visual Do / Don't
-**Do:** restrained indigo/teal identity, meaningful semantic colors, generous whitespace, strong hierarchy, prominent interpretation, evidence-backed conclusions, clean investigative tables, technical detail in internal tools, calm and trustworthy presentation.
+**Do:** restrained teal/indigo identity, meaningful semantic colors, generous whitespace, strong hierarchy, prominent interpretation, evidence-backed conclusions, clean investigative tables, technical detail in internal tools, calm and trustworthy presentation.
 
 **Don't:** dark mode, neon colors, excessive gradients, futuristic AI imagery, excessive charts, giant KPI grids, generic BI layouts, excessive card nesting/badges, decorative illustrations without purpose, dense walls of text, unnecessary animations, or technical jargon in executive-facing areas.
 

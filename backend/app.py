@@ -5,16 +5,16 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
 from collections import Counter
 from backend.models import db, Feedback
-from storage.feedback_storage import FeedbackStorage
-from storage.ai_settings_storage import AISettingsStorage
-from storage.analysis_storage import AnalysisStorage
-from storage.executive_insights_storage import ExecutiveInsightsStorage
-from services.benchmark_service import BenchmarkService
-from services.csv_importer import CSVImporter
-from services.analysis_service import AnalysisService
-from services.prompt_service import PromptService
-from services.executive_data_service import ExecutiveDataService
-from services.executive_summary_service import ExecutiveSummaryService
+from backend.storage.feedback_storage import FeedbackStorage
+from backend.storage.ai_settings_storage import AISettingsStorage
+from backend.storage.analysis_storage import AnalysisStorage
+from backend.storage.executive_insights_storage import ExecutiveInsightsStorage
+from backend.services.benchmark_service import BenchmarkService
+from backend.services.csv_importer import CSVImporter
+from backend.services.analysis_service import AnalysisService
+from backend.services.prompt_service import PromptService
+from backend.services.executive_data_service import ExecutiveDataService
+from backend.services.executive_summary_service import ExecutiveSummaryService
 
 load_dotenv()  # Load variables from .env
 app = Flask(__name__)
@@ -28,6 +28,9 @@ app.config[
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)  # Link the database and the app.
+
+from backend.api import api_bp  # noqa: E402
+app.register_blueprint(api_bp)
 
 csv_importer = CSVImporter()
 feedback_storage = FeedbackStorage()
@@ -230,8 +233,8 @@ def update_ai_settings():
     if settings_type == "feedback":
 
         ai_settings_storage.update_feedback_settings(
-            model=request.form["model"],
-            temperature=float(request.form["temperature"]),
+            feedback_model=request.form["model"],
+            feedback_temperature=float(request.form["temperature"]),
             system_prompt_version=request.form["system_prompt"],
             feedback_prompt_version=request.form["feedback_prompt"],
             description=request.form["description"],

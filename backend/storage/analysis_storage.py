@@ -79,7 +79,7 @@ class AnalysisStorage:
 				result["system_prompt_version"]
 			)
 
-			analysis_record.prompt_version = (
+			analysis_record.feedback_prompt_version = (
 				result["feedback_prompt_version"]
 			)
 
