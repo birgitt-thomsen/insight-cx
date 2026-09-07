@@ -1,3 +1,36 @@
+function LogoMark({ className }: { className?: string }) {
+  // Inlined from src/assets/brand/insightcx-logo-full.svg so the mark stays
+  // crisp at any size and its fills can be styled/overridden via CSS.
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 329.2 78.4"
+      role="img"
+      aria-label="InsightCX"
+      className={className}
+    >
+      <g transform="translate(0,58.80)">
+        <g transform="translate(0,0)">
+          <path d="M233 702V0H62V702Z" fill="#2E2A6E" transform="translate(0.000,0.000) scale(0.056000,-0.056000)" />
+          <path d="M617 326V0H447V303Q447 359 418.0 390.0Q389 421 340 421Q291 421 262.0 390.0Q233 359 233 303V0H62V558H233V484Q259 521 303.0 542.5Q347 564 402 564Q500 564 558.5 500.5Q617 437 617 326Z" fill="#2E2A6E" transform="translate(16.520,0.000) scale(0.056000,-0.056000)" />
+          <path d="M32 183H201Q204 154 228.0 136.0Q252 118 287 118Q319 118 336.5 130.5Q354 143 354 163Q354 187 329.0 198.5Q304 210 248 224Q188 238 148.0 253.5Q108 269 79.0 302.5Q50 336 50 393Q50 441 76.5 480.5Q103 520 154.5 543.0Q206 566 277 566Q382 566 442.5 514.0Q503 462 512 376H354Q350 405 328.5 422.0Q307 439 272 439Q242 439 226.0 427.5Q210 416 210 396Q210 372 235.5 360.0Q261 348 315 336Q377 320 416.0 304.5Q455 289 484.5 254.5Q514 220 515 162Q515 113 487.5 74.5Q460 36 408.5 14.0Q357 -8 289 -8Q216 -8 159.0 17.0Q102 42 69.0 85.5Q36 129 32 183Z" fill="#2E2A6E" transform="translate(54.264,0.000) scale(0.056000,-0.056000)" />
+          <path d="M46 708Q46 748 74.5 774.5Q103 801 148 801Q192 801 220.5 774.5Q249 748 249 708Q249 669 220.5 642.5Q192 616 148 616Q103 616 74.5 642.5Q46 669 46 708ZM233 558V0H62V558Z" fill="#2E2A6E" transform="translate(85.512,0.000) scale(0.056000,-0.056000)" />
+          <path d="M446 479V558H617V1Q617 -76 586.5 -138.5Q556 -201 493.5 -238.0Q431 -275 338 -275Q214 -275 137.0 -216.5Q60 -158 49 -58H218Q226 -90 256.0 -108.5Q286 -127 330 -127Q383 -127 414.5 -96.5Q446 -66 446 1V80Q421 41 377.0 16.5Q333 -8 274 -8Q205 -8 149.0 27.5Q93 63 60.5 128.5Q28 194 28 280Q28 366 60.5 431.0Q93 496 149.0 531.0Q205 566 274 566Q333 566 377.5 542.0Q422 518 446 479ZM324 417Q273 417 237.5 380.5Q202 344 202 280Q202 216 237.5 178.5Q273 141 324 141Q375 141 410.5 178.0Q446 215 446 279Q446 343 410.5 380.0Q375 417 324 417Z" fill="#2E2A6E" transform="translate(102.032,0.000) scale(0.056000,-0.056000)" />
+          <path d="M617 326V0H447V303Q447 359 418.0 390.0Q389 421 340 421Q291 421 262.0 390.0Q233 359 233 303V0H62V740H233V483Q259 520 304.0 542.0Q349 564 405 564Q501 564 559.0 500.5Q617 437 617 326Z" fill="#2E2A6E" transform="translate(140.056,0.000) scale(0.056000,-0.056000)" />
+          <path d="M373 145V0H286Q193 0 141.0 45.5Q89 91 89 194V416H21V558H89V694H260V558H372V416H260V192Q260 167 272.0 156.0Q284 145 312 145Z" fill="#2E2A6E" transform="translate(177.800,0.000) scale(0.056000,-0.056000)" />
+        </g>
+      </g>
+      <rect x="214.5" y="0.0" width="114.7" height="90.4" rx="12" fill="#0F5C56" />
+      <g transform="translate(230.5,64.80)">
+        <g transform="translate(0,0)">
+          <path d="M386 710Q511 710 600.0 644.0Q689 578 719 464H531Q510 508 471.5 531.0Q433 554 384 554Q305 554 256.0 499.0Q207 444 207 352Q207 260 256.0 205.0Q305 150 384 150Q433 150 471.5 173.0Q510 196 531 240H719Q689 126 600.0 60.5Q511 -5 386 -5Q284 -5 203.5 40.5Q123 86 78.0 167.0Q33 248 33 352Q33 456 78.0 537.5Q123 619 203.5 664.5Q284 710 386 710Z" fill="#FFFFFF" transform="translate(0.000,0.000) scale(0.056000,-0.056000)" />
+          <path d="M492 0 349 215 223 0H29L254 357L24 702H223L364 490L488 702H682L459 348L691 0Z" fill="#FFFFFF" transform="translate(42.672,0.000) scale(0.056000,-0.056000)" />
+        </g>
+      </g>
+    </svg>
+  );
+}
+
 export function Logo({
   withTagline = true,
   size = "md",
@@ -7,10 +40,7 @@ export function Logo({
 }) {
   return (
     <div className="text-center">
-      <p className={`font-semibold tracking-tight ${size === "sm" ? "text-base" : "text-4xl"}`}>
-        <span className="text-indigo-900">Insight</span>
-        <span className="text-teal-800">CX</span>
-      </p>
+      <LogoMark className={size === "sm" ? "h-6 w-auto mx-auto" : "h-10 w-auto mx-auto"} />
       {withTagline && (
         <p className="mt-1 text-xs font-medium text-teal-800">Every Voice. Every Insight.</p>
       )}
