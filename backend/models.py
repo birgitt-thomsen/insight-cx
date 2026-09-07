@@ -117,8 +117,6 @@ class Analysis(db.Model):
         nullable=False
     )
 
-    # feedback = db.relationship("Feedback")
-
 class AISettings(db.Model):
     """
     Stores the active AI configuration used by
