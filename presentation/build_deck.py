@@ -90,7 +90,7 @@ def set_tracking(run, val=150):
     rPr.set("spc", str(val))
 
 
-def add_rect(slide, x, y, w, h, fill=WHITE, line=None, line_w=0.75, radius=0.08):
+def add_rect(slide, x, y, w, h, fill=WHITE, line=None, line_w=0.75, radius=0.1):
     shp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
     try:
         shp.adjustments[0] = radius
@@ -151,7 +151,7 @@ def add_text(slide, x, y, w, h, text, size=14, color=SLATE_800, bold=False, ital
 
 def add_card(slide, x, y, w, h, title, desc=None, fill=WHITE, border=SLATE_200,
              title_size=15, title_color=SLATE_900, desc_size=11.5, desc_color=SLATE_600,
-             align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, pad=0.18, radius=0.08,
+             align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, pad=0.18, radius=0.1,
              subtitle=None, subtitle_size=12, subtitle_color=SLATE_800):
     shp = add_rect(slide, x, y, w, h, fill=fill, line=border, line_w=0.75, radius=radius)
     tf = shp.text_frame
@@ -427,41 +427,69 @@ def slide_01_title(prs):
     add_flow_horizontal(slide, ["Customer Feedback", "AI Analysis", "Actionable Insight"],
                          SLIDE_W / 2 - flow_w / 2, 5.25, flow_w, 0.85,
                          card_fill=WHITE, border=SLATE_200, text_color=INDIGO_DARK,
-                         font_size=13.5, bold=True, arrow_w=0.4)
+                         arrow_color=INDIGO_DARK, font_size=13.5, bold=True, arrow_w=0.4)
 
 
 def slide_02_agenda(prs):
+    """A narrative roadmap, not a table of contents - built from the exact
+    same card idiom as Slide 13 (rounded card, numbered badge overlapping
+    the top-left corner, bold header, secondary support line) so it reads
+    as one consistent visual language rather than a one-off list style.
+    Stage 7 gets Slide 13's "destination" treatment: light teal, full
+    row width, dark teal number and header."""
     slide = new_slide(prs)
-    add_header(slide, "Agenda", "What we'll cover")
+    add_header(slide, "The Journey", "From problem to proof")
 
-    items = [
-        "The Problem",
-        "The Business Scenario",
-        "InsightCX Overview",
-        "LLM Capability 1 — Structuring Feedback",
-        "LLM Capability 2 — Executive Insight",
-        "The Dashboard",
-        "From AI Output to Business Decision",
-        "AI Evaluation",
-        "Lessons Learned — What It Took to Build",
-        "What's Next — Beyond the MVP",
-        "Live Demo",
+    stages = [
+        ("THE PROBLEM", "Why customer voice is difficult to scale"),
+        ("THE APPROACH", "Turning customer language into structured insight"),
+        ("THE VALUE", "From AI output to business action"),
+        ("THE TEST", "Evaluating the AI behind the experience"),
+        ("THE LEARNINGS", "What building the MVP revealed"),
+        ("THE NEXT STEP", "Where InsightCX could go from here"),
+        ("SEE IT IN ACTION", "Live demo"),
     ]
-    col_w = (CONTENT_W - 0.5) / 2
-    col1_x = CONTENT_X
-    col2_x = CONTENT_X + col_w + 0.5
-    row_h = 0.75
-    start_y = 2.0
 
-    for i, label in enumerate(items):
-        col, row = (0, i) if i < 6 else (1, i - 6)
-        x = col1_x if col == 0 else col2_x
-        y = start_y + row * row_h
-        num = i + 1
-        color = INDIGO_ACCENT if num % 2 else TEAL_ACCENT
-        add_badge(slide, x, y, 0.36, num, fill=color, size=13)
-        add_text(slide, x + 0.54, y, col_w - 0.54, 0.36, label, size=15, color=SLATE_800,
-                  bold=True, font=HEAD_FONT, anchor=MSO_ANCHOR.MIDDLE)
+    gap = 0.28
+    card_w = (CONTENT_W - 2 * gap) / 3
+    card_h = 1.25
+    pad = 0.24
+    row_gap = 0.3
+
+    def stage_card(x, y, w, num, label, support, fill, border, accent):
+        add_rect(slide, x, y, w, card_h, fill=fill, line=border, line_w=0.75, radius=0.1)
+        add_badge(slide, x + 0.16, y - 0.16, 0.32, num, fill=accent, size=12)
+        cx, cw = x + pad, w - 2 * pad
+        ty = y + pad
+        add_text(slide, cx, ty, cw, 0.24, label, size=15, color=accent, bold=True, font=HEAD_FONT)
+        add_text(slide, cx, ty + 0.32, cw, 0.3, support, size=10.5, color=SLATE_600,
+                  font=BODY_FONT)
+
+    arrow_w, arrow_h = 0.2, 0.3
+
+    def row_arrow(x_after, y):
+        add_arrow(slide, x_after + (gap - arrow_w) / 2, y + card_h / 2 - arrow_h / 2, arrow_w,
+                  arrow_h, "right", INDIGO_DARK)
+
+    row1_y = CONTENT_TOP + 0.3
+    for i in range(3):
+        x = CONTENT_X + i * (card_w + gap)
+        label, support = stages[i]
+        stage_card(x, row1_y, card_w, i + 1, label, support, WHITE, SLATE_200, INDIGO_ACCENT)
+        if i < 2:
+            row_arrow(x + card_w, row1_y)
+
+    row2_y = row1_y + card_h + row_gap
+    for i in range(3, 6):
+        x = CONTENT_X + (i - 3) * (card_w + gap)
+        label, support = stages[i]
+        stage_card(x, row2_y, card_w, i + 1, label, support, WHITE, SLATE_200, INDIGO_ACCENT)
+        if i < 5:
+            row_arrow(x + card_w, row2_y)
+
+    row3_y = row2_y + card_h + row_gap
+    label7, support7 = stages[6]
+    stage_card(CONTENT_X, row3_y, CONTENT_W, 7, label7, support7, INDIGO_LIGHT, None, INDIGO_ACCENT)
 
     add_footer(slide, 2)
 
@@ -476,7 +504,7 @@ def slide_03_problem(prs):
         "\u201cReturning the table was surprisingly easy.\u201d",
         "\u201cI couldn't find any information about my order.\u201d",
     ]
-    gx, gy, gw, gh = CONTENT_X, 2.05, CONTENT_W, 2.0
+    gx, gy, gw, gh = CONTENT_X, CONTENT_TOP + 0.3, CONTENT_W, 2.0
     cw = (gw - 0.26) / 2
     ch = (gh - 0.22) / 2
     for i, q in enumerate(quotes):
@@ -495,7 +523,7 @@ def slide_03_problem(prs):
     )
 
     banner_y = flow_y + 1.05 + 0.3
-    banner = add_rect(slide, CONTENT_X, banner_y, CONTENT_W, 0.82, fill=INDIGO_DARK, radius=0.12)
+    banner = add_rect(slide, CONTENT_X, banner_y, CONTENT_W, 0.82, fill=INDIGO_DARK, radius=0.1)
     tf = banner.text_frame
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
     tf.margin_left = tf.margin_right = Inches(0.3)
@@ -509,20 +537,33 @@ def slide_03_problem(prs):
 
 
 def slide_04_scenario(prs):
+    """Four full-width levels, each a labelled group, read top to bottom:
+    Customer Journey -> Feedback Sources -> Test Dataset -> Key CX Themes.
+    Every level uses the same left-aligned, tracked-caps label idiom
+    (from Slide 10) so the cascade reads as one consistent hierarchy."""
     slide = new_slide(prs)
-    add_header(slide, "The Business Scenario", "A home-furnishing retailer with hundreds of customer voices")
+    add_header(slide, "The Business Scenario",
+                "A home-furnishing retailer \u2014 and hundreds of customer voices")
 
-    journey_y = 1.85
+    label_kwargs = dict(size=11.5, bold=True, font=BODY_FONT, tracking=130)
+    inter_gap = 0.2  # between one level's content and the next level's label
+    intra_gap = 0.08  # between a level's label and its own content
+
+    def level_label(y, text, color):
+        add_text(slide, CONTENT_X, y, CONTENT_W, 0.2, text, color=color, **label_kwargs)
+        return y + 0.2 + intra_gap
+
+    # ---- Level 1: Customer Journey (unchanged) ----
+    y = level_label(1.85, "CUSTOMER JOURNEY", INDIGO_ACCENT)
     add_flow_horizontal(
         slide, ["Discover", "Purchase", "Delivery", "Assembly", "Use"],
-        CONTENT_X, journey_y, CONTENT_W, 0.75, card_fill=INDIGO_LIGHT, border=None,
+        CONTENT_X, y, CONTENT_W, 0.75, card_fill=INDIGO_LIGHT, border=None,
         text_color=INDIGO_DARK, arrow_color=INDIGO_DARK, font_size=12, bold=True, arrow_w=0.22,
     )
+    y += 0.75 + inter_gap
 
-    body_y = journey_y + 0.75 + 0.4
-    left_w = 3.85
-    add_text(slide, CONTENT_X, body_y, left_w, 0.3, "Feedback sources", size=13, color=SLATE_900,
-              bold=True, font=HEAD_FONT)
+    # ---- Level 2: Feedback Sources - NPS and CSAT side by side, full width ----
+    y = level_label(y, "FEEDBACK SOURCES", SLATE_600)
     sources = [
         ("NPS", "Recommendation / loyalty feedback",
          "Measures likelihood to recommend on a 0\u201310 scale, indicating overall "
@@ -531,85 +572,171 @@ def slide_04_scenario(prs):
          "Measures satisfaction with a specific experience on a 1\u20135 scale, helping "
          "identify how well the customer\u2019s expectations were met."),
     ]
-    card_h = 1.55
+    card_gap = 0.3
+    card_w = (CONTENT_W - card_gap) / 2
+    card_h = 1.05
     for i, (t, sub, d) in enumerate(sources):
-        cy = body_y + 0.38 + i * (card_h + 0.2)
-        add_card(slide, CONTENT_X, cy, left_w, card_h, t, d, subtitle=sub, fill=WHITE,
-                  border=SLATE_200, title_size=14.5, desc_size=11, anchor=MSO_ANCHOR.MIDDLE)
+        cx = CONTENT_X + i * (card_w + card_gap)
+        add_card(slide, cx, y, card_w, card_h, t, d, subtitle=sub, fill=WHITE, border=SLATE_200,
+                  title_size=13.5, subtitle_size=11, desc_size=10, anchor=MSO_ANCHOR.MIDDLE)
+    y += card_h + inter_gap
 
-    right_x = CONTENT_X + left_w + 0.45
-    right_w = CONTENT_W - left_w - 0.45
-    add_text(slide, right_x, body_y, right_w, 0.3, "Test dataset", size=13, color=SLATE_900,
-              bold=True, font=HEAD_FONT)
+    # ---- Level 3: Test Dataset - one full-width box ----
+    y = level_label(y, "TEST DATASET", TEAL_ACCENT)
+    box_h = 0.72
+    add_card(slide, CONTENT_X, y, CONTENT_W, box_h,
+              "Several hundred feedback records across multiple weeks",
+              "(Positive \u00b7 Neutral \u00b7 Negative)", fill=TEAL_LIGHT, border=TEAL_ACCENT,
+              title_size=13, title_color=TEAL_DARK, desc_size=11.5, desc_color=TEAL_DARK,
+              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    y += box_h + inter_gap
 
-    stats = ["Several hundred feedback records across multiple weeks", "NPS + CSAT",
-              "Positive \u00b7 Neutral \u00b7\nNegative"]
-    chip_w = (right_w - 2 * 0.15) / 3
-    chip_h = 1.05
-    cy = body_y + 0.38
-    for i, s in enumerate(stats):
-        cx = right_x + i * (chip_w + 0.15)
-        add_card(slide, cx, cy, chip_w, chip_h, s, fill=TEAL_LIGHT, border=TEAL_ACCENT, title_size=11,
-                  title_color=TEAL_DARK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-
-    theme_y = cy + chip_h + 0.28
-    add_text(slide, right_x, theme_y, right_w, 0.28, "Key CX themes", size=12, color=SLATE_900,
-              bold=True, font=HEAD_FONT)
+    # ---- Level 4: Key CX Themes - single row, full width ----
+    y = level_label(y, "KEY CX THEMES", INDIGO_ACCENT)
     themes = ["Delivery", "Product quality & assembly", "Returns", "Website experience",
               "Payment / billing", "Brand loyalty"]
-    prow_y = theme_y + 0.36
-    pill_w = (right_w - 2 * 0.15) / 3
-    pill_h = 0.5
-    for i, th in enumerate(themes):
-        r_i, c_i = divmod(i, 3)
-        px = right_x + c_i * (pill_w + 0.15)
-        py = prow_y + r_i * (pill_h + 0.15)
-        add_pill(slide, px, py, pill_w, pill_h, th, fill=INDIGO_LIGHT, text_color=INDIGO_DARK,
-                  size=10.5, radius=0.25)
+    pill_h = 0.42
+    px = CONTENT_X
+    for th in themes:
+        pw = text_width_in(th, 10.5) + 0.28
+        add_pill(slide, px, y, pw, pill_h, th, fill=INDIGO_LIGHT, text_color=INDIGO_DARK,
+                  size=10.5, radius=0.3)
+        px += pw + 0.14
+    y += pill_h + 0.2
 
-    note_y = prow_y + 2 * pill_h + 0.15 + 0.2
-    add_text(slide, right_x, note_y, right_w, 0.4,
+    add_text(slide, CONTENT_X, y, CONTENT_W, 0.3,
               "A controlled scenario for testing AI functionality \u2014 not production data.",
-              size=10.5, color=SLATE_500, italic=True, font=BODY_FONT)
+              size=10.5, color=SLATE_500, italic=True, align=PP_ALIGN.CENTER, font=BODY_FONT)
 
     add_footer(slide, 4)
 
 
 def slide_05_overview(prs):
+    """Three-stage conceptual model: customer voice -> AI structures it ->
+    InsightCX interprets the patterns. AI Evaluation is drawn as a light
+    cross-cutting strip beneath the stages, not a fourth pipeline step."""
     slide = new_slide(prs)
     add_header(slide, "InsightCX Overview", "From customer voice to business insight")
 
-    flow_y = CONTENT_TOP + 0.15
-    steps = ["Customer\nFeedback", "CSV\nImport", "Feedback\nData", "LLM\nAnalysis",
-             "Structured\nCX Data", "Dashboard +\nExec Insights", "Business\nDecisions"]
-    add_flow_horizontal(slide, steps, CONTENT_X, flow_y, CONTENT_W, 0.95, card_fill=WHITE,
-                         border=SLATE_200, text_color=SLATE_800,
-                         font_size=10.3, bold=True, arrow_w=0.2)
+    # Tints used only for the compact sentiment/priority tags in the
+    # ANALYZE stage's transformation example.
+    RED_LIGHT = RGBColor(0xFE, 0xE2, 0xE2)
+    AMBER_LIGHT = RGBColor(0xFE, 0xF3, 0xC7)
 
-    branch_x = CONTENT_X + CONTENT_W * 0.5
-    down_y = flow_y + 0.95 + 0.06
-    add_down_arrow(slide, branch_x, down_y, w=0.45, h=0.3)
+    row_y = CONTENT_TOP + 0.3
+    row_h = 3.2
+    gap = 0.34
+    unit = (CONTENT_W - 2 * gap) / 3.3
+    ingest_w = unit
+    interpret_w = unit
+    analyze_w = unit * 1.3
 
-    eval_y = down_y + 0.3 + 0.06
-    eval_w = 6.0
-    add_card(slide, CONTENT_X + (CONTENT_W - eval_w) / 2, eval_y, eval_w, 0.85, "AI Evaluation",
-              "Model quality / consistency \u00b7 latency \u00b7 tokens \u00b7 cost", fill=TEAL_LIGHT,
-              border=TEAL_ACCENT, title_color=TEAL_DARK, title_size=15, align=PP_ALIGN.CENTER,
+    pad_x = 0.26
+    eyebrow_size = 12
+    headline_size = 15
+    support_size = 11.5
+    eyebrow_h = eyebrow_size * 1.15 / 72
+    headline_line_h = headline_size * 1.08 / 72
+    support_line_h = support_size * 1.15 / 72
+
+    def stage_shell(x, w, fill, border, border_w, num, badge_color):
+        add_rect(slide, x, row_y, w, row_h, fill=fill, line=border, line_w=border_w, radius=0.1)
+        add_badge(slide, x + 0.16, row_y - 0.16, 0.32, num, fill=badge_color, size=12)
+
+    def stage_text(x, w, y, label, color, headline, support_lines):
+        cx = x + pad_x
+        cw = w - 2 * pad_x
+        add_text(slide, cx, y, cw, eyebrow_h + 0.02, label, size=eyebrow_size, color=color,
+                  bold=True, font=BODY_FONT, tracking=140)
+        y += eyebrow_h + 0.14
+        add_text(slide, cx, y, cw, 2 * headline_line_h + 0.06, headline, size=headline_size,
+                  color=SLATE_900, bold=True, font=HEAD_FONT, line_spacing=1.08)
+        y += 2 * headline_line_h + 0.16
+        add_text(slide, cx, y, cw, len(support_lines) * support_line_h + 0.06,
+                  "\n".join(support_lines), size=support_size, color=SLATE_600, font=BODY_FONT,
+                  line_spacing=1.15)
+        y += len(support_lines) * support_line_h
+        return cx, cw, y
+
+    # ---- Stage 1: INGEST ----
+    x1 = CONTENT_X
+    content_h1 = eyebrow_h + 0.14 + 2 * headline_line_h + 0.16 + support_line_h + 0.18 + 0.34
+    y1 = row_y + (row_h - content_h1) / 2
+    stage_shell(x1, ingest_w, WHITE, SLATE_200, 0.75, 1, INDIGO_ACCENT)
+    cx, cw, y = stage_text(x1, ingest_w, y1, "INGEST", INDIGO_ACCENT,
+                             "Bring customer feedback into one place",
+                             ["NPS \u00b7 CSAT \u00b7 Customer comments"])
+    y += 0.18
+    pill_w = text_width_in("Raw customer voice", 11) + 0.34
+    add_pill(slide, cx, y, pill_w, 0.34, "Raw customer voice", fill=INDIGO_LIGHT,
+              text_color=INDIGO_DARK, size=11, radius=0.5)
+
+    # ---- Stage 2: ANALYZE (visually emphasized) ----
+    x2 = x1 + ingest_w + gap
+    quote_size = 10.5
+    quote_line_h = quote_size * 1.15 / 72
+    tags_h = 0.28
+    content_h2 = (eyebrow_h + 0.14 + 2 * headline_line_h + 0.16 + 2 * support_line_h + 0.16
+                  + quote_line_h + 0.08 + tags_h)
+    y2 = row_y + (row_h - content_h2) / 2
+    stage_shell(x2, analyze_w, TEAL_LIGHT, TEAL_ACCENT, 1.5, 2, TEAL_ACCENT)
+    cx, cw, y = stage_text(x2, analyze_w, y2, "ANALYZE", TEAL_DARK,
+                             "Turn each comment into structured CX data",
+                             ["Sentiment \u00b7 Emotion \u00b7 Themes", "Priority \u00b7 Confidence \u00b7 Summary"])
+    y += 0.16
+    add_text(slide, cx, y, cw, quote_line_h + 0.04,
+              "\u201cThe sofa looks great, but delivery was two days late\u2026\u201d",
+              size=quote_size, color=SLATE_500, italic=True, font=BODY_FONT)
+    y += quote_line_h + 0.08
+    tag_x = cx
+    add_text(slide, tag_x, y, 0.2, tags_h, "\u2192", size=12, color=TEAL_DARK, bold=True,
               anchor=MSO_ANCHOR.MIDDLE)
+    tag_x += 0.24
+    for tag_text, tag_fill, tag_color in (("Negative", RED_LIGHT, RED),
+                                            ("Delivery", INDIGO_LIGHT, INDIGO_DARK),
+                                            ("High priority", AMBER_LIGHT, AMBER)):
+        tw = text_width_in(tag_text, 10) + 0.22
+        add_pill(slide, tag_x, y, tw, tags_h, tag_text, fill=tag_fill, text_color=tag_color,
+                  size=10, radius=0.5)
+        tag_x += tw + 0.1
 
-    stages_y = eval_y + 0.85 + 0.32
-    stages = [
-        ("1", "Ingest", "Customer feedback flows in via CSV import."),
-        ("2", "Analyze", "An LLM converts each comment into structured CX attributes."),
-        ("3", "Aggregate", "Results roll up into dashboards and executive-level insights."),
-    ]
-    sw = (CONTENT_W - 2 * 0.3) / 3
-    sh = 1.15
-    for i, (num, t, d) in enumerate(stages):
-        sx = CONTENT_X + i * (sw + 0.3)
-        add_card(slide, sx, stages_y, sw, sh, t, d, fill=WHITE, border=SLATE_200, title_size=13.5,
-                  desc_size=10.5)
-        add_badge(slide, sx + 0.14, stages_y - 0.16, 0.32, num, fill=INDIGO_ACCENT, size=12)
+    # ---- Stage 3: INTERPRET ----
+    x3 = x2 + analyze_w + gap
+    content_h3 = eyebrow_h + 0.14 + 2 * headline_line_h + 0.16 + 2 * support_line_h + 0.18 + 0.34
+    y3 = row_y + (row_h - content_h3) / 2
+    stage_shell(x3, interpret_w, WHITE, SLATE_200, 0.75, 3, INDIGO_ACCENT)
+    cx, cw, y = stage_text(x3, interpret_w, y3, "INTERPRET", INDIGO_ACCENT,
+                             "Turn feedback patterns into actionable insight",
+                             ["Customer health \u00b7 Trends", "Business impact \u00b7 Leadership priorities"])
+    y += 0.18
+    pill_w = text_width_in("Executive insight", 11) + 0.34
+    add_pill(slide, cx, y, pill_w, 0.34, "Executive insight", fill=INDIGO_LIGHT,
+              text_color=INDIGO_DARK, size=11, radius=0.5)
+
+    # ---- Connector chevrons between the three stages ----
+    arrow_h = 0.5
+    arrow_w = 0.2
+    arrow_y = row_y + row_h / 2 - arrow_h / 2
+    add_arrow(slide, x1 + ingest_w + (gap - arrow_w) / 2, arrow_y, arrow_w, arrow_h, "right",
+              INDIGO_DARK)
+    add_arrow(slide, x2 + analyze_w + (gap - arrow_w) / 2, arrow_y, arrow_w, arrow_h, "right")
+
+    # ---- AI Evaluation: a light, cross-cutting layer, not a 4th stage ----
+    rule_y = row_y + row_h + 0.35
+    add_rect(slide, CONTENT_X, rule_y, CONTENT_W, 0.016, fill=SLATE_200, radius=0)
+
+    label = "AI EVALUATION"
+    metrics = "Consistency \u00b7 Latency \u00b7 Tokens \u00b7 Cost"
+    # +tracking width: 140/100 pt per character, converted to inches.
+    label_w = text_width_in(label, 11) + len(label) * 1.4 / 72 + 0.06
+    metrics_w = text_width_in(metrics, 11.5, bold=False) + 0.05
+    eval_gap = 0.22
+    eval_x = CONTENT_X + (CONTENT_W - (label_w + eval_gap + metrics_w)) / 2
+    eval_y = rule_y + 0.14
+    add_text(slide, eval_x, eval_y, label_w, 0.3, label, size=11, color=TEAL_ACCENT, bold=True,
+              font=BODY_FONT, tracking=140, anchor=MSO_ANCHOR.MIDDLE, wrap=False)
+    add_text(slide, eval_x + label_w + eval_gap, eval_y, metrics_w, 0.3, metrics, size=11.5,
+              color=SLATE_600, font=BODY_FONT, anchor=MSO_ANCHOR.MIDDLE)
 
     add_footer(slide, 5)
 
@@ -619,8 +746,8 @@ def slide_06_feature1(prs):
     add_header(slide, "LLM Capability 1 of 2", "Turning customer language into structured CX data")
 
     left_x, left_w = CONTENT_X, 5.55
-    add_pill(slide, left_x, CONTENT_TOP, 2.0, 0.35, "NATURAL LANGUAGE", fill=INDIGO_LIGHT,
-              text_color=INDIGO_DARK, size=10.5, radius=0.5)
+    add_text(slide, left_x, CONTENT_TOP, left_w, 0.26, "NATURAL LANGUAGE", size=13.5,
+              color=INDIGO_DARK, bold=True, font=HEAD_FONT, align=PP_ALIGN.CENTER)
 
     quote_y = CONTENT_TOP + 0.5
     add_card(slide, left_x, quote_y, left_w, 1.9,
@@ -645,19 +772,16 @@ def slide_06_feature1(prs):
     note_y = banner_y + 1.15 + 0.22
     add_text(slide, left_x, note_y, left_w, 0.7,
               "Customers describe the same experience in many different ways \u2014 the application needs consistent categories for analysis.",
-              size=11, color=SLATE_600, italic=True, font=BODY_FONT)
+              size=11, color=SLATE_500, italic=True, font=BODY_FONT)
 
     arrow_x = left_x + left_w + 0.15
     arrow_w = 0.75
-    add_text(slide, arrow_x - 0.4, CONTENT_TOP + 1.9, arrow_w + 0.8, 0.6,
-              "Natural\nlanguage \u2192\nstructured\ndata", size=9.5, color=TEAL_DARK, bold=True,
-              align=PP_ALIGN.CENTER, font=BODY_FONT, line_spacing=1.0)
-    add_arrow(slide, arrow_x, CONTENT_TOP + 2.55, arrow_w, 0.55, "right")
+    add_arrow(slide, arrow_x, CONTENT_TOP + 2.55, arrow_w, 0.55, "right", INDIGO_DARK)
 
     right_x = arrow_x + arrow_w + 0.35
     right_w = SLIDE_W - MARGIN - right_x
-    add_pill(slide, right_x, CONTENT_TOP, 2.4, 0.35, "STRUCTURED OUTPUT", fill=TEAL_LIGHT,
-              text_color=TEAL_DARK, size=10.5, radius=0.5, border=TEAL_ACCENT)
+    add_text(slide, right_x, CONTENT_TOP, right_w, 0.26, "STRUCTURED OUTPUT", size=13.5,
+              color=TEAL_DARK, bold=True, font=HEAD_FONT, align=PP_ALIGN.CENTER)
 
     frame_y = CONTENT_TOP + 0.5
     frame_h = 4.55
@@ -671,56 +795,112 @@ def slide_06_feature1(prs):
 
 
 def slide_07_feature2(prs):
+    """One progression, not two features: a question centered over each
+    card sets up the pairing, a dark chevron connects the two cards, a
+    numbered mechanism carries the flow (badges, not connectors, per
+    request), and a small chevron plus "Transformation" label frame the
+    quotes as that mechanism's concrete outcome."""
     slide = new_slide(prs)
-    content_top = add_header(
-        slide, "LLM Capability 2 of 2", "From individual comments to executive insight",
-        subtitle="Feature 1: what is this customer saying?    \u2192    Feature 2: what does everything mean for the business?")
+    add_header(slide, "LLM Capability 2 of 2", "From individual comments to executive insight")
 
-    table_y = content_top + 0.08
-    headers = ["Feedback Analysis", "Executive Insights"]
-    rows = [
-        ("Individual comment", "Aggregated feedback"),
-        ("What happened?", "What does it mean?"),
-        ("Sentiment", "Customer health"),
-        ("Themes", "Business impact"),
-        ("Priority", "Leadership priorities"),
-        ("Summary", "Recommended actions"),
-    ]
-    table_w = 5.6
-    table, table_h = add_table(slide, CONTENT_X, table_y, table_w, headers, rows,
-                                 col_widths=[table_w / 2, table_w / 2], row_h=0.34, font_size=11,
-                                 header_font_size=12)
-    table.cell(0, 1).fill.fore_color.rgb = TEAL_DARK
+    gap = 0.45
+    card_w = (CONTENT_W - gap) / 2
+    x1, x2 = CONTENT_X, CONTENT_X + card_w + gap
 
-    right_x = CONTENT_X + table_w + 0.35
-    right_w = SLIDE_W - MARGIN - right_x
-    add_text(slide, right_x, table_y, right_w, 0.3, "Executive Insight \u2014 Leadership Priority",
-              size=11.5, color=SLATE_900, bold=True, font=HEAD_FONT)
-    # Snug-fit the screenshot's frame to its own aspect ratio (at the
-    # available column width) instead of stretching it to match the
-    # table's height, so there's no dead space above the image.
-    lp_path = os.path.join(ASSETS, "leadership_priorities.png")
-    lp_frame_w, lp_frame_h = frame_size_for_width(lp_path, right_w, pad=0.14)
-    add_picture_framed(slide, lp_path, right_x, table_y + 0.36, lp_frame_w, lp_frame_h, pad=0.14)
+    # ---- Question, centered above each card ----
+    q_y = CONTENT_TOP
+    add_text(slide, x1, q_y, card_w, 0.26, "WHAT IS THIS CUSTOMER SAYING?", size=13.5,
+              color=INDIGO_DARK, bold=True, font=HEAD_FONT, align=PP_ALIGN.CENTER)
+    add_text(slide, x2, q_y, card_w, 0.26, "WHAT DOES IT MEAN FOR THE BUSINESS?", size=13.5,
+              color=TEAL_DARK, bold=True, font=HEAD_FONT, align=PP_ALIGN.CENTER)
 
-    flow_y = table_y + table_h + 0.35
-    add_flow_horizontal(
-        slide, ["Hundreds of\ncustomer comments", "Patterns across\nfeedback",
-                "Business\ninterpretation", "Recommended\naction"],
-        CONTENT_X, flow_y, CONTENT_W, 0.9, card_fill=WHITE, border=SLATE_200, text_color=SLATE_800,
-        font_size=11.5, bold=True, arrow_w=0.3,
-    )
+    # ---- The two capabilities as separate, connected cards ----
+    cards_y = q_y + 0.26 + 0.14
+    card_h = 2.2
 
-    callout_y = flow_y + 0.9 + 0.28
-    callout_w = (CONTENT_W - 0.3) / 2
-    add_card(slide, CONTENT_X, callout_y, callout_w, 0.95,
+    def capability_card(x, fill, accent, title, analyzed, question, items, border=None):
+        add_rect(slide, x, cards_y, card_w, card_h, fill=fill, line=border, line_w=0.75, radius=0.1)
+        pad = 0.26
+        cx, cw = x + pad, card_w - 2 * pad
+        y = cards_y + pad
+
+        # Header line: title, a thin arrow, and what's analyzed - inline,
+        # with the latter matching the header's own color.
+        header_box = slide.shapes.add_textbox(Inches(cx), Inches(y), Inches(cw), Inches(0.26))
+        tf = header_box.text_frame
+        tf.word_wrap = False
+        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        p = tf.paragraphs[0]
+        for text, size, bold, color, font in (
+            (title, 14.5, True, accent, HEAD_FONT),
+            ("  →  ", 12, False, SLATE_400, BODY_FONT),
+            (analyzed, 12, False, accent, BODY_FONT),
+        ):
+            r = p.add_run()
+            r.text = text
+            style_run(r, size, color, bold, False, font)
+        y += 0.26 + 0.12
+
+        add_text(slide, cx, y, cw, 0.19, question, size=12, color=SLATE_800, bold=True,
+                  font=BODY_FONT)
+        y += 0.19 + 0.12
+        add_rect(slide, cx, y, cw, 0.016, fill=accent, radius=0)
+        y += 0.14
+        for i, item in enumerate(items):
+            add_text(slide, cx, y, cw, 0.19, f"{i + 1}.  {item}", size=11, color=SLATE_600,
+                      bold=False, font=BODY_FONT)
+            y += 0.245
+
+    capability_card(x1, INDIGO_LIGHT, INDIGO_DARK, "Feedback Analysis", "Individual comment",
+                     "What happened?", ["Sentiment", "Themes", "Priority", "Summary"])
+    capability_card(x2, TEAL_LIGHT, TEAL_DARK, "Executive Insights", "Aggregated feedback",
+                     "What does it mean?",
+                     ["Customer health", "Business impact", "Leadership priorities",
+                      "Recommended actions"], border=TEAL_DARK)
+
+    # Dark chevron separating (and connecting) the two cards.
+    add_arrow(slide, x1 + card_w + (gap - 0.22) / 2, cards_y + card_h / 2 - 0.16, 0.22, 0.32,
+              "right", INDIGO_DARK)
+
+    # ---- Bridge: the mechanism that turns column 1 into column 2 ----
+    bridge_y = cards_y + card_h + 0.22
+    add_text(slide, CONTENT_X, bridge_y, CONTENT_W, 0.22, "FROM ANALYSIS TO INSIGHT",
+              size=11.5, color=SLATE_600, bold=True, font=BODY_FONT, tracking=130,
+              align=PP_ALIGN.CENTER)
+
+    flow_y = bridge_y + 0.44
+    flow_h = 0.9
+    steps = ["Hundreds of\ncustomer comments", "Patterns across\nfeedback",
+             "Business\ninterpretation", "Recommended\naction"]
+    fgap = 0.22
+    fcard_w = (CONTENT_W - 3 * fgap) / 4
+    for i, label in enumerate(steps):
+        fx = CONTENT_X + i * (fcard_w + fgap)
+        add_card(slide, fx, flow_y, fcard_w, flow_h, label, fill=WHITE, border=SLATE_200,
+                  title_size=11.5, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        add_badge(slide, fx + fcard_w / 2 - 0.16, flow_y - 0.16, 0.32, i + 1, fill=INDIGO_ACCENT,
+                  size=12)
+
+    # ---- Example: the concrete outcome, framed by its own small header
+    # and connected by the same chevron idiom used between the two cards
+    # above - not a peer block, and no longer tied to the flow by an arrow. ----
+    trans_y = flow_y + flow_h + 0.16
+    add_text(slide, CONTENT_X, trans_y, CONTENT_W, 0.22, "TRANSFORMATION", size=11.5,
+              color=SLATE_600, bold=True, font=BODY_FONT, tracking=130, align=PP_ALIGN.CENTER)
+
+    callout_y = trans_y + 0.3
+    callout_h = 0.8
+    callout_w = (CONTENT_W - gap) / 2
+    add_card(slide, CONTENT_X, callout_y, callout_w, callout_h,
               "\u201cDelivery reliability is emerging as a significant driver of customer dissatisfaction.\u201d",
               fill=INDIGO_LIGHT, border=None, title_size=12, title_color=INDIGO_DARK,
               anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
-    add_card(slide, CONTENT_X + callout_w + 0.3, callout_y, callout_w, 0.95,
+    add_card(slide, CONTENT_X + callout_w + gap, callout_y, callout_w, callout_h,
               "\u201cLeadership priority: investigate delivery reliability and communication around delays.\u201d",
               fill=TEAL_LIGHT, border=TEAL_ACCENT, title_size=12, title_color=TEAL_DARK,
               anchor=MSO_ANCHOR.MIDDLE, align=PP_ALIGN.CENTER)
+    add_arrow(slide, CONTENT_X + callout_w + (gap - 0.22) / 2, callout_y + callout_h / 2 - 0.16,
+              0.22, 0.32, "right", INDIGO_DARK)
 
     add_footer(slide, 7)
 
@@ -769,93 +949,133 @@ def slide_08_dashboard(prs):
 
 
 def slide_09_decision(prs):
+    """Why the Slide 7 capability matters: one concrete business-value
+    journey (signal -> pattern -> interpretation -> action), not a repeat
+    of Slide 7's process flow. ACTION gets the same kind of emphasis
+    Slide 5 gives ANALYZE, so the deck's "highlighted stage" idiom stays
+    consistent."""
     slide = new_slide(prs)
-    add_header(slide, "From AI Output to Business Decision", "From customer voice to action")
+    add_header(slide, "Business Impact", "From customer voice to action")
 
-    flow1_y = CONTENT_TOP + 0.1
-    add_flow_horizontal(
-        slide, ["Customer\nvoice", "Structured AI\nanalysis", "Aggregated\npatterns",
-                "Business\ninterpretation", "Recommended\naction"],
-        CONTENT_X, flow1_y, CONTENT_W, 0.95, card_fill=INDIGO_LIGHT, border=None,
-        text_color=INDIGO_DARK, arrow_color=INDIGO_DARK, font_size=11.5, bold=True, arrow_w=0.26,
-    )
+    row_y = CONTENT_TOP + 0.3
+    row_h = 1.65
+    gap = 0.3
+    unit = (CONTENT_W - 3 * gap) / 4.15
+    w_std = unit
+    w_action = unit * 1.15
 
-    label_y = flow1_y + 0.95 + 0.08
-    add_text(slide, CONTENT_X, label_y, CONTENT_W, 0.3, "For example", size=11.5, color=SLATE_500,
-              italic=True, align=PP_ALIGN.CENTER, font=BODY_FONT)
+    pad_x = 0.24
+    eyebrow_size = 11.5
+    phrase_size = 12
+    eyebrow_h = eyebrow_size * 1.15 / 72
+    phrase_line_h = phrase_size * 1.15 / 72
 
-    flow2_y = label_y + 0.35
-    add_flow_horizontal(
-        slide,
-        ["Delivery appears in a\nlarge share of\nnegative feedback",
-         "Delivery is\ndisproportionately\nrepresented among detractors",
-         "Delivery may be a\ncustomer-health\ndriver",
-         "Investigate carrier\nperformance and delivery\ncommunication"],
-        CONTENT_X, flow2_y, CONTENT_W, 1.05, card_fill=TEAL_LIGHT, border=TEAL_ACCENT,
-        text_color=TEAL_DARK, font_size=10, bold=False, arrow_w=0.3,
-    )
+    def stage_card(x, w, num, label, phrase, fill, border, border_w, badge_color, label_color,
+                    phrase_color, phrase_bold):
+        add_rect(slide, x, row_y, w, row_h, fill=fill, line=border, line_w=border_w, radius=0.1)
+        add_badge(slide, x + 0.16, row_y - 0.16, 0.32, num, fill=badge_color, size=12)
+        cx, cw = x + pad_x, w - 2 * pad_x
+        content_h = eyebrow_h + 0.12 + 2 * phrase_line_h
+        y = row_y + (row_h - content_h) / 2
+        add_text(slide, cx, y, cw, eyebrow_h + 0.02, label, size=eyebrow_size, color=label_color,
+                  bold=True, font=BODY_FONT, tracking=130)
+        y += eyebrow_h + 0.12
+        add_text(slide, cx, y, cw, 2 * phrase_line_h + 0.04, phrase, size=phrase_size,
+                  color=phrase_color, bold=phrase_bold, font=BODY_FONT, line_spacing=1.1)
 
-    banner_y = flow2_y + 1.05 + 0.35
-    banner = add_rect(slide, CONTENT_X, banner_y, CONTENT_W, 0.9, fill=INDIGO_DARK, radius=0.12)
-    tf = banner.text_frame
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    x1 = CONTENT_X
+    stage_card(x1, w_std, 1, "CUSTOMER SIGNAL",
+               "Delivery appears in a large share of negative feedback",
+               WHITE, SLATE_200, 0.75, TEAL_ACCENT, TEAL_ACCENT, SLATE_800, False)
+
+    x2 = x1 + w_std + gap
+    stage_card(x2, w_std, 2, "PATTERN",
+               "Delivery is disproportionately represented among detractors",
+               WHITE, SLATE_200, 0.75, TEAL_ACCENT, TEAL_ACCENT, SLATE_800, False)
+
+    x3 = x2 + w_std + gap
+    stage_card(x3, w_std, 3, "INTERPRETATION",
+               "Delivery may be a customer-health driver",
+               WHITE, SLATE_200, 0.75, TEAL_ACCENT, TEAL_ACCENT, SLATE_800, False)
+
+    x4 = x3 + w_std + gap
+    stage_card(x4, w_action, 4, "ACTION",
+               "Investigate carrier performance and delivery communication",
+               INDIGO_LIGHT, None, 1.5, INDIGO_ACCENT, INDIGO_DARK, INDIGO_DARK, True)
+
+    arrow_h, arrow_w = 0.4, 0.18
+    arrow_y = row_y + row_h / 2 - arrow_h / 2
+    add_arrow(slide, x1 + w_std + (gap - arrow_w) / 2, arrow_y, arrow_w, arrow_h, "right")
+    add_arrow(slide, x2 + w_std + (gap - arrow_w) / 2, arrow_y, arrow_w, arrow_h, "right")
+    add_arrow(slide, x3 + w_std + (gap - arrow_w) / 2, arrow_y, arrow_w, arrow_h, "right")
+
+    # Concluding takeaway - visually separated from the journey above, with
+    # "augment CX expertise" carrying the emphasis rather than the whole
+    # sentence, per house style for a closing statement (not a process step).
+    msg_y = row_y + row_h + 0.7
+    msg_box = slide.shapes.add_textbox(Inches(CONTENT_X + 1.2), Inches(msg_y),
+                                         Inches(CONTENT_W - 2.4), Inches(0.6))
+    tf = msg_box.text_frame
+    tf.word_wrap = True
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
     p = tf.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
-    r = p.add_run()
-    r.text = "InsightCX is intended to augment CX expertise, not replace it."
-    style_run(r, 18, WHITE, True, False, HEAD_FONT)
+    p.line_spacing = 1.2
+    for text, color, bold in (
+        ("InsightCX is intended to ", SLATE_600, False),
+        ("augment CX expertise", INDIGO_DARK, True),
+        (", not replace it.", SLATE_600, False),
+    ):
+        r = p.add_run()
+        r.text = text
+        style_run(r, 16, color, bold, False, HEAD_FONT)
 
     add_footer(slide, 9)
 
 
 def slide_10_trust(prs):
+    """Two-part story: what the MVP currently evaluates (left, backed by
+    the real benchmark table) and what still needs an evaluation approach
+    (right, secondary and visually lighter) \u2014 framed as an engineering
+    insight, not an apology."""
     slide = new_slide(prs)
-    add_header(slide, "AI Evaluation", "Model performance isn't just about quality")
+    add_header(slide, "AI Evaluation", "A first benchmark \u2014 not the full picture")
 
     stats = load_benchmark_stats()
-
-    y = CONTENT_TOP + 0.05
-    banner = add_rect(slide, CONTENT_X, y, CONTENT_W, 0.45, fill=INDIGO_DARK, radius=0.5)
-    tf = banner.text_frame
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-    p = tf.paragraphs[0]
-    p.alignment = PP_ALIGN.CENTER
-    r = p.add_run()
-    r.text = "25 feedback records \u00b7 same task & prompts \u00b7 same dataset (v1)"
-    style_run(r, 12.5, WHITE, True, False, HEAD_FONT)
-
-    y2 = y + 0.45 + 0.07
-    add_down_arrow(slide, SLIDE_W / 2, y2, w=0.36, h=0.2)
-
-    y3 = y2 + 0.2 + 0.06
-    model_labels = ["GPT-5-mini", "GPT-4.1-mini", "GPT-4o-mini"]
-    mw = (CONTENT_W - 2 * 0.3) / 3
-    mh = 0.5
-    for i, m in enumerate(model_labels):
-        mx = CONTENT_X + i * (mw + 0.3)
-        add_card(slide, mx, y3, mw, mh, m, fill=WHITE, border=TEAL_ACCENT, title_size=14,
-                  title_color=SLATE_900, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-
-    y4 = y3 + mh + 0.06
-    add_down_arrow(slide, SLIDE_W / 2, y4, w=0.36, h=0.2)
-    add_text(slide, SLIDE_W / 2 + 0.32, y4 - 0.02, 1.2, 0.3, "Compare", size=10, color=SLATE_500,
-              italic=True, font=BODY_FONT)
-
-    y5 = y4 + 0.2 + 0.1
-    metrics = ["Agreement", "Latency", "Tokens", "Cost"]
-    cw = (CONTENT_W - 3 * 0.2) / 4
-    ch = 0.4
-    for i, met in enumerate(metrics):
-        cx = CONTENT_X + i * (cw + 0.2)
-        add_pill(slide, cx, y5, cw, ch, met, fill=TEAL_LIGHT, text_color=TEAL_DARK, size=11.5,
-                  radius=0.5, border=TEAL_ACCENT)
-
-    # Sentiment-agreement rate per model, from InsightCX's Model Comparison
-    # view (model_comparison.png) \u2014 the benchmark run's consistency measure.
     agreement = {"gpt-5-mini": "100%", "gpt-4.1-mini": "100%", "gpt-4o-mini": "92%"}
 
-    y6 = y5 + ch + 0.28
-    left_w = 6.05
+    left_x, left_w = CONTENT_X, 6.05
+    right_x = left_x + left_w + 0.4
+    right_w = CONTENT_X + CONTENT_W - right_x
+
+    # ---- Left: current MVP evaluation ----
+    y = CONTENT_TOP + 0.3
+    add_text(slide, left_x, y, left_w, 0.24, "CURRENT MVP EVALUATION", size=12, color=TEAL_ACCENT,
+              bold=True, font=BODY_FONT, tracking=140)
+    y += 0.3
+    add_text(slide, left_x, y, left_w, 0.22,
+              "25-record evaluation subset \u00b7 same task & prompts \u00b7 identical dataset (v1)",
+              size=11, color=SLATE_500, italic=True, font=BODY_FONT)
+    y += 0.38
+    pills_y = y  # first of the left column's two "bullet rows" - the right
+                 # column's boxes align to this and to table_y below.
+
+    model_labels = ["GPT-5-mini", "GPT-4.1-mini", "GPT-4o-mini"]
+    mw = (left_w - 2 * 0.15) / 3
+    for i, m in enumerate(model_labels):
+        add_pill(slide, left_x + i * (mw + 0.15), y, mw, 0.32, m, fill=WHITE,
+                  text_color=SLATE_800, size=10.5, border=TEAL_ACCENT)
+    y += 0.32 + 0.14
+
+    metrics = ["Agreement", "Latency", "Tokens", "Cost"]
+    cw = (left_w - 3 * 0.12) / 4
+    for i, met in enumerate(metrics):
+        add_pill(slide, left_x + i * (cw + 0.12), y, cw, 0.3, met, fill=TEAL_LIGHT,
+                  text_color=TEAL_DARK, size=10, border=TEAL_ACCENT)
+    y += 0.3 + 0.2
+    table_y = y  # left column's table - the right column's second box
+                 # aligns to this.
+
     headers = ["Model", "Latency (ms)", "Tokens/Rec.", "Cost/Rec.", "Agreement"]
     rows = []
     for s in stats:
@@ -866,20 +1086,58 @@ def slide_10_trust(prs):
                 ("GPT-4.1-mini", "\u2014", "\u2014", "\u2014", "\u2014"),
                 ("GPT-4o-mini", "\u2014", "\u2014", "\u2014", "\u2014")]
     col_w = [1.2, 1.3, 1.25, 1.05, 1.25]
-    table, table_h = add_table(slide, CONTENT_X, y6, left_w, headers, rows,
-                                 col_widths=col_w, row_h=0.34, font_size=10.5, header_font_size=10)
-
-    add_text(slide, CONTENT_X, y6 + table_h + 0.1, left_w, 0.4,
-              "Based on a 25-record benchmark run per model (same dataset & prompts, v1) from "
-              "InsightCX's AI Evaluation module.",
+    table, table_h = add_table(slide, left_x, y, left_w, headers, rows,
+                                 col_widths=col_w, row_h=0.32, font_size=10.5, header_font_size=10)
+    y += table_h + 0.08
+    add_text(slide, left_x, y, left_w, 0.35,
+              "Based on a 25-record benchmark run per model (same dataset & prompts, v1).",
               size=9, color=SLATE_500, italic=True, font=BODY_FONT)
+    left_bottom = y + 0.2
 
-    right_x = CONTENT_X + left_w + 0.35
-    right_w = SLIDE_W - MARGIN - right_x
-    add_text(slide, right_x, y6, right_w, 0.28, "Model Comparison view", size=11.5, color=SLATE_900,
-              bold=True, font=HEAD_FONT)
-    add_picture_framed(slide, os.path.join(ASSETS, "model_comparison.png"), right_x, y6 + 0.34,
-                        right_w, CONTENT_BOTTOM - (y6 + 0.34))
+    # ---- Right: what's still missing (secondary, lighter treatment) ----
+    # The label stays put at the top; the two boxes drop down to line up
+    # with the left column's two "bullet rows" and its table, with more
+    # air between the label and the boxes, and between the boxes themselves.
+    add_text(slide, right_x, CONTENT_TOP + 0.3, right_w, 0.24, "WHAT'S STILL MISSING", size=12,
+              color=INDIGO_ACCENT, bold=True, font=BODY_FONT, tracking=140)
+
+    def gap_block(ry, block_h, num, label, phrase):
+        add_rect(slide, right_x, ry, right_w, block_h, fill=WHITE, line=SLATE_200, line_w=0.75,
+                  radius=0.1)
+        add_badge(slide, right_x + 0.16, ry - 0.14, 0.3, num, fill=INDIGO_ACCENT, size=11.5)
+        tx, tw = right_x + 0.22, right_w - 0.44
+        add_text(slide, tx, ry + 0.34, tw, 0.2, label, size=10.5, color=INDIGO_ACCENT, bold=True,
+                  font=BODY_FONT, tracking=120)
+        add_text(slide, tx, ry + 0.6, tw, 0.36, phrase, size=11.5, color=SLATE_800,
+                  font=BODY_FONT, line_spacing=1.12)
+
+    block_h = 1.0
+    block_gap = 0.4
+    box1_y = pills_y  # aligns with the left column's model/metric pill rows
+    box2_y = box1_y + block_h + block_gap  # lands alongside the table below
+    gap_block(box1_y, block_h, 1, "STRUCTURED FEEDBACK",
+              "Initial benchmark \u2192 deeper quality validation needed")
+    gap_block(box2_y, block_h, 2, "EXECUTIVE INSIGHT",
+              "Evaluation framework still to be developed")
+    right_bottom = box2_y + block_h
+
+    # ---- Takeaway ----
+    msg_y = max(left_bottom, right_bottom) + 0.35
+    msg_box = slide.shapes.add_textbox(Inches(CONTENT_X + 1.0), Inches(msg_y),
+                                         Inches(CONTENT_W - 2.0), Inches(0.4))
+    tf = msg_box.text_frame
+    tf.word_wrap = True
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+    p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    for text, color, bold in (
+        ("The MVP establishes an evaluation ", SLATE_800, False),
+        ("starting point", TEAL_DARK, True),
+        (" \u2014 not a complete quality framework.", SLATE_800, False),
+    ):
+        r = p.add_run()
+        r.text = text
+        style_run(r, 15, color, bold, False, HEAD_FONT)
 
     add_footer(slide, 10)
 
@@ -892,8 +1150,9 @@ def slide_11_learned(prs):
                  "and evaluating whether the result is actually useful are the harder problems.")
 
     cards = [
-        ("1", "From CX problem to AI product",
-         "Turning unstructured customer feedback into business-ready insights.", INDIGO_ACCENT),
+        ("1", "Domain knowledge still matters",
+         "Understanding the CX problem helped shape the AI requirements and interpret the results.",
+         INDIGO_ACCENT),
         ("2", "Creating meaningful test data",
          "Building realistic, varied feedback capable of revealing genuine patterns.", TEAL_ACCENT),
         ("3", "Evaluating AI, not just using it",
@@ -904,13 +1163,14 @@ def slide_11_learned(prs):
     grid_y = content_top + 0.1
     grid_h = CONTENT_BOTTOM - grid_y
     cw = (CONTENT_W - 0.3) / 2
-    ch = (grid_h - 0.25) / 2
+    row_gap = 0.35
+    ch = (grid_h - row_gap) / 2
     for i, (num, title, desc, color) in enumerate(cards):
         cx = CONTENT_X + (i % 2) * (cw + 0.3)
-        cy = grid_y + (i // 2) * (ch + 0.25)
+        cy = grid_y + (i // 2) * (ch + row_gap)
         add_card(slide, cx, cy, cw, ch, title, desc, fill=WHITE, border=SLATE_200, title_size=17,
                   desc_size=12.5, anchor=MSO_ANCHOR.MIDDLE, pad=0.35)
-        add_badge(slide, cx + 0.2, cy + 0.2, 0.42, num, fill=color, size=15)
+        add_badge(slide, cx + 0.21, cy - 0.21, 0.42, num, fill=color, size=15)
 
     add_footer(slide, 11)
 
@@ -950,26 +1210,56 @@ def slide_12_next(prs):
 
 
 def slide_13_demo(prs):
+    """A transition slide, not a content slide: one continuous four-step
+    journey (reusing Slide 5/9's badge-plus-eyebrow card idiom) carries
+    the whole story, with generous whitespace so it reads as a hand-off
+    into the live product rather than another explanatory slide."""
     slide = new_slide(prs)
-    add_header(slide, "Live Demo", "Let's see it in action")
+    add_header(slide, "Live Demo", "From current state to new insight")
 
-    steps = ["Upload\nfeedback", "Analyze customer\nvoice", "Explore customer\nhealth",
-             "Generate executive\ninsight"]
-    flow_y = CONTENT_TOP + 1.1
-    flow_h = 1.5
+    steps = [
+        ("REVIEW", "Review current-state insights", "What is happening today?"),
+        ("ADD", "Upload new customer feedback", "Introduce a new set of customer voices"),
+        ("GENERATE", "Generate a new executive summary",
+         "Turn the updated feedback into business insight"),
+        ("COMPARE", "Review changes in the Executive Brief", "What changed — and what does it mean?"),
+    ]
+
+    flow_y = CONTENT_TOP + 0.3
+    card_h = 1.6
+    gap = 0.28
     n = len(steps)
-    arrow_w = 0.32
-    card_w = (CONTENT_W - (n - 1) * arrow_w) / n
-    cx = CONTENT_X
-    for i, label in enumerate(steps):
-        add_badge(slide, cx + card_w / 2 - 0.2, flow_y - 0.55, 0.4, i + 1, fill=INDIGO_ACCENT, size=15)
-        add_card(slide, cx, flow_y, card_w, flow_h, label, fill=WHITE, border=SLATE_200,
-                  title_size=13.5, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-        cx += card_w
+    card_w = (CONTENT_W - (n - 1) * gap) / n
+    pad = 0.22
+
+    for i, (eyebrow, headline, support) in enumerate(steps):
+        is_endpoint = i == n - 1
+        fill = INDIGO_LIGHT if is_endpoint else WHITE
+        border = None if is_endpoint else SLATE_200
+        accent = INDIGO_ACCENT
+
+        x = CONTENT_X + i * (card_w + gap)
+        add_rect(slide, x, flow_y, card_w, card_h, fill=fill, line=border, line_w=0.75,
+                  radius=0.1)
+        add_badge(slide, x + 0.16, flow_y - 0.16, 0.32, i + 1, fill=accent, size=12)
+        cx, cw = x + pad, card_w - 2 * pad
+        y = flow_y + pad
+        add_text(slide, cx, y, cw, 0.18, eyebrow, size=10.5, color=accent, bold=True,
+                  font=BODY_FONT, tracking=120)
+        y += 0.26
+        add_text(slide, cx, y, cw, 0.42, headline, size=13.5, color=SLATE_900, bold=True,
+                  font=HEAD_FONT, line_spacing=1.08)
+        y += 0.5
+        add_text(slide, cx, y, cw, 0.36, support, size=10, color=SLATE_500, font=BODY_FONT,
+                  line_spacing=1.1)
+
         if i < n - 1:
-            ay = flow_y + flow_h / 2 - (flow_h * 0.2) / 2
-            add_arrow(slide, cx, ay, arrow_w, flow_h * 0.2, "right")
-            cx += arrow_w
+            ay = flow_y + card_h / 2 - 0.16
+            add_arrow(slide, x + card_w + (gap - 0.2) / 2, ay, 0.2, 0.32, "right", INDIGO_DARK)
+
+    add_text(slide, CONTENT_X, flow_y + card_h + 0.5, CONTENT_W, 0.35,
+              "New customer feedback → updated analysis → changed business insight",
+              size=13, color=SLATE_500, italic=True, align=PP_ALIGN.CENTER, font=BODY_FONT)
 
     add_footer(slide, 13)
 
