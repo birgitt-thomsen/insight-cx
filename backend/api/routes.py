@@ -27,6 +27,7 @@ from backend.storage.ai_settings_storage import AISettingsStorage
 from backend.storage.analysis_storage import AnalysisStorage
 from backend.storage.executive_insights_storage import ExecutiveInsightsStorage
 from backend.services.benchmark_service import BenchmarkService
+from backend.services.model_config import AVAILABLE_MODELS
 from backend.services.csv_importer import CSVImporter
 from backend.services.analysis_service import AnalysisService
 from backend.services.prompt_service import PromptService
@@ -384,11 +385,7 @@ def api_benchmarks_run():
 
     feedback_records = Feedback.query.limit(5).all()
 
-    models = [
-        "gpt-5-mini",
-        "gpt-4.1-mini",
-        "gpt-4o-mini",
-    ]
+    models = AVAILABLE_MODELS
 
     benchmark_service.compare_models(
         feedback_records=feedback_records,

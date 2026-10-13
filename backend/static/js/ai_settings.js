@@ -9,16 +9,18 @@ function updateTemperatureUI(modelId, temperatureId, noteId) {
     }
 
     function refresh() {
-        const isGpt5 = model.value.startsWith("gpt-5");
+        const selected = model.options[model.selectedIndex];
+        const ignoresTemperature = !selected
+            || selected.dataset.supportsTemperature !== "true";
 
-        temperature.readOnly = isGpt5;
+        temperature.readOnly = ignoresTemperature;
 
         temperature.classList.toggle(
             "readonly-field",
-            isGpt5
+            ignoresTemperature
         );
 
-        note.style.display = isGpt5 ? "block" : "none";
+        note.style.display = ignoresTemperature ? "block" : "none";
     }
 
     model.addEventListener("change", refresh);

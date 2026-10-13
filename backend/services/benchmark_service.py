@@ -9,25 +9,7 @@ delegated to BenchmarkStorage.
 import time
 from backend.services.ai_service import AIService
 from backend.storage.benchmark_storage import BenchmarkStorage
-
-# TEMP TOKEN COST
-# Prices are USD per 1 million tokens
-MODEL_PRICING = {
-    "gpt-5-mini": {
-        "input": 0.25,
-        "output": 2.00,
-    },
-
-    "gpt-4.1-mini": {
-        "input": 0.40,
-        "output": 1.60,
-    },
-
-    "gpt-4o-mini": {
-        "input": 0.15,
-        "output": 0.60,
-    },
-}
+from backend.services.model_config import MODEL_PRICING
 
 class BenchmarkService:
     """
@@ -272,9 +254,11 @@ class BenchmarkService:
         pricing = MODEL_PRICING.get(model)
 
         if not pricing:
-            raise ValueError(
-                f"No pricing configured for model: {model}"
+            print(
+                f"No pricing configured for model: {model}. "
+                f"Estimated cost recorded as 0."
             )
+            return 0.0
 
         input_cost = (
                              input_tokens / 1_000_000

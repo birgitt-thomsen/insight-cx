@@ -1,6 +1,7 @@
 """ Defines data tables for the application. """
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from backend.services.model_config import DEFAULT_MODEL
 
 db = SQLAlchemy()
 
@@ -136,7 +137,7 @@ class AISettings(db.Model):
     feedback_model = db.Column(
         db.String(50),
         nullable=False,
-        default="gpt-5-mini"
+        default=DEFAULT_MODEL
     )
 
     # Active system prompt
@@ -152,7 +153,7 @@ class AISettings(db.Model):
         default="v1"
     )
 
-    # Useful for models prior to GTP-5
+    # Only sent to models that support temperature
     feedback_temperature = db.Column(
         db.Float,
         nullable=False,
@@ -163,7 +164,7 @@ class AISettings(db.Model):
     executive_model = db.Column(
         db.String(50),
         nullable=False,
-        default="gpt-5-mini"
+        default=DEFAULT_MODEL
     )
 
     executive_prompt_version = db.Column(
@@ -172,7 +173,7 @@ class AISettings(db.Model):
         default="v1"
     )
 
-    # Active executive temperature (gtp-4 only)
+    # Active executive temperature (only sent to models that support it)
     executive_temperature = db.Column(
         db.Float,
         nullable=False,

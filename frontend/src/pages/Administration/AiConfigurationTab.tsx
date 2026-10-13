@@ -4,12 +4,7 @@ import { updateExecutiveSettings, updateFeedbackSettings } from "../../api/aiSet
 import type { AiSettingsResponse } from "../../api/aiSettings";
 import { Card } from "../../components";
 import { Field } from "./Field";
-
-const MODEL_OPTIONS = [
-  { value: "gpt-5-mini", label: "GPT-5 mini" },
-  { value: "gpt-4o-mini", label: "GPT-4o mini" },
-  { value: "gpt-4.1-mini", label: "GPT-4.1 mini" },
-];
+import { DEFAULT_MODEL, MODEL_OPTIONS, supportsTemperature as modelSupportsTemperature } from "../../lib/models";
 
 const fieldClass =
   "rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400";
@@ -42,7 +37,7 @@ function SaveStatus({
 
 function FeedbackAnalysisCard({ aiSettings }: { aiSettings: AiSettingsResponse | undefined }) {
   const queryClient = useQueryClient();
-  const [model, setModel] = useState("gpt-5-mini");
+  const [model, setModel] = useState(DEFAULT_MODEL);
   const [temperature, setTemperature] = useState(0.2);
   const [systemPrompt, setSystemPrompt] = useState("v1");
   const [feedbackPrompt, setFeedbackPrompt] = useState("v1");
@@ -74,7 +69,7 @@ function FeedbackAnalysisCard({ aiSettings }: { aiSettings: AiSettingsResponse |
     },
   });
 
-  const supportsTemperature = !model.startsWith("gpt-5");
+  const supportsTemperature = modelSupportsTemperature(model);
 
   return (
     <Card className="p-5">
@@ -104,7 +99,7 @@ function FeedbackAnalysisCard({ aiSettings }: { aiSettings: AiSettingsResponse |
             </select>
           </Field>
 
-          <Field label="Temperature" hint={!supportsTemperature ? "Ignored by GPT-5 models." : undefined}>
+          <Field label="Temperature" hint={!supportsTemperature ? "Ignored by the selected model." : undefined}>
             <input
               type="number"
               min={0}
@@ -178,7 +173,7 @@ function FeedbackAnalysisCard({ aiSettings }: { aiSettings: AiSettingsResponse |
 
 function ExecutiveAnalysisCard({ aiSettings }: { aiSettings: AiSettingsResponse | undefined }) {
   const queryClient = useQueryClient();
-  const [model, setModel] = useState("gpt-5-mini");
+  const [model, setModel] = useState(DEFAULT_MODEL);
   const [temperature, setTemperature] = useState(0.2);
   const [executivePrompt, setExecutivePrompt] = useState("v1");
   const initializedRef = useRef(false);
@@ -204,7 +199,7 @@ function ExecutiveAnalysisCard({ aiSettings }: { aiSettings: AiSettingsResponse 
     },
   });
 
-  const supportsTemperature = !model.startsWith("gpt-5");
+  const supportsTemperature = modelSupportsTemperature(model);
 
   return (
     <Card className="p-5">
@@ -234,7 +229,7 @@ function ExecutiveAnalysisCard({ aiSettings }: { aiSettings: AiSettingsResponse 
             </select>
           </Field>
 
-          <Field label="Temperature" hint={!supportsTemperature ? "Ignored by GPT-5 models." : undefined}>
+          <Field label="Temperature" hint={!supportsTemperature ? "Ignored by the selected model." : undefined}>
             <input
               type="number"
               min={0}

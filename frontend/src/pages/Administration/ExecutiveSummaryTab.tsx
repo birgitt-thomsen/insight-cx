@@ -6,12 +6,7 @@ import type { AiSettingsResponse } from "../../api/aiSettings";
 import { Card, ErrorState, LoadingState } from "../../components";
 import { formatDateTime } from "../../lib/format";
 import { Field } from "./Field";
-
-const MODEL_OPTIONS = [
-  { value: "gpt-5-mini", label: "GPT-5 mini" },
-  { value: "gpt-4.1-mini", label: "GPT-4.1 mini" },
-  { value: "gpt-4o-mini", label: "GPT-4o mini" },
-];
+import { DEFAULT_MODEL, MODEL_OPTIONS } from "../../lib/models";
 
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
@@ -39,7 +34,7 @@ export function ExecutiveSummaryTab({ aiSettings }: { aiSettings: AiSettingsResp
   });
 
   const latest = latestQuery.data?.latest;
-  const selectedModel = model || aiSettings?.settings.executive_model || "gpt-5-mini";
+  const selectedModel = model || aiSettings?.settings.executive_model || DEFAULT_MODEL;
 
   return (
     <div className="space-y-6">

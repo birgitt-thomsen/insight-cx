@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchBenchmarkComparison, runBenchmarkComparison } from "../../api/benchmarks";
 import { Card, EmptyState, ErrorState, LoadingState } from "../../components";
 import { formatCurrency, formatDateTime, formatNumber } from "../../lib/format";
-
-const FIXED_MODELS = ["gpt-5-mini", "gpt-4.1-mini", "gpt-4o-mini"];
+import { AVAILABLE_MODELS } from "../../lib/models";
 
 export function ModelComparisonTab() {
   const queryClient = useQueryClient();
@@ -28,7 +27,7 @@ export function ModelComparisonTab() {
         <div>
           <h3 className="text-sm font-semibold text-slate-900">Model Comparison</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Runs the same fixed feedback sample through {FIXED_MODELS.join(", ")} using system/feedback
+            Runs the same fixed feedback sample through {AVAILABLE_MODELS.join(", ")} using system/feedback
             prompt v1, then compares speed, token usage, cost, and sentiment agreement.
           </p>
           {data?.latest_benchmark && (

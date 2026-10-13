@@ -8,9 +8,10 @@ import { Badge, Card, EmptyState, ErrorState, LoadingState, MetricCard } from ".
 import { AnalysisComparisonGrid } from "./AnalysisComparisonGrid";
 import { DistributionCard } from "./DistributionCard";
 import { EvaluationConfigCard, type EvaluationConfig } from "./EvaluationConfigCard";
+import { DEFAULT_MODEL, supportsTemperature } from "../../lib/models";
 
 const DEFAULT_CONFIG: EvaluationConfig = {
-  model: "gpt-5-mini",
+  model: DEFAULT_MODEL,
   temperature: 0.2,
   systemPromptVersion: "v1",
   feedbackPromptVersion: "v1",
@@ -41,7 +42,7 @@ export function BenchmarkLabTab({ aiSettings }: { aiSettings: AiSettingsResponse
     mutationFn: () =>
       runBenchmarkEvaluation({
         model: config.model,
-        temperature: config.model.startsWith("gpt-5") ? undefined : config.temperature,
+        temperature: !supportsTemperature(config.model) ? undefined : config.temperature,
         system_prompt_version: config.systemPromptVersion,
         feedback_prompt_version: config.feedbackPromptVersion,
       }),

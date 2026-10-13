@@ -1,19 +1,27 @@
 """This script handles the ai call and creation of the executive summary."""
 
-import json
-import os
-from openai import OpenAI
+from pathlib import Path
 from dotenv import load_dotenv
+from openai import OpenAI
+import os
+import json
 from backend.services.prompt_service import PromptService
+from backend.services.model_config import supports_temperature
 from backend.storage.executive_insights_storage import ExecutiveInsightsStorage
 from backend.schemas.executive_summary_schema import EXECUTIVE_SUMMARY_SCHEMA
 
 
-load_dotenv()
+project_root = Path(__file__).resolve().parents[2]
+env_path = project_root / ".env"
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
+load_dotenv(dotenv_path=env_path, override=True)
+
+api_key = os.getenv("OPENAI_API_KEY")
+
+if not api_key:
+    raise RuntimeError(f"OPENAI_API_KEY missing from {env_path}")
+
+client = OpenAI(api_key=api_key)
 
 class ExecutiveSummaryService:
 
@@ -145,6 +153,4 @@ class ExecutiveSummaryService:
 
     def _supports_temperature(self, model):
 
-        return not model.startswith(
-            "gpt-5"
-        )
+        return supports_temperature(model)

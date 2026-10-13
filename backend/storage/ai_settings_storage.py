@@ -1,6 +1,7 @@
 """This script handles database operations for AI settings."""
 
 from backend.models import db, AISettings
+from backend.services.model_config import normalize_model
 
 
 class AISettingsStorage:
@@ -23,6 +24,19 @@ class AISettingsStorage:
             settings = AISettings()
 
             db.session.add(settings)
+            db.session.commit()
+
+        # Replace models that are no longer available
+        # (e.g. retired models saved in an older database).
+        feedback_model = normalize_model(settings.feedback_model)
+        executive_model = normalize_model(settings.executive_model)
+
+        if (
+                feedback_model != settings.feedback_model
+                or executive_model != settings.executive_model
+        ):
+            settings.feedback_model = feedback_model
+            settings.executive_model = executive_model
             db.session.commit()
 
         return settings

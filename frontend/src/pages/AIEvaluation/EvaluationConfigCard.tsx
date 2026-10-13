@@ -1,5 +1,6 @@
 import { Card } from "../../components";
 import type { PromptVersions } from "../../types/aiSettings";
+import { MODEL_OPTIONS, supportsTemperature as modelSupportsTemperature } from "../../lib/models";
 
 export interface EvaluationConfig {
   model: string;
@@ -7,12 +8,6 @@ export interface EvaluationConfig {
   systemPromptVersion: string;
   feedbackPromptVersion: string;
 }
-
-const MODEL_OPTIONS = [
-  { value: "gpt-5-mini", label: "GPT-5 mini" },
-  { value: "gpt-4o-mini", label: "GPT-4o mini" },
-  { value: "gpt-4.1-mini", label: "GPT-4.1 mini" },
-];
 
 const fieldClass =
   "rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400";
@@ -30,7 +25,7 @@ export function EvaluationConfigCard({
   title?: string;
   description?: string;
 }) {
-  const supportsTemperature = !config.model.startsWith("gpt-5");
+  const supportsTemperature = modelSupportsTemperature(config.model);
 
   return (
     <Card className="p-5">
@@ -72,7 +67,7 @@ export function EvaluationConfigCard({
             className={fieldClass}
           />
           {!supportsTemperature && (
-            <p className="text-xs text-slate-400">Temperature is ignored by GPT-5 models.</p>
+            <p className="text-xs text-slate-400">Temperature is ignored by the selected model.</p>
           )}
         </div>
 

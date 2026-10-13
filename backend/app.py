@@ -10,6 +10,11 @@ from backend.storage.ai_settings_storage import AISettingsStorage
 from backend.storage.analysis_storage import AnalysisStorage
 from backend.storage.executive_insights_storage import ExecutiveInsightsStorage
 from backend.services.benchmark_service import BenchmarkService
+from backend.services.model_config import (
+    AVAILABLE_MODELS,
+    MODEL_LABELS,
+    supports_temperature,
+)
 from backend.services.csv_importer import CSVImporter
 from backend.services.analysis_service import AnalysisService
 from backend.services.prompt_service import PromptService
@@ -28,6 +33,18 @@ app.config[
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)  # Link the database and the app.
+
+
+@app.context_processor
+def inject_models():
+    """Make the available models available to every template."""
+
+    return {
+        "available_models": AVAILABLE_MODELS,
+        "model_labels": MODEL_LABELS,
+        "supports_temperature": supports_temperature,
+    }
+
 
 from backend.api import api_bp  # noqa: E402
 app.register_blueprint(api_bp)
@@ -461,11 +478,7 @@ def run_benchmark_comparison():
     # Models to compare.
     # ---------------------------------------------------------
 
-    models = [
-        "gpt-5-mini",
-        "gpt-4.1-mini",
-        "gpt-4o-mini"
-    ]
+    models = AVAILABLE_MODELS
 
     # ---------------------------------------------------------
     # Run the comparison.
