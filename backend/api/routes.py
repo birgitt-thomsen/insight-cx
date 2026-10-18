@@ -11,7 +11,9 @@ The existing HTML routes in backend/app.py are untouched and continue
 to work exactly as before.
 """
 
-from flask import request, jsonify
+import os
+import requests
+from flask import request, jsonify, current_app
 from backend.models import db, Feedback
 from backend.api import api_bp
 from backend.api.serializers import (
@@ -201,6 +203,31 @@ def api_upload():
         feedback_objects = feedback_storage.add_feedback(records)
 
         result = analysis_service.analyze_feedback_list(feedback_objects)
+
+        # Notify n8n about the completed feedback import
+        n8n_webhook_url = os.getenv("N8N_WEBHOOK_URL")
+
+        if n8n_webhook_url:
+            try:
+                webhook_payload = {
+                    "event_type": "feedback_import_completed",
+                    "record_count": len(feedback_objects),
+                    "processed": result["processed"],
+                    "failed": result["failed"],
+                }
+
+                response = requests.post(
+                    n8n_webhook_url,
+                    json=webhook_payload,
+                    timeout=5,
+                )
+                response.raise_for_status()
+
+            except requests.RequestException:
+                current_app.logger.exception(
+                    "Failed to notify n8n about the completed feedback import"
+                )
+
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 400

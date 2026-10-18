@@ -1,6 +1,7 @@
 """ This script handles all flask routes for the application."""
 
 import os
+import requests
 from flask import Flask, render_template, request, flash, redirect, url_for
 from dotenv import load_dotenv
 from collections import Counter
@@ -109,6 +110,30 @@ def upload():
 
             # Analyze newly imported feedback
             result = analysis_service.analyze_feedback_list(feedback_objects)
+
+            # Notify n8n about the completed import
+            n8n_webhook_url = os.getenv("N8N_WEBHOOK_URL")
+
+            if n8n_webhook_url:
+                try:
+                    webhook_payload = {
+                        "event_type": "feedback_import_completed",
+                        "record_count": len(feedback_objects),
+                        "processed": result["processed"],
+                        "failed": result["failed"],
+                    }
+
+                    response = requests.post(
+                        n8n_webhook_url,
+                        json=webhook_payload,
+                        timeout=5,
+                    )
+                    response.raise_for_status()
+
+                except requests.RequestException:
+                    app.logger.exception(
+                        "Failed to notify n8n about the completed feedback import"
+                    )
 
             flash(
                 f"Successfully imported {len(feedback_objects)} "
