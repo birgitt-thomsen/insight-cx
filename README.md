@@ -50,6 +50,7 @@ InsightCX follows a simple workflow:
 3. **Explore insights** through the application interface to identify recurring patterns and potential issues.
 4. **Generate executive summaries** that consolidate findings into an accessible overview for business stakeholders.
 5. **Evaluate AI outputs** to explore model consistency, performance, and cost.
+6. **Automate workflows** using n8n to route completed imports and flag imports with AI analysis failures for review.
 
 ## Use Cases
 
@@ -65,13 +66,14 @@ The application currently uses a demo dataset to demonstrate its capabilities.
 
 ## Tech Stack
 
-| Area              | Technologies                                       |
-| ----------------- | -------------------------------------------------- |
-| Backend           | Python, Flask                                      |
-| Frontend          | React, Vite                                        |
-| Database          | SQLite, Flask-SQLAlchemy                           |
-| AI & LLMs         | OpenAI API, prompt engineering, structured outputs |
-| Development Tools | Git, GitHub, PyCharm, VS Code                      |
+| Area                | Technologies                                       |
+|---------------------|----------------------------------------------------|
+| Backend             | Python, Flask                                      |
+| Frontend            | React, Vite                                        |
+| Database            | SQLite, Flask-SQLAlchemy                           |
+| AI & LLMs           | OpenAI API, prompt engineering, structured outputs |
+| Development Tools   | Git, GitHub, PyCharm, VS Code                      |
+| Workflow Automation | n8n                                                |
 
 ## Getting Started
 
